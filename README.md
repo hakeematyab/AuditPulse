@@ -33,7 +33,121 @@
   </p>
 </div>
 
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+<!--   <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol> -->
+</details> 
 
+<!-- FOLDER STRUCTURE -->
+## Folder Structure
+
+```
+AuditPulse/
+│
+├── .github/
+│   └── workflows/
+│       ├── workflow_1.yml
+│       └── workflow_2.yml
+│
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   ├── prompts/
+│   └── README.md
+│
+├── src/
+│   ├── components/
+│   │   ├── agents.py
+│   │   ├── tasks.py
+│   │   └── __init__.py
+│   ├── utils/
+│   │   ├── utils_1.py
+│   │   ├── utils_2.py
+│   │   ├── utils_3.py
+│   │   └── __init__.py
+│   ├── main.py
+│   ├── config.yaml
+│   └── __init__.py
+│
+├── ui/
+│   ├── frontend/
+│   │   ├── public/
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── pages/
+│   │   │   ├── services/
+│   │   │   └── App/
+│   │   ├── package.json
+│   │   └── README.md
+│   ├── backend/
+│   │   ├── app/
+│   │   │   ├── routes/
+│   │   │   ├── models/
+│   │   │   └── main.py
+│   │   ├── requirements.txt
+│   │   └── README.md
+│   └── README.md
+│
+├── notebooks/
+│   ├── notebook_1.ipynb
+│   ├── notebook_2.ipynb
+│   └── notebook_3.ipynb
+│
+├── models/
+│   ├── saved_models/
+│   └── training_logs/
+│
+├── tests/
+│   ├── test_agents.py
+│   ├── test_utils.py
+│   └── __init__.py
+│
+├── results/
+│   ├── reports/
+│   └── logs/
+│
+├── scripts/
+│   ├── script_1.py
+│   ├── script_2.py
+│   ├── script_3.py
+│   └── setup_env.sh
+│
+├── documents/
+│   ├── reports/
+│   │   ├── project_report.pdf
+│   │   ├── scoping.pdf
+│   │   └── README.md
+│   ├── presentations/
+│   │   └── final_presentation.pptx
+│   └── README.md
+│
+├── requirements.txt
+├── README.md
+├── .gitignore
+├── LICENSE
+└── CONTRIBUTING.md
+```
 
 
 <!-- CONTRIBUTING -->
