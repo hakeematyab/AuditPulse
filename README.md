@@ -59,99 +59,39 @@
   </ol> -->
 </details> 
 
+<!-- GETTING STARTED -->
+## Getting Started
 
+### Prerequisites
 
-<!-- FOLDER STRUCTURE -->
 <!--
-## Folder Structure
-
-```
-AuditPulse/
-│
-├── .github/
-│   └── workflows/
-│       ├── workflow_1.yml
-│       └── workflow_2.yml
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   ├── prompts/
-│   └── README.md
-│
-├── src/
-│   ├── components/
-│   │   ├── agents.py
-│   │   ├── tasks.py
-│   │   └── __init__.py
-│   ├── utils/
-│   │   ├── utils_1.py
-│   │   ├── utils_2.py
-│   │   ├── utils_3.py
-│   │   └── __init__.py
-│   ├── main.py
-│   ├── config.yaml
-│   └── __init__.py
-│
-├── ui/
-│   ├── frontend/
-│   │   ├── public/
-│   │   ├── src/
-│   │   │   ├── components/
-│   │   │   ├── pages/
-│   │   │   ├── services/
-│   │   │   └── App/
-│   │   ├── package.json
-│   │   └── README.md
-│   ├── backend/
-│   │   ├── app/
-│   │   │   ├── routes/
-│   │   │   ├── models/
-│   │   │   └── main.py
-│   │   ├── requirements.txt
-│   │   └── README.md
-│   └── README.md
-│
-├── notebooks/
-│   ├── notebook_1.ipynb
-│   ├── notebook_2.ipynb
-│   └── notebook_3.ipynb
-│
-├── models/
-│   ├── saved_models/
-│   └── training_logs/
-│
-├── tests/
-│   ├── test_agents.py
-│   ├── test_utils.py
-│   └── __init__.py
-│
-├── results/
-│   ├── reports/
-│   └── logs/
-│
-├── scripts/
-│   ├── script_1.py
-│   ├── script_2.py
-│   ├── script_3.py
-│   └── setup_env.sh
-│
-├── documents/
-│   ├── reports/
-│   │   ├── project_report.pdf
-│   │   ├── scoping.pdf
-│   │   └── README.md
-│   ├── presentations/
-│   │   └── final_presentation.pptx
-│   └── README.md
-│
-├── requirements.txt
-├── README.md
-├── .gitignore
-├── LICENSE
-└── CONTRIBUTING.md
-```
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
 -->
+
+### Installation
+
+1. Create an environment & install dependencies
+```sh
+conda env create -f auditpulse.yml
+conda activate auditpulse
+pip install -r requirements.txt
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+
+_For more examples, please refer to the [Documentation](https://example.com)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 ## Contributing
