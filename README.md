@@ -59,7 +59,10 @@
   </ol> -->
 </details> 
 
+
+
 <!-- FOLDER STRUCTURE -->
+<!--
 ## Folder Structure
 
 ```
@@ -148,7 +151,7 @@ AuditPulse/
 ├── LICENSE
 └── CONTRIBUTING.md
 ```
-
+-->
 
 <!-- CONTRIBUTING -->
 ## Contributing
