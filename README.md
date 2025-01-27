@@ -118,12 +118,17 @@ AuditPulse/
 
 ### Installation
 
-1. Create an environment & install dependencies
-```sh
-conda env create -f auditpulse.yml
-conda activate auditpulse
-pip install -r requirements.txt
-```
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/hakeematyab/AuditPulse.git
+   cd AuditPulse
+   ```
+2. Create an environment & install dependencies
+   ```sh
+    conda env create -f auditpulse.yml
+    conda activate auditpulse
+    pip install -r requirements.txt
+   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
