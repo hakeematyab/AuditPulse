@@ -22,7 +22,7 @@
   <p align="center">
     A continuous financial auditing system for trust, transparency, and insights.
     <br />
-    <a href=""><strong>Getting Started</strong></a>
+    <a href="#getting-started"><strong>Getting Started</strong></a>
     <br />
     <br />
     <a href="">View Demo</a>
@@ -36,40 +36,85 @@
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
-<!--   <ol>
+  <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
+        <li><a href="#folder-structure">Folder Structure</a></li>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol> -->
-</details> 
+  </ol>
+</details>
 
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+AuditPulse is a **continuous financial auditing system** designed to ensure organizations are always audit-ready. Inspired by the concept of nightly builds in software engineering—where systems continuously integrate new features, fix bugs, and remain deployment-ready—AuditPulse brings the same level of efficiency and preparedness to financial auditing.
+
+### Key Benefits of AuditPulse:
+- **Reduced Manual Effort**: Automates repetitive tasks, enabling auditors to focus on high-value analysis and strategic decision-making.
+- **Early Issue Identification**: Continuous audits allow organizations to detect and address issues early, preventing costly errors and oversights.
+- **Compliance Alignment**: Keeps companies aligned with the latest financial and compliance standards, helping avoid penalties and reputational risks.
+- **Operational Insights**: Offers valuable insights into company operations and public sentiment, enabling stakeholders to make timely, informed decisions.
+- **Enhanced Trust and Transparency**: Provides timely audits that foster trust and transparency among the public, stakeholders, and regulators.
+
+By integrating continuous auditing processes, AuditPulse not only ensures compliance but also empowers organizations to proactively manage risks, streamline operations, and build trust within their ecosystems.
 <!-- GETTING STARTED -->
 ## Getting Started
 
+### Folder Structure
+```
+AuditPulse/
+│
+├── .github/workflows/
+├── data/
+│   ├── raw/
+│   ├── prompts/
+├── src/
+│   ├── components/
+│   ├── utils/
+├── ui/
+│   ├── frontend/
+│   ├── backend/
+├── notebooks/
+├── models/
+├── tests/
+├── documents/
+├── requirements.txt
+├── .gitignore
+├── auditpulse.yml
+└── README.md
+
+```
+
 ### Prerequisites
 
-<!--
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
--->
+1. **Anaconda**: [Download and install Anaconda](https://www.anaconda.com/download).  
+   - After installation, verify it by running:
+     ```bash
+     conda --version
+     ```
+
+2. **Python 3.x**: [Download and install Python](https://www.python.org/downloads/) (if not already included with Anaconda).  
+   - Verify the installation by running:
+     ```bash
+     python --version
+     ```
+
+3. **Git**: [Download and install Git](https://git-scm.com/downloads).  
+   - Confirm installation by running:
+     ```bash
+     git --version
+     ```
 
 ### Installation
 
@@ -105,8 +150,9 @@ pip install -r requirements.txt
 <!-- LICENSE -->
 ## License
 
+<!--
 Distributed under the Unlicense License. See `LICENSE.txt` for more information.
-
+-->
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
