@@ -1,0 +1,27 @@
+name: Policy Creation Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  policy_creation:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    defaults:
+      run:
+        working-directory: DataProcessing/PolicyCreation
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set-up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.9
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create Policy
+        run: python3 policy_creation.py
