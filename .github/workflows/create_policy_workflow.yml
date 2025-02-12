@@ -1,8 +1,8 @@
 name: Policy Creation Workflow
 
 on:
-  workflow_dispatch:
-
+  workflow_dispatch: # Allow manual trigger of the workflow
+  
 jobs:
   policy_creation:
     runs-on: ubuntu-latest
