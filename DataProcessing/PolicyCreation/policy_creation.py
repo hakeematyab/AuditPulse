@@ -9,6 +9,8 @@ from pydantic import BaseModel, Field
 from groq import Groq
 import instructor
 
+from google.cloud import firestore, storage
+
 class AuditRule(BaseModel):
     """Data model for audit rules."""
     rule_id: str = Field(..., description="Unique identifier for the rule, formatted as PCAOB-XXXX")
@@ -64,7 +66,7 @@ def pdf2text(pdf_path):
         text += page.get_text("text") + "\n"
     return text.strip()
 
-def generate_rules(prompt, text, client, model):
+def generate_rules(prompt, text, client, model) -> List[AuditRule]:
     """
     Generates structured audit rules using the OpenAI API based on the provided text and prompt.
 
@@ -89,65 +91,150 @@ def generate_rules(prompt, text, client, model):
                     )
     return response
 
-def get_collection():
-    pass
-
-def update_collection():
-    pass
-
-def upload_to_gcp():
-    pass
-
-def save_policy(policy, output_path):
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(policy, f, indent=4)
-    upload_to_gcp()
-
-def cleanup(dir):
-    shutil.rmtree(dir)
-
-def generate_policy(pdfs, prompt, output_path, client, model):
+def get_document(db_client, collection_name='config', document_name='policy'):
     """
-    Generates a policy by processing multiple PDFs, extracting text, generating audit rules,
-    and saving the results as a JSON file.
+    Retrieves a document from the Firestore database.
 
     Args:
-        pdfs (list): A list of PDF file paths.
-        prompt (str): The prompt used for generating rules.
-        output_path (str): The directory where the output JSON file will be saved.
-        client (OpenAI): The OpenAI client instance.
-        model (str): The model to be used for generating rules.
+        db_client (firestore.Client): Firestore database client instance.
+        collection_name (str): The name of the Firestore collection. Default is 'config'.
+        document_name (str): The name of the document to retrieve. Default is 'policy'.
+
+    Returns:
+        dict: The document data if found, else returns a default policy structure.
+    """
+    policy_collection = db_client.collection(collection_name).document(document_name)
+    policy_document = policy_collection.get()
+    if policy_document.exists:
+        return policy_document.to_dict()
+    else:
+        {
+            'active_version': 'v0',
+            'latest_version': 'v0',
+        }
+
+def update_collection(db_client, collection_name='config', document_name='policy', version=0, gcp_file_path='', gcp_standards_path = ''):
+    """
+    Updates the Firestore policy document with the new version details.
+
+    Args:
+        db_client (firestore.Client): Firestore database client instance.
+        collection_name (str): The Firestore collection where the policy is stored. Default is 'config'.
+        document_name (str): The name of the Firestore document to update. Default is 'policy'.
+        version (int): The version number for the new policy.
+        gcp_file_path (str): The path where the policy file is stored in GCP Cloud Storage.
+        standards_path (str): The path where related policy standards are stored.
 
     Returns:
         None
     """
-    policy = []
-    for pdf in pdfs:
-        text = pdf2text(pdf)
-        rules = generate_rules(prompt, text, client, model)
-        policy.extend(rules)
-        break # Remove this line to process all PDFs
-    policy = [rule.dict() for rule in policy]
-    get_collection()
-    update_collection()
-    save_policy(policy, output_path)
-    upload_to_gcp()
-    cleanup(os.path.dirname(pdfs[0]))
+    policy_collection = db_client.collection(collection_name).document(document_name)
+    policy_collection.update({
+        'active_version': f'v{version}',
+        'latest_version': f'v{version}',
+        'active_version_path': gcp_file_path,
+        'latest_version_path': gcp_file_path,
+        f'versions.v{version}': {
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'policy_path': gcp_file_path,
+            'standards_path':gcp_standards_path
+                                }
 
-if __name__ == '__main__':
+    })
+
+
+def upload_to_gcp(bucket, gcp_file_path, local_file_path):
+    """
+    Uploads a policy file to Google Cloud Storage.
+
+    Args:
+        bucket (google.cloud.storage.Bucket): GCP Storage bucket instance.
+        gcp_file_path (str): Destination path in GCP Cloud Storage.
+        local_file_path (str): Local file path of the policy file.
+
+    Returns:
+        None
+    """
+    blob = bucket.blob(gcp_file_path)
+    blob.upload_from_filename(local_file_path)
+
+def save_policy(policy, output_path):
+    """
+    Saves the generated policy as a JSON file.
+
+    Args:
+        policy (list): A list of generated policy rules.
+        output_path (str): File path where the JSON policy will be saved.
+
+    Returns:
+        None
+    """
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(policy, f, indent=4)
+
+def cleanup(dir):
+    """
+    Deletes a directory and its contents.
+
+    Args:
+        dir (str): The directory path to be removed.
+
+    Returns:
+        None
+    """
+    shutil.rmtree(dir)
+
+
+def main():
+    """Main function that orchestrates policy generation, storage, and Firestore updates."""
+    
     standards_path = './docs/auditing_standards_audits_fybeginning_on_or_after_december_15_2024.pdf'
+    bucket_name = 'auditpulse-data'
+    gcp_policy_path = 'configs/policy'
+    gcp_standards_path = f'configs/standards/{os.path.basename(standards_path)}'
     prompt_path = './docs/prompt.txt'
     output_path = './docs'
     temp_path = './temp'
-    model = 'llama-3.3-70b-versatile'
+    model = 'deepseek-r1-distill-llama-70b'
+    chunk_size = 10
+    policy = []
+
     try:
-        client = Groq()
-        client = instructor.from_groq(client, mode=instructor.Mode.JSON)
+        llm_client = instructor.from_groq(Groq(), mode=instructor.Mode.JSON)
+        db_client = firestore.Client(project='auditpulse')
+        storage_client = storage.Client(project='auditpulse')
+        bucket = storage_client.bucket(bucket_name)
+
         with open(prompt_path, 'r') as f:
             prompt = f.read()
-        chunk_size = 10
-        chunks = chunk_pdf(standards_path, temp_path, chunk_size)
-        generate_policy(chunks, prompt, output_path, client, model)
-        print('Policy Generation Completed!')
+
+        pdf_chunks = chunk_pdf(standards_path, temp_path, chunk_size)
+        if not pdf_chunks:
+            raise ValueError("No valid PDF chunks found.")
+
+        for pdf in pdf_chunks:
+            text = pdf2text(pdf)
+            rules = generate_rules(prompt, text, llm_client, model)
+            policy.extend(rules)
+            break # Remove this line to process all PDFs
+        rules = generate_rules(prompt, text, llm_client, model)
+        policy = [rule.dict() for rule in policy]
+
+        policy_doc = get_document(db_client)
+        latest_version = policy_doc.get('latest_version', 'v0')
+        current_version = int(latest_version[1:]) + 1
+
+        local_output_path = os.path.join(output_path, f'policy_v{current_version}.json')
+        gcp_output_path = f"{gcp_policy_path}/policy_v{current_version}.json"
+
+        save_policy(policy, local_output_path)
+        upload_to_gcp(bucket,gcp_output_path, local_output_path)
+        update_collection(db_client, collection_name='config', document_name='policy', version=current_version, gcp_file_path=gcp_output_path, gcp_standards_path=gcp_standards_path)
+        cleanup(os.path.dirname(pdf_chunks[0]))
+        print('✅ Policy Generation Completed!')
+
     except Exception as e:
-        print(f'Policy Generation Failed\nDetails: {str(e)}')
+        print(f'❌ Policy Generation Failed\nDetails: {str(e)}')
+
+if __name__ == '__main__':
+    main()
