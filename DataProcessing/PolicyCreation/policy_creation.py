@@ -89,15 +89,22 @@ def generate_rules(prompt, text, client, model):
                     )
     return response
 
-def get_collection(collection_name):
+def get_collection():
     pass
 
-def update_colelction(collection_name):
+def update_collection():
+    pass
+
+def upload_to_gcp():
     pass
 
 def save_policy(policy, output_path):
-    with open(os.path.join(output_path, 'rules.json'), 'w', encoding='utf-8') as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(policy, f, indent=4)
+    upload_to_gcp()
+
+def cleanup(dir):
+    shutil.rmtree(dir)
 
 def generate_policy(pdfs, prompt, output_path, client, model):
     """
@@ -119,10 +126,13 @@ def generate_policy(pdfs, prompt, output_path, client, model):
         text = pdf2text(pdf)
         rules = generate_rules(prompt, text, client, model)
         policy.extend(rules)
-        break
+        break # Remove this line to process all PDFs
     policy = [rule.dict() for rule in policy]
+    get_collection()
+    update_collection()
     save_policy(policy, output_path)
-    shutil.rmtree(os.path.dirname(pdfs[0]))
+    upload_to_gcp()
+    cleanup(os.path.dirname(pdfs[0]))
 
 if __name__ == '__main__':
     standards_path = './docs/auditing_standards_audits_fybeginning_on_or_after_december_15_2024.pdf'
