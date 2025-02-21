@@ -1,3 +1,4 @@
+import time
 import os
 import shutil
 import json
@@ -197,6 +198,7 @@ def main():
     temp_path = './temp'
     model = 'deepseek-r1-distill-llama-70b'
     chunk_size = 10
+    sleeptime = 100
     policy = []
 
     try:
@@ -216,7 +218,7 @@ def main():
             text = pdf2text(pdf)
             rules = generate_rules(prompt, text, llm_client, model)
             policy.extend(rules)
-            break # Remove this line to process all PDFs
+            time.sleep(sleeptime)
         rules = generate_rules(prompt, text, llm_client, model)
         policy = [rule.dict() for rule in policy]
 
