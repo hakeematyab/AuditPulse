@@ -143,6 +143,9 @@ def update_collection(db_client, collection_name='config', document_name='policy
 
     })
 
+def download_from_gcp(bucket, gcp_file_path, local_file_path):
+    blob = bucket.blob(gcp_file_path)
+    blob.download_to_filename(local_file_path)
 
 def upload_to_gcp(bucket, gcp_file_path, local_file_path):
     """
@@ -158,6 +161,7 @@ def upload_to_gcp(bucket, gcp_file_path, local_file_path):
     """
     blob = bucket.blob(gcp_file_path)
     blob.upload_from_filename(local_file_path)
+
 
 def save_policy(policy, output_path):
     """
@@ -188,14 +192,12 @@ def cleanup(dir):
 
 def main():
     """Main function that orchestrates policy generation, storage, and Firestore updates."""
-    
-    standards_path = './docs/auditing_standards_audits_fybeginning_on_or_after_december_15_2024.pdf'
+    local_standards_path = './inputs/auditing_standards.pdf'
     bucket_name = 'auditpulse-data'
     gcp_policy_path = 'configs/policy'
-    gcp_standards_path = f'configs/standards/{os.path.basename(standards_path)}'
-    prompt_path = './docs/prompt.txt'
-    output_path = './docs'
-    temp_path = './temp'
+    prompt_path = './inputs/prompt.txt'
+    output_dir = './outputs'
+    temp_dir = './temp'
     model = 'deepseek-r1-distill-llama-70b'
     chunk_size = 10
     sleeptime = 100
@@ -207,27 +209,30 @@ def main():
         storage_client = storage.Client(project='auditpulse')
         bucket = storage_client.bucket(bucket_name)
 
-        with open(prompt_path, 'r') as f:
-            prompt = f.read()
+        policy_doc = get_document(db_client)
+        gcp_standards_path = policy_doc.get('active_standards_path')
+        latest_version = policy_doc.get('latest_version', 'v0')
+        current_version = int(latest_version[1:]) + 1
 
-        pdf_chunks = chunk_pdf(standards_path, temp_path, chunk_size)
+        local_output_path = os.path.join(output_dir, f'policy_v{current_version}.json')
+        gcp_output_path = f"{gcp_policy_path}/policy_v{current_version}.json"
+
+        download_from_gcp(bucket, gcp_standards_path, local_standards_path)
+        pdf_chunks = chunk_pdf(local_standards_path, temp_dir, chunk_size)
         if not pdf_chunks:
             raise ValueError("No valid PDF chunks found.")
+        
+        with open(prompt_path, 'r') as f:
+            prompt = f.read()
 
         for pdf in pdf_chunks:
             text = pdf2text(pdf)
             rules = generate_rules(prompt, text, llm_client, model)
             policy.extend(rules)
+            break
             time.sleep(sleeptime)
         rules = generate_rules(prompt, text, llm_client, model)
         policy = [rule.dict() for rule in policy]
-
-        policy_doc = get_document(db_client)
-        latest_version = policy_doc.get('latest_version', 'v0')
-        current_version = int(latest_version[1:]) + 1
-
-        local_output_path = os.path.join(output_path, f'policy_v{current_version}.json')
-        gcp_output_path = f"{gcp_policy_path}/policy_v{current_version}.json"
 
         save_policy(policy, local_output_path)
         upload_to_gcp(bucket,gcp_output_path, local_output_path)
