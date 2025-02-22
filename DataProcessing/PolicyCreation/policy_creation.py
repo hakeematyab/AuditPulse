@@ -92,7 +92,7 @@ def generate_rules(prompt, text, client, model) -> List[AuditRule]:
                     )
     return response
 
-def get_document(db_client, collection_name='config', document_name='policy'):
+def get_document(db_client, collection_name, document_name):
     """
     Retrieves a document from the Firestore database.
 
@@ -114,7 +114,7 @@ def get_document(db_client, collection_name='config', document_name='policy'):
             'latest_version': 'v0',
         }
 
-def update_collection(db_client, collection_name='config', document_name='policy', version=0, gcp_file_path='', gcp_standards_path = ''):
+def update_collection(db_client, collection_name, document_name, updated_collection):
     """
     Updates the Firestore policy document with the new version details.
 
@@ -130,18 +130,7 @@ def update_collection(db_client, collection_name='config', document_name='policy
         None
     """
     policy_collection = db_client.collection(collection_name).document(document_name)
-    policy_collection.update({
-        'active_version': f'v{version}',
-        'latest_version': f'v{version}',
-        'active_version_path': gcp_file_path,
-        'latest_version_path': gcp_file_path,
-        f'versions.v{version}': {
-            'created_at': firestore.SERVER_TIMESTAMP,
-            'policy_path': gcp_file_path,
-            'standards_path':gcp_standards_path
-                                }
-
-    })
+    policy_collection.update(updated_collection)
 
 def download_from_gcp(bucket, gcp_file_path, local_file_path):
     blob = bucket.blob(gcp_file_path)
@@ -192,14 +181,15 @@ def cleanup(dir):
 
 def main():
     """Main function that orchestrates policy generation, storage, and Firestore updates."""
+    collection_name = 'config'
+    document_name = 'policy'
     local_standards_path = './inputs/auditing_standards.pdf'
     bucket_name = 'auditpulse-data'
     gcp_policy_path = 'configs/policy'
     prompt_path = './inputs/prompt.txt'
     output_dir = './outputs'
     temp_dir = './temp'
-    model = 'deepseek-r1-distill-llama-70b'
-    chunk_size = 10
+    chunk_size = 1
     sleeptime = 100
     policy = []
 
@@ -209,9 +199,11 @@ def main():
         storage_client = storage.Client(project='auditpulse')
         bucket = storage_client.bucket(bucket_name)
 
-        policy_doc = get_document(db_client)
+        policy_doc = get_document(db_client, collection_name, document_name)
+        model_type = policy_doc.get('active_model_type')
+        model = policy_doc.get('active_model_id')
         gcp_standards_path = policy_doc.get('active_standards_path')
-        latest_version = policy_doc.get('latest_version', 'v0')
+        latest_version = policy_doc.get('latest_version')
         current_version = int(latest_version[1:]) + 1
 
         local_output_path = os.path.join(output_dir, f'policy_v{current_version}.json')
@@ -229,13 +221,27 @@ def main():
             text = pdf2text(pdf)
             rules = generate_rules(prompt, text, llm_client, model)
             policy.extend(rules)
+            break
             time.sleep(sleeptime)
         rules = generate_rules(prompt, text, llm_client, model)
         policy = [rule.dict() for rule in policy]
 
         save_policy(policy, local_output_path)
         upload_to_gcp(bucket,gcp_output_path, local_output_path)
-        update_collection(db_client, collection_name='config', document_name='policy', version=current_version, gcp_file_path=gcp_output_path, gcp_standards_path=gcp_standards_path)
+        updated_collection = {
+                            'active_version': f'v{current_version}',
+                            'latest_version': f'v{current_version}',
+                            'active_version_path': gcp_output_path,
+                            'latest_version_path': gcp_output_path,
+                            f'versions.v{current_version}': {
+                                        'created_at': firestore.SERVER_TIMESTAMP,
+                                        'policy_path': gcp_output_path,
+                                        'standards_path':gcp_standards_path,
+                                        'model_type': model_type,
+                                        'model_id': model
+                                                    }
+                            }
+        update_collection(db_client, collection_name, document_name, updated_collection)
         cleanup(os.path.dirname(pdf_chunks[0]))
         print('✅ Policy Generation Completed!')
 

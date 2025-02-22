@@ -35,3 +35,17 @@
     ```
     dvc update Data.dvc
     ```
+
+### Docker Commands
+1. Start docker engine & build image
+    ```
+    docker build -t policy_creation .
+    ```
+2. Start container with environment variables
+    ```
+    docker run \
+    -v ~/gcp-keys/my-gcp-key.json:/app/gcp-key.json \
+    --env GROQ_API_KEY="your_groq_api_key" \
+    --env GOOGLE_APPLICATION_CREDENTIALS="/app/gcp-key.json" \
+    --name my_container my_image
+    ```
