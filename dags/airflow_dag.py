@@ -16,11 +16,11 @@ default_args = {
 }
 
 def run_extractor():
-    script_path = os.path.join(DAGS_DIR, "10k_extractor.py")
+    script_path = os.path.join(DAGS_DIR, "extractor_10K.py")
     subprocess.run(["python3", script_path], check=True)
 
 def run_processor():
-    script_path = os.path.join(DAGS_DIR, "10k_processor.py")
+    script_path = os.path.join(DAGS_DIR, "processor_10K.py")
     subprocess.run(["python3", script_path], check=True)
 
 with DAG(
