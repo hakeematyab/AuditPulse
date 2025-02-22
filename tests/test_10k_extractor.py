@@ -2,7 +2,7 @@ import os
 import pytest
 from unittest.mock import MagicMock, patch, mock_open
 from bs4 import BeautifulSoup
-from dags.extractor_10K import extract_text_from_html, remove_specific_files
+from DataProcessing.Processor_10K.dags.extractor_10K import extract_text_from_html, remove_specific_files
 
 # Sample HTML content for testing
 SAMPLE_HTML = """
@@ -48,12 +48,12 @@ def test_remove_specific_files(mock_remove, mock_exists, tmp_path):
     mock_remove.assert_any_call(str(file2))
     assert mock_remove.call_count == 2
 
-@patch("dags.extractor_10K.Downloader.get")
+@patch("DataProcessing.Processor_10K.dags.extractor_10K.Downloader.get")
 def test_download_10k(mock_get):
     """Test if the downloader correctly calls sec_edgar_downloader."""
     mock_get.return_value = None  # Mock the download method
 
-    from dags.extractor_10K import dl
+    from DataProcessing.Processor_10K.dags.extractor_10K import dl
 
     ticker = "AAPL"
     dl.get("10-K", ticker, limit=5, download_details=True)
