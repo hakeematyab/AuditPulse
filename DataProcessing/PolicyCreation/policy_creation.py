@@ -109,10 +109,7 @@ def get_document(db_client, collection_name, document_name):
     if policy_document.exists:
         return policy_document.to_dict()
     else:
-        {
-            'active_version': 'v0',
-            'latest_version': 'v0',
-        }
+        raise ValueError('Policy document does not exist.')
 
 def update_collection(db_client, collection_name, document_name, updated_collection):
     """
