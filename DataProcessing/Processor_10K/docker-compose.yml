@@ -11,7 +11,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   webserver:
-    build: ../..
+    build: .
     restart: always
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
       bash -c "airflow db upgrade && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && airflow webserver"
 
   scheduler:
-    build: ../..
+    build: .
     restart: always
     depends_on:
       - webserver
