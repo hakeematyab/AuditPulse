@@ -1,20 +1,18 @@
-# Use the official Apache Airflow image
-FROM apache/airflow:2.6.2
+# Use a Python 3.8+ base image instead of Airflow's default
+FROM python:3.8-slim
 
-# Switch to root to install dependencies
-USER root
+# Install system dependencies for Airflow and sec-edgar-downloader
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    libpq-dev
 
-# Install system dependencies required for sec-edgar-downloader
-RUN apt-get update && apt-get install -y build-essential python3-dev libpq-dev
-
-# Switch back to the Airflow user
-USER airflow
+# Install Apache Airflow
+RUN pip install --upgrade pip setuptools wheel
+RUN pip install apache-airflow==2.6.2  # Specify Airflow version
 
 # Set working directory inside the container
 WORKDIR /opt/airflow
-
-# Upgrade pip, setuptools, and wheel before installing dependencies
-RUN pip install --upgrade pip setuptools wheel
 
 # Copy DAGs and install requirements
 COPY dags/ /opt/airflow/dags/
