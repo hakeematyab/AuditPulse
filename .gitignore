@@ -1,1 +1,3 @@
-venv/
+/Data
+/.dvc/cache
+/.dvc/tmp

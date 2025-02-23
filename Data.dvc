@@ -1,0 +1,14 @@
+md5: 7ff8b252cd7c0e595d58566c335f0dbf
+frozen: true
+deps:
+- md5: d751713988987e9331980363e24189ce.dir
+  size: 0
+  nfiles: 0
+  hash: md5
+  path: gs://auditpulse-data
+outs:
+- md5: d751713988987e9331980363e24189ce.dir
+  size: 0
+  nfiles: 0
+  hash: md5
+  path: Data

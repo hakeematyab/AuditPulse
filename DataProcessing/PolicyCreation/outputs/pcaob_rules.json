@@ -1,0 +1,474 @@
+[
+    {
+        "rule_id": "PCAOB-1000",
+        "standard": "AS 1000 - General Responsibilities of the Auditor",
+        "description": "Auditors have a fundamental obligation to protect investors by issuing accurate and independent audit reports.",
+        "enforcement_guidelines": [
+            "Ensure audits are conducted independently and objectively.",
+            "Apply PCAOB standards and rules in all audit procedures.",
+            "Provide informative and accurate audit reports that enhance investor confidence."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1005",
+        "standard": "AS 1000 - Independence and Ethics",
+        "description": "Auditors must maintain independence and comply with PCAOB and SEC ethical requirements.",
+        "enforcement_guidelines": [
+            "Confirm that no conflicts of interest exist between the audit firm and the client.",
+            "Satisfy PCAOB and SEC independence criteria.",
+            "Ensure compliance with PCAOB ethical standards regarding auditor behavior."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1101",
+        "standard": "AS 1101 - Audit Risk",
+        "description": "Auditors must conduct audits in a manner that reduces audit risk to an appropriately low level.",
+        "enforcement_guidelines": [
+            "Plan and perform audits to obtain reasonable assurance that financial statements are free from material misstatement.",
+            "Assess the risk of material misstatement at the financial statement and assertion levels.",
+            "Apply substantive procedures to reduce detection risk."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1105",
+        "standard": "AS 1105 - Audit Evidence",
+        "description": "Auditors must obtain sufficient and appropriate audit evidence to support their conclusions.",
+        "enforcement_guidelines": [
+            "Ensure audit evidence is relevant and reliable.",
+            "Verify the accuracy and completeness of audit evidence obtained.",
+            "Use analytical procedures and substantive testing to validate financial statement assertions."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1110",
+        "standard": "AS 1110 - Relationship of Auditing Standards to Quality Control Standards",
+        "description": "Auditing standards govern individual engagements, while quality control standards apply to a firm's overall audit practice.",
+        "enforcement_guidelines": [
+            "Adopt and maintain a system of quality control in accordance with PCAOB requirements.",
+            "Ensure compliance with PCAOB standards at both the engagement and firm levels.",
+            "Monitor adherence to quality control policies and procedures."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1201",
+        "standard": "AS 1201 - Supervision of the Audit Engagement",
+        "description": "The engagement partner is responsible for supervising the audit team and ensuring compliance with PCAOB standards.",
+        "enforcement_guidelines": [
+            "Assign appropriate responsibilities to audit team members.",
+            "Supervise and review audit work to ensure compliance with PCAOB standards.",
+            "Communicate significant findings and issues to the engagement partner for resolution."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1206",
+        "standard": "AS 1206 - Dividing Responsibility for the Audit with Another Accounting Firm",
+        "description": "When dividing audit responsibility, the lead auditor must clearly disclose the role of the referred-to auditor and ensure compliance with PCAOB standards.",
+        "enforcement_guidelines": [
+            "Ensure the referred-to auditor's work complies with PCAOB standards.",
+            "Disclose the percentage of financial statements audited by the referred-to auditor.",
+            "Verify the registration status of the referred-to auditor with the PCAOB."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1210",
+        "standard": "AS 1210 - Using the Work of an Auditor-Engaged Specialist",
+        "description": "Auditors must assess the competence, objectivity, and reliability of specialists engaged in the audit process.",
+        "enforcement_guidelines": [
+            "Assess the specialist’s knowledge, skill, and professional accreditation.",
+            "Evaluate potential conflicts of interest or relationships that may affect objectivity.",
+            "Ensure proper coordination and review of the specialist’s work with audit procedures."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1215",
+        "standard": "AS 1215 - Audit Documentation",
+        "description": "Audit documentation must provide a clear record of procedures performed, evidence obtained, and conclusions reached.",
+        "enforcement_guidelines": [
+            "Retain audit documentation for at least seven years.",
+            "Ensure documentation is sufficient to support audit conclusions.",
+            "Record all significant audit findings and actions taken to resolve them."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-1220",
+        "standard": "AS 1220 - Engagement Quality Review",
+        "description": "An engagement quality reviewer must evaluate significant judgments made by the audit team and approve the issuance of the audit report.",
+        "enforcement_guidelines": [
+            "Ensure the engagement quality reviewer is independent and competent.",
+            "Evaluate significant risks and audit judgments before report issuance.",
+            "Document the engagement quality review, including findings and approvals."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2101",
+        "standard": "AS 2101 - Audit Planning",
+        "description": "Auditors must develop an audit plan that outlines risk assessment procedures, tests of controls, and substantive procedures to comply with PCAOB standards.",
+        "enforcement_guidelines": [
+            "Document the planned nature, timing, and extent of audit procedures.",
+            "Evaluate risks of material misstatement for multi-location engagements.",
+            "Modify audit strategy and plan if significant circumstances change during the audit."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2105",
+        "standard": "AS 2105 - Consideration of Materiality in Planning and Performing an Audit",
+        "description": "Auditors must establish appropriate materiality levels to detect misstatements and plan the audit effectively.",
+        "enforcement_guidelines": [
+            "Determine materiality level for financial statements as a whole.",
+            "Adjust materiality considerations if new information impacts risk assessments.",
+            "Assess qualitative and quantitative factors affecting materiality throughout the audit."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2110",
+        "standard": "AS 2110 - Identifying and Assessing Risks of Material Misstatement",
+        "description": "Auditors must conduct risk assessment procedures to identify and assess risks of material misstatement in financial statements.",
+        "enforcement_guidelines": [
+            "Obtain an understanding of the company and its environment to assess risks.",
+            "Evaluate internal control effectiveness and its impact on risk assessment.",
+            "Identify significant accounts, disclosures, and potential fraud risks."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2201",
+        "standard": "AS 2201 - Audit of Internal Control Over Financial Reporting",
+        "description": "Auditors must evaluate and test the design and operating effectiveness of internal controls over financial reporting.",
+        "enforcement_guidelines": [
+            "Assess the design effectiveness of controls to determine if they meet control objectives.",
+            "Test operating effectiveness by verifying the control functions as intended.",
+            "Increase the extent of testing for controls with higher associated risks."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2205",
+        "standard": "AS 2201 - Relationship of Risk to Audit Evidence",
+        "description": "Audit evidence must be obtained in proportion to the assessed risk of material misstatement.",
+        "enforcement_guidelines": [
+            "Assess the risk of each control failure and its potential impact on financial statements.",
+            "Increase audit evidence collection for higher-risk controls.",
+            "Use walkthroughs, re-performance, and inspection to validate control effectiveness."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2210",
+        "standard": "AS 2201 - Evaluation of Identified Deficiencies",
+        "description": "Auditors must evaluate the severity of internal control deficiencies to determine if they constitute a material weakness.",
+        "enforcement_guidelines": [
+            "Assess whether control deficiencies result in a reasonable possibility of a material misstatement.",
+            "Evaluate the magnitude and likelihood of potential misstatements caused by deficiencies.",
+            "Consider the impact of compensating controls when determining material weaknesses."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2215",
+        "standard": "AS 2201 - Reporting on Internal Control",
+        "description": "Auditors must issue an opinion on the effectiveness of internal control over financial reporting.",
+        "enforcement_guidelines": [
+            "Issue an unqualified opinion if internal controls are effective.",
+            "Issue an adverse opinion if material weaknesses are identified.",
+            "Include a detailed explanation of any identified material weaknesses in the audit report."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2310",
+        "standard": "AS 2310 - The Auditor’s Use of Confirmation",
+        "description": "Auditors must obtain relevant and reliable audit evidence from a knowledgeable external source using confirmation procedures.",
+        "enforcement_guidelines": [
+            "Design confirmation requests to verify financial statement assertions.",
+            "Maintain control over the confirmation process to minimize risk of interception or alteration.",
+            "Evaluate confirmation responses, address exceptions, and follow up on nonresponses or incomplete responses."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2315",
+        "standard": "AS 2315 - Audit Sampling",
+        "description": "Audit sampling must be used effectively to assess risks and obtain sufficient appropriate audit evidence.",
+        "enforcement_guidelines": [
+            "Apply appropriate statistical or nonstatistical sampling techniques.",
+            "Assess and control the risk of incorrect acceptance and incorrect rejection.",
+            "Ensure sampling results are projected accurately to evaluate potential misstatements."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2401",
+        "standard": "AS 2401 - Consideration of Fraud in a Financial Statement Audit",
+        "description": "Auditors must exercise professional skepticism to detect and respond to fraud risks in financial statements.",
+        "enforcement_guidelines": [
+            "Identify and assess fraud risks, including the risk of management override of controls.",
+            "Implement audit procedures to address fraud risks and verify financial accuracy.",
+            "Communicate fraud risks and findings to management, the audit committee, and regulatory authorities when necessary."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2405",
+        "standard": "AS 2405 - Illegal Acts by Clients",
+        "description": "Auditors must consider the possibility of illegal acts by the client and respond appropriately if such acts are detected.",
+        "enforcement_guidelines": [
+            "Identify and assess risks of illegal acts that may materially affect the financial statements.",
+            "Apply audit procedures to ascertain whether illegal acts have occurred if specific information arises.",
+            "Communicate findings to management and the audit committee.",
+            "Consider the implications on financial statements, auditor’s opinion, and the decision to continue the engagement."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2410",
+        "standard": "AS 2410 - Related Parties",
+        "description": "Auditors must evaluate whether related parties and transactions are properly identified, accounted for, and disclosed.",
+        "enforcement_guidelines": [
+            "Obtain an understanding of the company’s process for identifying related parties and approving related transactions.",
+            "Assess risks of material misstatement related to related-party transactions.",
+            "Review transactions for consistency with business purpose and proper authorization.",
+            "Communicate findings regarding undisclosed related parties or transactions to the audit committee."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2415",
+        "standard": "AS 2415 - Consideration of an Entity's Ability to Continue as a Going Concern",
+        "description": "Auditors must evaluate whether there is substantial doubt about the entity’s ability to continue as a going concern.",
+        "enforcement_guidelines": [
+            "Assess conditions and events that could indicate going concern issues, such as negative trends and financial difficulties.",
+            "Evaluate management’s plans to mitigate adverse effects and their feasibility.",
+            "Determine whether appropriate disclosures have been made in the financial statements.",
+            "Modify the auditor’s report if substantial doubt remains or if disclosures are inadequate."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2505",
+        "standard": "AS 2505 - Inquiry of a Client’s Lawyer Concerning Litigation, Claims, and Assessments",
+        "description": "Auditors must obtain appropriate audit evidence regarding litigation, claims, and assessments that may impact financial statements.",
+        "enforcement_guidelines": [
+            "Request written confirmation from the client’s legal counsel regarding pending and threatened litigation, claims, and assessments.",
+            "Ensure that legal responses provide sufficient clarity on potential financial liabilities.",
+            "Assess the adequacy of disclosures related to litigation and ensure compliance with accounting standards."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2510",
+        "standard": "AS 2510 - Auditing Inventories",
+        "description": "Auditors must verify the existence, condition, and valuation of inventory to ensure accurate financial reporting.",
+        "enforcement_guidelines": [
+            "Observe physical inventory counts and perform audit tests on inventory valuation.",
+            "Confirm inventory held in public warehouses through direct confirmation with custodians.",
+            "Assess the reliability of perpetual inventory systems and evaluate statistical sampling methods if used."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2601",
+        "standard": "AS 2601 - Consideration of an Entity’s Use of a Service Organization",
+        "description": "Auditors must evaluate the impact of service organizations on the user organization’s internal controls and financial reporting.",
+        "enforcement_guidelines": [
+            "Determine the extent to which the service organization’s controls impact financial statement assertions.",
+            "Obtain and assess service auditor reports to evaluate control effectiveness.",
+            "Design audit procedures to address risks associated with outsourced processes."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2605",
+        "standard": "AS 2605 - Consideration of the Internal Audit Function",
+        "description": "Auditors must evaluate the internal audit function’s quality and effectiveness when considering its impact on the audit.",
+        "enforcement_guidelines": [
+            "Assess the competence, objectivity, and work quality of internal auditors.",
+            "Determine the extent of reliance on internal auditors’ work for financial statement assertions.",
+            "Coordinate audit work with internal auditors to improve efficiency.",
+            "Evaluate and test the effectiveness of internal auditors’ work, ensuring it aligns with PCAOB standards.",
+            "Supervise and review direct assistance provided by internal auditors, ensuring compliance with audit requirements."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2610",
+        "standard": "AS 2610 - Initial Audits—Communications Between Predecessor and Successor Auditors",
+        "description": "Successor auditors must communicate with predecessor auditors to understand prior audit engagements and assess risks.",
+        "enforcement_guidelines": [
+            "Request permission from the prospective client to contact the predecessor auditor before accepting an engagement.",
+            "Inquire about management integrity, disagreements, fraud, illegal acts, and related party transactions.",
+            "Review the predecessor auditor’s working papers if access is granted.",
+            "Evaluate the impact of opening balances and prior-period accounting principles on the current audit.",
+            "Resolve any identified misstatements in prior audits before forming an opinion."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2701",
+        "standard": "AS 2701 - Auditing Supplemental Information Accompanying Audited Financial Statements",
+        "description": "Auditors must evaluate and report on supplemental financial information accompanying audited financial statements.",
+        "enforcement_guidelines": [
+            "Obtain sufficient appropriate evidence to support the opinion on supplemental information.",
+            "Ensure the supplemental information reconciles with financial statements and regulatory requirements.",
+            "Evaluate whether supplemental information is fairly stated in all material respects.",
+            "Modify audit reports if a qualified or adverse opinion applies to the financial statements."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2810",
+        "standard": "AS 2810 - Evaluating Audit Results",
+        "description": "Auditors must evaluate audit results to determine if sufficient appropriate audit evidence has been obtained to support the opinion on the financial statements.",
+        "enforcement_guidelines": [
+            "Assess whether the financial statements are free of material misstatement.",
+            "Evaluate the results of analytical procedures and their implications on audit findings.",
+            "Consider qualitative aspects of the company’s accounting practices and any indicators of fraud risk.",
+            "Accumulate and assess identified misstatements, including both quantitative and qualitative factors.",
+            "Evaluate the adequacy of financial statement disclosures and the overall presentation.",
+            "Determine whether additional audit procedures are needed in response to new risks identified."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2820",
+        "standard": "AS 2820 - Evaluating Consistency of Financial Statements",
+        "description": "Auditors must assess whether changes in accounting principles or corrections of material misstatements affect the consistency of financial statements.",
+        "enforcement_guidelines": [
+            "Identify changes in accounting principles that have a material effect on financial statements.",
+            "Ensure that changes are in conformity with generally accepted accounting principles.",
+            "Evaluate the impact of adjustments for material misstatements in previously issued financial statements.",
+            "Determine whether an explanatory paragraph is required in the auditor’s report to disclose consistency matters."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2901",
+        "standard": "AS 2901 - Consideration of Omitted Procedures After the Report Date",
+        "description": "Auditors must assess whether omitted audit procedures impair their ability to support the previously issued audit opinion.",
+        "enforcement_guidelines": [
+            "Review audit documentation to determine the significance of omitted procedures.",
+            "Apply necessary alternative or omitted procedures if persons are currently relying on the audit report.",
+            "If unable to perform omitted procedures, consult legal counsel and regulatory authorities regarding further actions.",
+            "Ensure that omitted procedures do not materially impact the fairness of previously issued financial statements."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-2905",
+        "standard": "AS 2905 - Subsequent Discovery of Facts Existing at the Date of the Auditor’s Report",
+        "description": "Auditors must take appropriate action if new facts, existing at the report date, are discovered that might have affected the audit opinion.",
+        "enforcement_guidelines": [
+            "Assess the reliability and impact of subsequently discovered facts on the audit opinion.",
+            "Consult with the client and regulatory authorities on the necessary corrective actions.",
+            "If financial statements need revision, advise the client to disclose and reissue corrected financials.",
+            "If the client refuses to disclose material errors, notify regulatory agencies and take necessary legal steps."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-3105",
+        "standard": "AS 3105 - Departures from Unqualified Opinions and Other Reporting Circumstances",
+        "description": "Auditors must issue a qualified, adverse, or disclaimer of opinion when financial statements contain departures from generally accepted accounting principles (GAAP) or material uncertainties.",
+        "enforcement_guidelines": [
+            "If a company omits a required financial statement, the auditor should issue a qualified opinion stating the omission.",
+            "If financial statements fail to disclose material risks or uncertainties, the auditor should issue a qualified or adverse opinion.",
+            "When management adopts an inappropriate accounting principle or provides unreasonable estimates, the auditor must issue a qualified or adverse opinion.",
+            "In cases of accounting principle changes, the auditor must evaluate whether justification is provided and issue a qualified or adverse opinion if unjustified.",
+            "If the auditor is unable to obtain sufficient appropriate audit evidence, they should issue a disclaimer of opinion."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-3110",
+        "standard": "AS 3110 - Dating of the Independent Auditor’s Report",
+        "description": "The auditor must date the report no earlier than the date on which sufficient appropriate audit evidence has been obtained.",
+        "enforcement_guidelines": [
+            "If a subsequent event occurs after the report date but before issuance, the auditor must determine if the financial statements require adjustment or disclosure.",
+            "If adjustments are made without additional disclosure, the report date remains unchanged.",
+            "If disclosure is required, the auditor may use dual dating or update the report date to reflect the event."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-3305",
+        "standard": "AS 3305 - Special Reports",
+        "description": "Auditors must adhere to specific reporting requirements for financial statements prepared using a basis other than GAAP or when issuing special reports.",
+        "enforcement_guidelines": [
+            "Ensure that financial statements prepared using a special-purpose framework (e.g., tax basis, regulatory basis) include a disclosure describing the basis of accounting.",
+            "Modify the audit report if financial statements deviate from the special-purpose framework or lack required disclosures.",
+            "For specified elements, accounts, or items of a financial statement, assess materiality individually rather than in aggregate."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-3310",
+        "standard": "AS 3310 - Special Reports on Regulated Companies",
+        "description": "Auditors must evaluate financial statements of regulated entities in compliance with accounting principles and regulatory requirements.",
+        "enforcement_guidelines": [
+            "Ensure that financial statements of regulated entities conform to generally accepted accounting principles (GAAP) unless specific regulatory requirements justify deviations.",
+            "Assess the impact of rate-making processes and regulatory requirements on financial reporting.",
+            "Modify audit reports when financial statements depart from GAAP due to regulatory accounting practices."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-3315",
+        "standard": "AS 3315 - Reporting on Condensed Financial Statements and Selected Financial Data",
+        "description": "Auditors must evaluate and report on condensed financial statements and selected financial data derived from audited financial statements.",
+        "enforcement_guidelines": [
+            "Verify that condensed financial statements are fairly stated in relation to the audited financial statements.",
+            "Ensure that condensed financial statements are clearly marked to prevent misinterpretation.",
+            "Confirm that selected financial data are appropriately derived from audited financial statements and do not misrepresent financial performance."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-3320",
+        "standard": "AS 3320 - Association with Financial Statements",
+        "description": "Auditors must clearly define their association with financial statements and disclose the degree of responsibility assumed.",
+        "enforcement_guidelines": [
+            "Clearly state whether an opinion is expressed or disclaimed on the financial statements.",
+            "Ensure that the auditor’s name is not misused in ways that imply greater responsibility than intended.",
+            "Disclose when financial statements are unaudited and ensure that each page is clearly marked as such."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-4101",
+        "standard": "AS 4101 - Responsibilities Regarding Filings Under Federal Securities Statutes",
+        "description": "Auditors must adhere to legal responsibilities when their reports are included in filings under federal securities statutes.",
+        "enforcement_guidelines": [
+            "Ensure that financial statements included in SEC filings accurately reflect the auditor’s findings.",
+            "Review prospectuses to confirm that the auditor’s role and responsibilities are accurately described.",
+            "Extend subsequent events procedures up to the effective date of a registration statement to maintain compliance."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-4105",
+        "standard": "AS 4105 - Reviews of Interim Financial Information",
+        "description": "Auditors must conduct reviews of interim financial information to determine whether material modifications are necessary for compliance with financial reporting standards.",
+        "enforcement_guidelines": [
+            "Evaluate the design and operation of internal controls affecting interim financial reporting.",
+            "Confirm management’s responsibility for fraud prevention and detection controls.",
+            "Assess and document any significant estimates, related-party transactions, and material contingencies.",
+            "Identify and report any legal or regulatory violations that may impact interim financial reporting.",
+            "Ensure interim financial statements include appropriate disclosures regarding accounting changes, estimates, and financial risks.",
+            "Communicate any deficiencies or potential misstatements to management and the audit committee."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-6101",
+        "standard": "AS 6101 - Letters for Underwriters and Certain Other Requesting Parties",
+        "description": "Auditors must provide comfort letters to underwriters and other financial intermediaries to support due diligence in securities offerings.",
+        "enforcement_guidelines": [
+            "Ensure comfort letters contain accurate and appropriate representations of financial statements and disclosures.",
+            "Confirm the financial statements comply with SEC regulations and generally accepted accounting principles.",
+            "Verify that financial data used in securities offerings is consistent with audited or reviewed financial statements.",
+            "Provide negative assurance where required, stating that no material modifications are necessary.",
+            "Clearly define the scope of work and limitations of the comfort letter to prevent misinterpretation."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-6105",
+        "standard": "AS 6105 - Reports on the Application of Accounting Principles",
+        "description": "Accountants must follow specified guidelines when issuing reports or providing oral advice on the application of accounting principles to specific transactions or financial statements.",
+        "enforcement_guidelines": [
+            "Ensure that reports on the application of accounting principles apply to specific transactions and are not hypothetical.",
+            "Exercise due professional care in providing advice and issuing reports.",
+            "Obtain an understanding of the form and substance of transactions before providing recommendations.",
+            "Consult with the entity’s continuing accountant to gather all relevant facts before forming a professional judgment.",
+            "Perform appropriate research to verify the credibility of the accounting principles applied.",
+            "Clearly define the scope and limitations of advice given to prevent misinterpretation."
+        ]
+    },
+    {
+        "rule_id": "PCAOB-6115",
+        "standard": "AS 6115 - Reporting on Whether a Previously Reported Material Weakness Continues to Exist",
+        "description": "Auditors must evaluate whether a previously reported material weakness in internal control over financial reporting continues to exist.",
+        "enforcement_guidelines": [
+            "Conduct the engagement in accordance with PCAOB standards and obtain reasonable assurance regarding the material weakness.",
+            "Examine evidence supporting management’s assertion about the existence or remediation of the material weakness.",
+            "Update understanding of internal control over financial reporting specifically related to the identified material weakness.",
+            "State whether the material weakness continues to exist or has been remediated as of the date of management’s assertion.",
+            "If a successor auditor is engaged before expressing an opinion on overall internal control effectiveness, state the scope and limitations of the engagement.",
+            "Disclose that the auditor was not engaged to audit the overall effectiveness of internal control over financial reporting, except for the identified material weakness.",
+            "Include a disclaimer stating that projections of internal control effectiveness to future periods are subject to change due to evolving conditions.",
+            "If other previously reported material weaknesses exist but are not addressed in the auditor’s opinion, include a statement specifying that no opinion is expressed on those weaknesses.",
+            "Modify the report if significant subsequent events have occurred that affect the effectiveness of internal control related to the material weakness.",
+            "Communicate, in writing, to the audit committee if a previously reported material weakness continues to exist.",
+            "Consider the findings from this engagement when evaluating management’s quarterly disclosures about internal control over financial reporting."
+        ]
+    }
+]

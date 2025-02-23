@@ -1,0 +1,66 @@
+name: Policy Creation Workflow
+
+on:
+  workflow_dispatch: # Allow manual trigger of the workflow
+
+  
+jobs:
+  policy_creation_test_and_deploy:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      REGION: us-east1
+      REPOSITORY_NAME: auditpulse-images
+      
+    defaults:
+      run:
+        working-directory: DataProcessing/PolicyCreation
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set-up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.9
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate With GCP
+        uses: 'google-github-actions/auth@v2'
+        with:
+            credentials_json: '${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
+
+      - name: Run Tests
+        run: python policy_creation.py
+
+      - name: Test Success Notification
+        if: success()
+        run: echo "All tests passed. Proceeding to deployment."
+      
+      - name: Setup GCP CLI
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Setup Project ID
+        run: gcloud config set project ${{secrets.GCP_PROJECT_ID}}
+      
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{env.REGION}}-docker.pkg.dev
+
+      - name: Build & Push Docker Image
+        run: |
+          IMAGE_NAME="${{env.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/${{ENV.REPOSITORY_NAME}}/policy-creation"
+          GITHUB_SHA="${{github.sha}}"
+          echo "Building Docker image: $IMAGE_NAME"
+          docker build -t "$IMAGE_NAME:$GITHUB_SHA" -t "$IMAGE_NAME:latest" .
+          docker push "$IMAGE_NAME:$GITHUB_SHA"
+          docker push "$IMAGE_NAME:latest"
+        
+      - name: Deployment Success Notification
+        if: success()
+        run: echo "Docker image for policy creation created and pushed."
+    
+      - name: Deployment Failure Notification
+        if: failure()
+        run: echo "Deployment failed."
