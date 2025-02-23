@@ -1,4 +1,7 @@
 import time
+import datetime
+import logging
+import traceback
 import os
 import shutil
 import json
@@ -18,6 +21,16 @@ class AuditRule(BaseModel):
     standard: str = Field(..., description="The PCAOB auditing standard reference")
     description: str = Field(..., description="Concise explanation of what the rule entails")
     enforcement_guidelines: List[str] = Field(..., description="Actionable steps required to ensure compliance")
+
+def setup_logging(log_file='logs/run_log.log', log_level=logging.INFO):
+    """Set up logging"""
+    dir_name = os.path.dirname(log_file)
+    os.makedirs(dir_name,exist_ok=True)
+    logging.basicConfig(
+        filename=log_file,
+        level=log_level,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
 def chunk_pdf(input_pdf_path, output_dir, chunk_size=50):
     """
@@ -178,6 +191,7 @@ def cleanup(dir):
 
 def main():
     """Main function that orchestrates policy generation, storage, and Firestore updates."""
+    log_file_path = 'logs/run_log.log'
     collection_name = 'config'
     document_name = 'policy'
     local_standards_path = './inputs/auditing_standards.pdf'
@@ -190,6 +204,9 @@ def main():
     sleeptime = 100
     policy = []
 
+    setup_logging(log_file_path)
+    start_time = time.time()
+    logging.info("Run started "+"-"*25)
     try:
         llm_client = instructor.from_groq(Groq(), mode=instructor.Mode.JSON)
         db_client = firestore.Client(project='auditpulse')
@@ -239,11 +256,18 @@ def main():
                                                     }
                             }
         update_collection(db_client, collection_name, document_name, updated_collection)
-        cleanup(os.path.dirname(pdf_chunks[0]))
-        print('✅ Policy Generation Completed!')
+        cleanup(temp_dir)
+        end_time = time.time()
+        duration = round(end_time - start_time, 2)
+        logging.info(f"Policy generation completed successfully in {duration} seconds.")
 
     except Exception as e:
-        print(f'❌ Policy Generation Failed\nDetails: {str(e)}')
+        end_time = time.time()
+        duration = round(end_time - start_time, 2)   
+        stack_trace = traceback.format_exc()
+        logging.error(f"Run failed after {duration} seconds.")
+        logging.error(f"Error: {str(e)}")
+        logging.error(f"Stack Trace:\n{stack_trace}")
 
 if __name__ == '__main__':
     main()
