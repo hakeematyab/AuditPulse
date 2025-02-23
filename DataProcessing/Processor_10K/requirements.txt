@@ -1,0 +1,7 @@
+sec-edgar-downloader==5.0.2
+bs4
+pytest
+torch
+nltk
+transformers
+datasets
