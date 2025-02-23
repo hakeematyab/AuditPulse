@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      REGION: us-east-1
+      REGION: us-east1
       REPOSITORY_NAME: auditpulse-images
       
     defaults:
