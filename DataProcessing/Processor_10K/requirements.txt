@@ -1,7 +1,7 @@
-sec-edgar-downloader==5.0.2
+sec-edgar-downloader
 bs4
 pytest
 torch
 nltk
-transformers
+transformers==4.28.0
 datasets
