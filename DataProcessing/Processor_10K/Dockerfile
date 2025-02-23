@@ -1,11 +1,17 @@
 # Use the official Apache Airflow image
 FROM apache/airflow:2.6.2
 
-# Set working directory
-WORKDIR /opt/airflow
+# Switch to root to install dependencies
+USER root
 
 # Install system dependencies required for sec-edgar-downloader
-RUN apt-get update && apt-get install -y build-essential python3-dev
+RUN apt-get update && apt-get install -y build-essential python3-dev libpq-dev
+
+# Switch back to the Airflow user
+USER airflow
+
+# Set working directory inside the container
+WORKDIR /opt/airflow
 
 # Upgrade pip, setuptools, and wheel before installing dependencies
 RUN pip install --upgrade pip setuptools wheel

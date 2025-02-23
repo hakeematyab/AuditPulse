@@ -14,7 +14,7 @@ services:
     build: .
     restart: always
     depends_on:
-      - postgres
+      - postgres  # ✅ Fix: Webserver should only depend on Postgres
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -31,7 +31,7 @@ services:
     build: .
     restart: always
     depends_on:
-      - webserver
+      - postgres  # ✅ Fix: Remove webserver dependency to break cycle
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
