@@ -13,6 +13,12 @@ tickers = [
     "AAPL", "JNJ", "JPM", "AMZN", "PG", "XOM", "BA", "DUK", "T", "SPG",
     "INTC", "ABT", "C", "NKE", "WMT", "SLB", "GE", "SO", "CMCSA", "AVB"
 ]
+
+AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/opt/airflow")
+basePath = os.path.join(AIRFLOW_HOME, "data")
+os.makedirs(basePath, exist_ok=True)
+
+
 # Function to extract text from HTML files
 def extract_text_from_html(html_file):
   with open(html_file, "r", encoding="utf-8") as file:

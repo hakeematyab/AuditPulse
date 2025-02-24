@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 
-AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/Users/aniketgupta/airflow")
+AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/opt/airflow")
 DAGS_DIR = os.path.join(AIRFLOW_HOME, "dags")
 
 default_args = {

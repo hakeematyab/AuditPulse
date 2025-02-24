@@ -1,7 +1,10 @@
-sec-edgar-downloader
+sec-edgar-downloader==5.0.2
 bs4
 pytest
 torch
 nltk
 transformers==4.28.0
 datasets
+pendulum==2.1.2
+pydantic==1.10.13
+flask-session==0.4.0

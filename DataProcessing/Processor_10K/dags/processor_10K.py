@@ -105,7 +105,7 @@ class Form10KProcessor:
 
 if __name__ == "__main__":
 
-    AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/Users/aniketgupta/airflow")
+    AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/opt/airflow")
     input_path = os.path.join(AIRFLOW_HOME, "data/sec-edgar-filings")
     processor = Form10KProcessor(input_path)
     processor.process()
