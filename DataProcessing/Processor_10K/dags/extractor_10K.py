@@ -45,7 +45,7 @@ def process_tickers(tickers):
     dl.get("10-K", ticker, limit=5, download_details=True)
 
     # Locate the downloaded filing directory
-    company_dir = os.path.join("sec-edgar-filings", ticker, "10-K")
+    company_dir = os.path.join(basePath,"sec-edgar-filings", ticker, "10-K")
 
     if not os.path.exists(company_dir):
       print(f"❌ No filings found for {ticker}, skipping...")
