@@ -14,7 +14,7 @@ You are an AI assistant tasked with extracting and structuring compliance rules 
            "rule_id": "PCAOB-XXXX",
            "standard": "AS XXXX - <Standard Title>",
            "description": "<Brief summary of the rule>",
-           "enforcement_guidelines": <
+           "enforcement_guidelines": [
                "<Step 1 for compliance>",
                "<Step 2 for compliance>",
                "<Additional steps as needed>"
