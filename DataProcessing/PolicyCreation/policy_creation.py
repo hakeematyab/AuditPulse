@@ -239,7 +239,6 @@ def main():
             text = pdf2text(pdf)
             rules = generate_rules(prompt, text, llm_client, model)
             policy.extend(rules)
-            break
             time.sleep(sleeptime)
         policy = [rule.dict() for rule in policy]
 
