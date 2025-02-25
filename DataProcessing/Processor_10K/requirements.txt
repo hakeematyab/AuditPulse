@@ -3,7 +3,7 @@ bs4
 pytest
 torch
 nltk
-transformers==4.28.0
+sentence_transformers
 datasets
 pendulum==2.1.2
 pydantic==1.10.13

@@ -2,22 +2,26 @@ import os
 from sec_edgar_downloader import Downloader
 from bs4 import BeautifulSoup
 
-# Initialize the downloader with a user agent
-dl = Downloader("my_company", "my_email@example.com")
 
 # List of company tickers (Modify this as needed)
+# tickers = [
+#     "MSFT", "CSCO", "GOOGL", "PFE", "AMGN", "MRK", "BAC", "GS", "WFC",
+#     "TSLA", "MCD", "HD", "KO", "PM", "PEP", "CVX", "EOG", "COP", "CAT",
+#     "MMM", "UNP", "NEE", "AEP", "D", "VZ", "CHTR", "TMUS", "PLD", "BXP", "PSA",
+#     "AAPL", "JNJ", "JPM", "AMZN", "PG", "XOM", "BA", "DUK", "T", "SPG",
+#     "INTC", "ABT", "C", "NKE", "WMT", "SLB", "GE", "SO", "CMCSA", "AVB"
+# ]
+
 tickers = [
-    "MSFT", "CSCO", "GOOGL", "PFE", "AMGN", "MRK", "BAC", "GS", "WFC",
-    "TSLA", "MCD", "HD", "KO", "PM", "PEP", "CVX", "EOG", "COP", "CAT",
-    "MMM", "UNP", "NEE", "AEP", "D", "VZ", "CHTR", "TMUS", "PLD", "BXP", "PSA",
-    "AAPL", "JNJ", "JPM", "AMZN", "PG", "XOM", "BA", "DUK", "T", "SPG",
-    "INTC", "ABT", "C", "NKE", "WMT", "SLB", "GE", "SO", "CMCSA", "AVB"
+    "MSFT"
 ]
 
 AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/opt/airflow")
 basePath = os.path.join(AIRFLOW_HOME, "data")
 os.makedirs(basePath, exist_ok=True)
 
+# Initialize the downloader with a user agent
+dl = Downloader("my_company", "my_email@example.com", download_folder = basePath)
 
 # Function to extract text from HTML files
 def extract_text_from_html(html_file):
