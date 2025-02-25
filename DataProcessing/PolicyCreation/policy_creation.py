@@ -3,6 +3,7 @@ import datetime
 import logging
 import traceback
 import os
+import sys
 import shutil
 import json
 from typing import List
@@ -27,9 +28,12 @@ def setup_logging(log_file='logs/run_log.log', log_level=logging.INFO):
     dir_name = os.path.dirname(log_file)
     os.makedirs(dir_name,exist_ok=True)
     logging.basicConfig(
-        filename=log_file,
         level=log_level,
-        format="%(asctime)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(log_file)
+        ]
     )
 
 def chunk_pdf(input_pdf_path, output_dir, chunk_size=50):
