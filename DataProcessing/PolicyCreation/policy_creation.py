@@ -204,8 +204,6 @@ def main():
     prompt_path = './inputs/prompt.txt'
     output_dir = './outputs'
     temp_dir = './temp'
-    chunk_size = 10
-    sleeptime = 100
     policy = []
 
     setup_logging(log_file_path)
@@ -222,6 +220,8 @@ def main():
         model = policy_doc.get('active_model_id')
         gcp_standards_path = policy_doc.get('active_standards_path')
         latest_version = policy_doc.get('latest_version')
+        chunk_size = int(policy_doc.get('text_chunk_size'))
+        sleeptime = int(policy_doc.get('sleeptime'))
         current_version = int(latest_version[1:]) + 1
 
         local_output_path = os.path.join(output_dir, f'policy_v{current_version}.json')
