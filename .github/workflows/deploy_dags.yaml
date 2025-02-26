@@ -1,9 +1,9 @@
-name: Deploy Airflow to GCP VM with GPU
+name: Deploy Airflow to GCP VM
 
 on:
   push:
     branches:
-      - 10K_processor
+      - 10K_processor  # ✅ Deploy only when pushing to `10K_processor` branch
 
 jobs:
   deploy:
@@ -18,32 +18,32 @@ jobs:
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      - name: Create GCE VM with GPU
+      - name: Create GCE VM (CPU only)
         run: |
-          gcloud compute instances create airflow-gpu-vm \
+          gcloud compute instances list --filter="name=airflow-cpu-vm" | grep airflow-cpu-vm || \
+          gcloud compute instances create airflow-cpu-vm \
             --machine-type n1-standard-4 \
-            --accelerator type=nvidia-tesla-t4,count=1 \
             --image-family=common-container \
             --image-project=deeplearning-platform-release \
             --boot-disk-size=200GB \
-            --maintenance-policy TERMINATE \
+            --maintenance-policy MIGRATE \
+            --restart-on-failure \
             --scopes=cloud-platform \
-            --metadata install-nvidia-driver=True \
             --tags http-server \
-            --zone us-central1-a
+            --zone us-central1-a  # ✅ Pick a valid CPU-only zone
 
       - name: Copy Airflow Files to GCE VM
         run: |
-          gcloud compute scp --recurse dags airflow-gpu-vm:~/Processor_10K/
-          gcloud compute scp --recurse docker-compose.yml airflow-gpu-vm:~/Processor_10K/
-          gcloud compute scp --recurse Dockerfile airflow-gpu-vm:~/Processor_10K/
-          gcloud compute scp --recurse requirements.txt airflow-gpu-vm:~/Processor_10K/
+          gcloud compute scp --recurse dags airflow-cpu-vm:~/Processor_10K/
+          gcloud compute scp --recurse docker-compose.yml airflow-cpu-vm:~/Processor_10K/
+          gcloud compute scp --recurse Dockerfile airflow-cpu-vm:~/Processor_10K/
+          gcloud compute scp --recurse requirements.txt airflow-cpu-vm:~/Processor_10K/
 
       - name: Deploy Airflow with Docker on VM
         run: |
-          gcloud compute ssh airflow-gpu-vm --command "
+          gcloud compute ssh airflow-cpu-vm --command "
             sudo apt update &&
             sudo apt install -y docker.io &&
             cd ~/Processor_10K &&
