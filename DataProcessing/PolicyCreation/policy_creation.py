@@ -230,7 +230,7 @@ def main():
     local_standards_path = './inputs/auditing_standards.pdf'
     bucket_name = 'auditpulse-data'
     gcp_policy_path = 'configs/policy'
-    gcp_logs_path = 'logs/policy'
+    gcp_logs_path = f'logs/policy/log-{datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log'
     prompt_path = './inputs/prompt.txt'
     output_dir = './outputs'
     temp_dir = './temp'
