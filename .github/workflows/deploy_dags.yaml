@@ -32,7 +32,7 @@ jobs:
             --restart-on-failure \
             --scopes=cloud-platform \
             --tags http-server \
-            --zone us-central1-a  # ✅ Pick a valid CPU-only zone
+            --zone us-east1-c  # ✅ Pick a valid CPU-only zone
 
       - name: Copy Airflow Files to GCE VM
         run: |
