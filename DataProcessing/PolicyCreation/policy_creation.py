@@ -84,7 +84,7 @@ def pdf2text(pdf_path):
         text += page.get_text("text") + "\n"
     return text.strip()
 
-def generate_rules(prompt, text, client, model, sleeptime, max_retries=5) -> List[AuditRule]:
+def generate_rules(prompt, text, client, model, sleeptime, max_tokens, temperature, max_retries) -> List[AuditRule]:
     """
     Generates structured audit rules using the OpenAI API based on the provided text and prompt.
 
@@ -108,8 +108,8 @@ def generate_rules(prompt, text, client, model, sleeptime, max_retries=5) -> Lis
                     {"role": "user", "content": text}
                 ],
                 response_model=List[AuditRule],
-                temperature=0.1,
-                max_tokens=1024
+                temperature=temperature,
+                max_tokens=max_tokens
             )
 
             logging.info("200 OK - Successfully retrieved JSON response.")
@@ -239,7 +239,7 @@ def main():
 
     setup_logging(log_file_path)
     start_time = time.time()
-    logging.info("Run started "+"-"*25)
+    logging.info("Run started "+"="*75)
     try:
         llm_client = instructor.from_groq(Groq(), mode=instructor.Mode.JSON)
         db_client = firestore.Client(project='auditpulse')
@@ -254,6 +254,8 @@ def main():
         latest_version = policy_doc.get('latest_version')
         chunk_size = int(policy_doc.get('text_chunk_size'))
         sleeptime = int(policy_doc.get('sleeptime'))
+        max_tokens = int(policy_doc.get('max_tokens'))
+        temperature = float(policy_doc.get('temperature'))
         max_retries = policy_doc.get('max_retries', max_retries)
         current_version = int(latest_version[1:]) + 1
 
@@ -264,15 +266,18 @@ def main():
         download_from_gcp(bucket, gcp_policy_prompt_path, prompt_path)
 
         pdf_chunks = chunk_pdf(local_standards_path, temp_dir, chunk_size)
+        num_chunks = len(pdf_chunks)
         if not pdf_chunks:
             raise ValueError("No valid PDF chunks found.")
         
         with open(prompt_path, 'r') as f:
             prompt = f.read()
 
-        for pdf in pdf_chunks:
+
+        for idx, pdf in enumerate(pdf_chunks):
+            logging.info(f"Processing chunk {idx+1}/{num_chunks}"+"-"*50)
             text = pdf2text(pdf)
-            rules = generate_rules(prompt, text, llm_client, model, sleeptime, max_retries)
+            rules = generate_rules(prompt, text, llm_client, model, sleeptime,max_tokens, temperature, max_retries)
             policy.extend(rules)
         policy = [rule.dict() for rule in policy]
 
@@ -287,8 +292,16 @@ def main():
                                         'created_at': firestore.SERVER_TIMESTAMP,
                                         'policy_path': gcp_output_path,
                                         'standards_path':gcp_standards_path,
+                                        'gcp_prompt_path': gcp_policy_prompt_path,
+                                        'log_path': gcp_logs_path,
                                         'model_type': model_type,
-                                        'model_id': model
+                                        'model_id': model,
+                                        'text_chunk_size': chunk_size,
+                                        'num_chunks_processed': num_chunks,
+                                        'max_tokens': max_tokens,
+                                        'temperature': temperature,
+                                        'sleeptime': sleeptime,
+                                        'max_retries': max_retries,
                                                     }
                             }
         update_collection(db_client, collection_name, document_name, updated_collection)
