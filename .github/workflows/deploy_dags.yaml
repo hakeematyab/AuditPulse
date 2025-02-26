@@ -1,53 +1,76 @@
-name: Deploy Airflow to GCP VM
+name: Policy Creation Workflow
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - 10K_processor  # ✅ Deploy only when pushing to `10K_processor` branch
+      - 10K_processor
 
 jobs:
-  deploy:
+  policy_creation_test_and_deploy:
     runs-on: ubuntu-latest
+    env:
+      REGION: us-east1
+      REPOSITORY_NAME: auditpulse-images
+
+    defaults:
+      run:
+        working-directory: DataProcessing/Processor_10K
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          ref: 10K_processor
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Authenticate with GCP
-        uses: google-github-actions/auth@v1
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          cache: "pip"  # ✅ Enable caching for dependencies
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate With GCP
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
-      - name: Create GCE VM (CPU only)
-        run: |
-          gcloud compute instances list --filter="name=airflow-cpu-vm" | grep airflow-cpu-vm || \
-          gcloud compute instances create airflow-cpu-vm \
-            --machine-type n1-standard-4 \
-            --image-family=common-container \
-            --image-project=deeplearning-platform-release \
-            --boot-disk-size=200GB \
-            --maintenance-policy MIGRATE \
-            --restart-on-failure \
-            --scopes=cloud-platform \
-            --tags http-server \
-            --zone us-east1-c  # ✅ Pick a valid CPU-only zone
+      - name: Run Tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/DataProcessing/Processor_10K
+        run: pytest tests/
 
-      - name: Copy Airflow Files to GCE VM
-        run: |
-          gcloud compute scp --recurse dags airflow-cpu-vm:~/Processor_10K/
-          gcloud compute scp --recurse docker-compose.yml airflow-cpu-vm:~/Processor_10K/
-          gcloud compute scp --recurse Dockerfile airflow-cpu-vm:~/Processor_10K/
-          gcloud compute scp --recurse requirements.txt airflow-cpu-vm:~/Processor_10K/
+      - name: Test Success Notification
+        if: success()
+        run: echo "✅ All tests passed. Proceeding to deployment."
 
-      - name: Deploy Airflow with Docker on VM
+      - name: Set up GCP CLI
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Configure GCP Project
+        run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker for Google Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build & Push Docker Image
+        if: success()  # ✅ Runs only if tests pass
         run: |
-          gcloud compute ssh airflow-cpu-vm --command "
-            sudo apt update &&
-            sudo apt install -y docker.io &&
-            cd ~/Processor_10K &&
-            docker-compose down &&
-            docker-compose build &&
-            docker-compose up -d
-          "
+          IMAGE_NAME="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/10K_processor"
+          GITHUB_SHA="${{ github.sha }}"
+          echo "🚀 Building Docker image: $IMAGE_NAME"
+          
+          # ✅ Ensure correct working directory for Docker build
+          docker build -t "$IMAGE_NAME:$GITHUB_SHA" -t "$IMAGE_NAME:latest" .
+          
+          echo "🚀 Pushing Docker image to Artifact Registry..."
+          docker push "$IMAGE_NAME:$GITHUB_SHA"
+          docker push "$IMAGE_NAME:latest"
+
+      - name: Deployment Success Notification
+        if: success()
+        run: echo "✅ Docker image successfully created and pushed to Google Artifact Registry."
+
+      - name: Deployment Failure Notification
+        if: failure()
+        run: echo "❌ Deployment failed. Check logs for more details."
