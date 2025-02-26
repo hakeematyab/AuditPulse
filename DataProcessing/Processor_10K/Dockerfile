@@ -1,32 +1,29 @@
-# Use an Airflow image that supports Python 3.8
+# ✅ Use a lightweight Airflow image
 FROM apache/airflow:2.6.2-python3.8
 
-# Switch to root to install dependencies
+# ✅ Switch to root only when needed
 USER root
 
-# Install system dependencies required for Airflow and Python packages
-RUN apt-get update && apt-get install -y build-essential python3-dev libpq-dev
+# ✅ Install only essential dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-dev libpq-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ✅ Install NVIDIA CUDA Toolkit and cuDNN (only if GPU is available)
-RUN if command -v nvidia-smi; then \
-      apt-get install -y --no-install-recommends nvidia-cuda-toolkit libcudnn8; \
-    fi
-
-# Switch back to Airflow user
+# ✅ Switch back to airflow user
 USER airflow
 
-# Set working directory inside the container
+# ✅ Set working directory inside the container
 WORKDIR /opt/airflow
 
-# Upgrade pip, setuptools, and wheel
-RUN pip install --upgrade pip setuptools wheel
+# ✅ Upgrade pip with a specific version (avoids unnecessary dependencies)
+RUN pip install --upgrade pip==23.1.2 setuptools wheel
 
-# Copy DAGs and install dependencies
+# ✅ Copy DAGs and install dependencies
 COPY dags/ /opt/airflow/dags/
 COPY requirements.txt /opt/airflow/requirements.txt
 
-# ✅ Ensure correct dependencies are installed
+# ✅ Install dependencies with optimized pip settings
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set Airflow environment variable
+# ✅ Set Airflow environment variable
 ENV AIRFLOW_HOME=/opt/airflow

@@ -1,23 +1,10 @@
-# Airflow dependencies
-apache-airflow==2.6.2
-apache-airflow-providers-google
-
-# ✅ GPU Support (falls back to CPU automatically)
-torch==2.0.1+cu118  # CUDA version
-torchvision==0.15.2+cu118
-torchaudio==2.0.2+cu118
-tensorflow==2.13.0  # TensorFlow auto-detects GPU
-
-# ✅ Install CPU versions if no GPU is available
-torch-cpu==2.0.1; sys_platform == 'darwin' or sys_platform == 'win32'
-tensorflow-cpu==2.13.0; sys_platform == 'darwin' or sys_platform == 'win32'
-
-# Hugging Face Transformers
-transformers==4.31.0
-sentence-transformers
-
-# Other dependencies
-pandas
+sec-edgar-downloader==5.0.2
+bs4
+pytest
+torch
 nltk
-numpy
-google-cloud-storage  # ✅ Enables GCS integration
+sentence_transformers
+datasets
+pendulum==2.1.2
+pydantic==1.10.13
+flask-session==0.4.0
