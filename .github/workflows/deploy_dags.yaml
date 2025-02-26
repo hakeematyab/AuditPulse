@@ -68,6 +68,8 @@ jobs:
           sed -i "s|image: .*_scheduler|image: $IMAGE_REGISTRY/airflow-scheduler:latest|g" docker-compose.yml
           sed -i "s|image: .*_postgres|image: $IMAGE_REGISTRY/airflow-postgres:latest|g" docker-compose.yml
           
+          docker pull postgres:13
+          
           echo "🚀 Building images using docker-compose..."
           docker-compose build
           
