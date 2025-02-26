@@ -46,7 +46,7 @@ def process_tickers(tickers):
     print(f"Downloading 10-K for {ticker}...")
 
     # Download the latest 5 filings (limit=5)
-    dl.get("10-K", ticker, limit=5, download_details=True)
+    dl.get("10-K", ticker, limit=1, download_details=True)
 
     # Locate the downloaded filing directory
     company_dir = os.path.join(basePath,"sec-edgar-filings", ticker, "10-K")
