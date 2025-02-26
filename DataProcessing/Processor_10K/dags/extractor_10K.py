@@ -44,6 +44,7 @@ def remove_specific_files(folder_path):
 def process_tickers(tickers):
   for ticker in tickers:
     print(f"Downloading 10-K for {ticker}...")
+    print("Testing")
 
     # Download the latest 5 filings (limit=5)
     dl.get("10-K", ticker, limit=1, download_details=True)
