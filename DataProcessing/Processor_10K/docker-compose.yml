@@ -10,7 +10,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   webserver:
-    image: $IMAGE_REGISTRY/airflow-webserver:latest  # Use Google Artifact Registry image
+    build: .
     restart: always
     depends_on:
       - postgres
@@ -32,7 +32,7 @@ services:
       bash -c "airflow db init && airflow db upgrade && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && airflow webserver"
 
   scheduler:
-    image: $IMAGE_REGISTRY/airflow-scheduler:latest  # Use Google Artifact Registry image
+    build: .
     restart: always
     depends_on:
       - postgres
