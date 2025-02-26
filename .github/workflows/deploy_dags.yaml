@@ -91,7 +91,6 @@ jobs:
           docker push $IMAGE_REGISTRY/airflow-webserver:latest
           docker push $IMAGE_REGISTRY/airflow-scheduler:latest
       
-
           # docker-compose push webserver
           # docker-compose push scheduler
       
