@@ -27,7 +27,7 @@ jobs:
             --accelerator type=nvidia-tesla-t4,count=1 \
             --image-family=common-container \
             --image-project=deeplearning-platform-release \
-            --boot-disk-size=50GB \
+            --boot-disk-size=200GB \
             --scopes=cloud-platform \
             --metadata install-nvidia-driver=True \
             --tags http-server \
