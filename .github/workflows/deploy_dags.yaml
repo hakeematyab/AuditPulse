@@ -32,7 +32,7 @@ jobs:
             --scopes=cloud-platform \
             --metadata install-nvidia-driver=True \
             --tags http-server \
-            --zone us-east1
+            --zone us-east1-b
 
       - name: Copy Airflow Files to GCE VM
         run: |
