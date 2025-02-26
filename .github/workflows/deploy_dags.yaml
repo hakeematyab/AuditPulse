@@ -61,22 +61,26 @@ jobs:
       - name: Build & Push Docker Images with `docker-compose`
         if: success()
         run: |
-          IMAGE_NAME="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/airflow"
-          GITHUB_SHA="${{ github.sha }}"
-
-          echo "🚀 Building and pushing images using docker-compose..."
+          IMAGE_REGISTRY="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}"
           
-          # ✅ Build all images in docker-compose.yml
+          echo "🚀 Updating docker-compose.yml to use Google Artifact Registry..."
+          sed -i "s|image: .*_webserver|image: $IMAGE_REGISTRY/airflow-webserver:latest|g" docker-compose.yml
+          sed -i "s|image: .*_scheduler|image: $IMAGE_REGISTRY/airflow-scheduler:latest|g" docker-compose.yml
+          sed -i "s|image: .*_postgres|image: $IMAGE_REGISTRY/airflow-postgres:latest|g" docker-compose.yml
+          
+          echo "🚀 Building images using docker-compose..."
           docker-compose build
           
-          # ✅ Tag and push each image
-          docker tag processor_10k_webserver "$IMAGE_NAME-webserver:$GITHUB_SHA"
-          docker tag processor_10k_scheduler "$IMAGE_NAME-scheduler:$GITHUB_SHA"
-          docker tag processor_10k_postgres "$IMAGE_NAME-postgres:$GITHUB_SHA"
-
-          docker push "$IMAGE_NAME-webserver:$GITHUB_SHA"
-          docker push "$IMAGE_NAME-scheduler:$GITHUB_SHA"
-          docker push "$IMAGE_NAME-postgres:$GITHUB_SHA"
+          echo "🚀 Listing built Docker images:"
+          docker images
+          
+          if ! docker images | grep -q "processor_10k_postgres"; then
+            echo "⚠️ Postgres image missing! Tagging manually..."
+            docker tag postgres "$IMAGE_REGISTRY/airflow-postgres:latest"
+          fi
+          
+          echo "🚀 Pushing all images to Google Artifact Registry..."
+          docker-compose push
 
       - name: Deployment Success Notification
         if: success()
