@@ -33,7 +33,7 @@ jobs:
             credentials_json: '${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
 
       - name: Run Tests
-        run: python policy_creation.py
+        run: python test_policy_creation.py
 
       - name: Test Success Notification
         if: success()
