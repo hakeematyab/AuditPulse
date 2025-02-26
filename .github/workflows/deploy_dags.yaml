@@ -62,30 +62,32 @@ jobs:
         run: |
           IMAGE_REGISTRY="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/10k_processor"
           GITHUB_SHA="${{github.sha}}"
-          
-          # Debugging step 1: Print the IMAGE_REGISTRY
-          echo "IMAGE_REGISTRY: $IMAGE_REGISTRY"
-
-          # Debugging step 2: Print the modified docker-compose.yml file
+      
+          # Debugging step 1: Print the original docker-compose.yml file
+          echo "Original docker-compose.yml:"
           cat docker-compose.yml
-
+      
           echo "🚀 Updating docker-compose.yml to use Google Artifact Registry..."
           sed -i "s|image: .*_webserver|image: $IMAGE_REGISTRY/airflow-webserver:latest|g" docker-compose.yml
           sed -i "s|image: .*_scheduler|image: $IMAGE_REGISTRY/airflow-scheduler:latest|g" docker-compose.yml
-
+      
+          # Debugging step 2: Print the modified docker-compose.yml file
+          echo "Modified docker-compose.yml:"
+          cat docker-compose.yml
+      
           echo "🚀 Pulling Postgres image (only for local use, NOT pushing it)..."
           docker pull postgres:13  # ✅ Ensures Postgres is available
-
+      
           echo "🚀 Building images using docker-compose..."
           docker-compose build
-
+      
           echo "🚀 Listing built Docker images:"
           docker images
-
+      
           echo "🚀 Pushing built images to Google Artifact Registry..."
           docker-compose push webserver
           docker-compose push scheduler
-
+      
           echo "✅ Successfully pushed Airflow images!"
       
 
