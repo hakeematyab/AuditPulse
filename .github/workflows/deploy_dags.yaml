@@ -28,10 +28,11 @@ jobs:
             --image-family=common-container \
             --image-project=deeplearning-platform-release \
             --boot-disk-size=200GB \
+            --maintenance-policy TERMINATE \
             --scopes=cloud-platform \
             --metadata install-nvidia-driver=True \
             --tags http-server \
-            --zone us-central1-a
+            --zone us-east1
 
       - name: Copy Airflow Files to GCE VM
         run: |
