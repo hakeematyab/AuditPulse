@@ -296,6 +296,7 @@ def main():
         end_time = time.time()
         duration = round(end_time - start_time, 2)
         logging.info(f"Policy generation completed successfully in {duration} seconds.")
+        upload_to_gcp(bucket,gcp_logs_path, log_file_path)
 
     except Exception as e:
         end_time = time.time()
@@ -304,7 +305,8 @@ def main():
         logging.error(f"Run failed after {duration} seconds.")
         logging.error(f"Error: {str(e)}")
         logging.error(f"Stack Trace:\n{stack_trace}")
-    upload_to_gcp(bucket,gcp_logs_path, log_file_path)
+        upload_to_gcp(bucket,gcp_logs_path, log_file_path)
+
 
 if __name__ == '__main__':
     main()
