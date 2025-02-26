@@ -84,8 +84,9 @@ jobs:
           echo "🚀 Listing built Docker images:"
           docker images
           
-          docker tag 10k_processor_webserver:latest $IMAGE_REGISTRY/airflow-webserver:latest
-          docker tag 10k_processor_scheduler:latest $IMAGE_REGISTRY/airflow-scheduler:latest
+          docker tag processor_10k_webserver:latest $IMAGE_REGISTRY/airflow-webserver:latest
+          docker tag processor_10k_scheduler:latest $IMAGE_REGISTRY/airflow-scheduler:latest
+
 
           echo "🚀 Pushing built images to Google Artifact Registry..."          
           docker push $IMAGE_REGISTRY/airflow-webserver:latest
