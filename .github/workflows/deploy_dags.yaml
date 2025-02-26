@@ -58,31 +58,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Build & Push Docker Images with `docker-compose`
-        if: success()
+      - name: Build and Push Images Using Docker Compose
         run: |
           IMAGE_REGISTRY="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}"
-          
+
           echo "🚀 Updating docker-compose.yml to use Google Artifact Registry..."
           sed -i "s|image: .*_webserver|image: $IMAGE_REGISTRY/airflow-webserver:latest|g" docker-compose.yml
           sed -i "s|image: .*_scheduler|image: $IMAGE_REGISTRY/airflow-scheduler:latest|g" docker-compose.yml
-          sed -i "s|image: .*_postgres|image: $IMAGE_REGISTRY/airflow-postgres:latest|g" docker-compose.yml
-          
-          docker pull postgres:13
-          
+
+          echo "🚀 Pulling Postgres image (only for local use, NOT pushing it)..."
+          docker pull postgres:13  # ✅ Ensures Postgres is available
+
           echo "🚀 Building images using docker-compose..."
           docker-compose build
-          
+
           echo "🚀 Listing built Docker images:"
           docker images
-          
-          if ! docker images | grep -q "processor_10k_postgres"; then
-            echo "⚠️ Postgres image missing! Tagging manually..."
-            docker tag postgres "$IMAGE_REGISTRY/airflow-postgres:latest"
-          fi
-          
-          echo "🚀 Pushing all images to Google Artifact Registry..."
-          docker-compose push
+
+          echo "🚀 Pushing built images to Google Artifact Registry..."
+          docker-compose push webserver
+          docker-compose push scheduler
+
+          echo "✅ Successfully pushed Airflow images!"
+      
 
       - name: Deployment Success Notification
         if: success()
