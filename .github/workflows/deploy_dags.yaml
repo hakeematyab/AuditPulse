@@ -18,7 +18,7 @@ jobs:
       - name: Authenticate with GCP
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: Create GCE VM (CPU only)
         run: |
