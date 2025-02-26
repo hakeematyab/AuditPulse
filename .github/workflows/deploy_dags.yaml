@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-          cache: "pip"  # ✅ Enable caching for dependencies
+          cache: "pip"
 
       - name: Install Dependencies
         run: pip install -r requirements.txt
@@ -53,23 +53,29 @@ jobs:
       - name: Configure Docker for Google Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-      - name: Build & Push Docker Image
-        if: success()  # ✅ Runs only if tests pass
+      - name: Build & Push Docker Images with `docker-compose`
+        if: success()
         run: |
-          IMAGE_NAME="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/10K_processor"
+          IMAGE_NAME="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/airflow"
           GITHUB_SHA="${{ github.sha }}"
-          echo "🚀 Building Docker image: $IMAGE_NAME"
+
+          echo "🚀 Building and pushing images using docker-compose..."
           
-          # ✅ Ensure correct working directory for Docker build
-          docker build -t "$IMAGE_NAME:$GITHUB_SHA" -t "$IMAGE_NAME:latest" .
+          # ✅ Build all images in docker-compose.yml
+          docker-compose build
           
-          echo "🚀 Pushing Docker image to Artifact Registry..."
-          docker push "$IMAGE_NAME:$GITHUB_SHA"
-          docker push "$IMAGE_NAME:latest"
+          # ✅ Tag and push each image
+          docker tag processor_10k_webserver "$IMAGE_NAME-webserver:$GITHUB_SHA"
+          docker tag processor_10k_scheduler "$IMAGE_NAME-scheduler:$GITHUB_SHA"
+          docker tag processor_10k_postgres "$IMAGE_NAME-postgres:$GITHUB_SHA"
+
+          docker push "$IMAGE_NAME-webserver:$GITHUB_SHA"
+          docker push "$IMAGE_NAME-scheduler:$GITHUB_SHA"
+          docker push "$IMAGE_NAME-postgres:$GITHUB_SHA"
 
       - name: Deployment Success Notification
         if: success()
-        run: echo "✅ Docker image successfully created and pushed to Google Artifact Registry."
+        run: echo "✅ Docker Compose images successfully created and pushed to Google Artifact Registry."
 
       - name: Deployment Failure Notification
         if: failure()
