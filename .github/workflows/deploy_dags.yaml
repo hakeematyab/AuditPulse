@@ -60,7 +60,8 @@ jobs:
 
       - name: Build and Push Images Using Docker Compose
         run: |
-          IMAGE_REGISTRY="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}"
+          IMAGE_REGISTRY="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/10k_processor"
+          GITHUB_SHA="${{github.sha}}"
 
           echo "🚀 Updating docker-compose.yml to use Google Artifact Registry..."
           sed -i "s|image: .*_webserver|image: $IMAGE_REGISTRY/airflow-webserver:latest|g" docker-compose.yml
