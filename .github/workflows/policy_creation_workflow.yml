@@ -52,14 +52,18 @@ jobs:
       
       - name: Configure Docker
         run: gcloud auth configure-docker ${{env.REGION}}-docker.pkg.dev
+      
+      - name: Create Timestamp
+        id: timestamp
+        run: echo "timestamp=$(date -u +"%Y-%m-%dT%H-%M-%SZ")" >> $GITHUB_ENV
 
       - name: Build & Push Docker Image
         run: |
-          IMAGE_NAME="${{env.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/${{ENV.REPOSITORY_NAME}}/policy-creation"
-          GITHUB_SHA="${{github.sha}}"
+          IMAGE_NAME="${{env.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/${{env.REPOSITORY_NAME}}/policy-creation"
+          TIMESTAMP="${{env.timestamp}}"
           echo "Building Docker image: $IMAGE_NAME"
-          docker build -t "$IMAGE_NAME:$GITHUB_SHA" -t "$IMAGE_NAME:latest" .
-          docker push "$IMAGE_NAME:$GITHUB_SHA"
+          docker build -t "$IMAGE_NAME:$TIMESTAMP" -t "$IMAGE_NAME:latest" .
+          docker push "$IMAGE_NAME:$TIMESTAMP"
           docker push "$IMAGE_NAME:latest"
         
       - name: Deployment Success Notification
