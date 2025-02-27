@@ -80,7 +80,50 @@ class TestPolicyCreation(unittest.TestCase):
             self.assertEqual(output_text, expected_output_text)
     
     def test_generate_rules(self):
-        pass
+        prompt = 'DummyPrompt'
+        text = 'DummyText'
+        model = 'DummyModel'
+        expected_policy = [
+            {
+                "rule_id": "PCAOB-2401",
+                "standard": "AS 2401 - Consideration of Fraud in a Financial Statement Audit",
+                "description": "Auditors must exercise professional skepticism to detect and respond to fraud risks in financial statements.",
+                "enforcement_guidelines": [
+                    "Identify and assess fraud risks, including the risk of management override of controls.",
+                    "Implement audit procedures to address fraud risks and verify financial accuracy.",
+                    "Communicate fraud risks and findings to management, the audit committee, and regulatory authorities when necessary."
+                ]
+            }
+        ]
+        sleeptime = 1
+        max_tokens = 2048
+        temperature = 0.1
+        max_retries = 5
+
+        with patch('policy_creation.logging'):
+            # Case - 1
+            llm_client = MagicMock()
+            llm_client.chat.completions.create.return_value = expected_policy
+            output_policy = policy_creation.generate_rules(prompt, text, llm_client, model, sleeptime, max_tokens, temperature, max_retries)
+            self.assertEqual(output_policy, expected_policy)
+
+            # Case - 2
+            llm_client = MagicMock()
+            llm_client.chat.completions.create.side_effect = Exception("400")
+            output_policy = policy_creation.generate_rules(prompt, text, llm_client, model, sleeptime, max_tokens, temperature, max_retries)
+            self.assertEqual(output_policy, [])  
+
+            # Case - 3
+            llm_client = MagicMock()
+            llm_client.chat.completions.create.side_effect = Exception("413")
+            output_policy = policy_creation.generate_rules(prompt, text, llm_client, model, sleeptime, max_tokens, temperature, max_retries)
+            self.assertEqual(output_policy, [])  
+
+            # Case - 4
+            llm_client = MagicMock()
+            llm_client.chat.completions.create.side_effect = Exception("31412")
+            output_policy = policy_creation.generate_rules(prompt, text, llm_client, model, sleeptime, max_tokens, temperature, max_retries)
+            self.assertEqual(output_policy, [])  
 
     def test_save_policy(self):
         with patch('builtins.open', mock_open()) as mock_open_file, \
