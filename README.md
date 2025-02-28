@@ -72,26 +72,39 @@ By integrating continuous auditing processes, AuditPulse not only ensures compli
 ## Getting Started
 
 ### Folder Structure
+
+**Main Repo**
 ```
 AuditPulse/
 │
 ├── .github/workflows/
-├── data/
-│   ├── raw/
-│   ├── prompts/
-├── src/
-│   ├── components/
-│   ├── utils/
-├── ui/
-│   ├── frontend/
-│   ├── backend/
-├── notebooks/
-├── models/
-├── tests/
-├── documents/
+├── DataPipeline/
+│   ├── DataValidation/
+│   ├── PolicyCreation/
+│   ├── Processor_10K/
+│   ├── BiasDetection/
+│   └── Evaluation/
 ├── requirements.txt
 ├── .gitignore
+├── .dvcignore
 ├── auditpulse.yml
+└── README.md
+
+```
+
+**Modules**
+Each module/pipeline will roughly follow the following structure.
+
+```
+ModuleName/
+├── inputs/
+├── outputs/
+├── logs/
+├── script.py
+├── test_script.py
+├── dockerfile
+├── requirements.txt
+├── environment.yml
 └── README.md
 
 ```
