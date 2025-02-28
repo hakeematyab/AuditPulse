@@ -1,3 +1,19 @@
+## Folder Structure
+
+```
+PolicyCreation/
+├── inputs/
+├── outputs/
+├── logs/
+├── policy_creation.py
+├── test_policy_creation.py
+├── dockerfile
+├── requirements.txt
+├── environment.yml
+└── README.md
+
+```
+
 ## Prerequisites
 
 1. **Anaconda**: [Download and install Anaconda](https://www.anaconda.com/download).  
@@ -32,21 +48,7 @@
     conda activate PolicyCreation
     pip install -r requirements.txt
    ```
-## Folder Structure
 
-```
-PolicyCreation/
-├── inputs/
-├── outputs/
-├── logs/
-├── policy_creation.py
-├── test_policy_creation.py
-├── dockerfile
-├── requirements.txt
-├── environment.yml
-└── README.md
-
-```
 ## Development Instructions
 
 ### Git Instructions

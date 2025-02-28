@@ -1,3 +1,16 @@
+## Folder Structure
+
+Data validation will be part of the core application. As such logging and tests will be done in that pipeline.
+
+```
+DataValidation/
+├── data_validation.py
+├── requirements.txt
+├── environment.yml
+└── README.md
+
+```
+
 ## Prerequisites
 
 1. **Anaconda**: [Download and install Anaconda](https://www.anaconda.com/download).  
@@ -32,18 +45,8 @@
     conda activate DataValidation
     pip install -r requirements.txt
    ```
-## Folder Structure
 
-Data validation will be part of the core application. As such logging and tests will be done in that pipeline.
 
-```
-DataValidation/
-├── data_validation.py
-├── requirements.txt
-├── environment.yml
-└── README.md
-
-```
 ## Development Instructions
 
 ### Git Instructions
