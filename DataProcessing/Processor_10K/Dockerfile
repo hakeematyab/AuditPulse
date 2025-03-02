@@ -21,7 +21,6 @@ WORKDIR $AIRFLOW_HOME
 
 # Copy DAGs, Plugins, and Requirements
 COPY dags/ $AIRFLOW_HOME/dags/
-COPY plugins/ $AIRFLOW_HOME/plugins/
 COPY requirements.txt $AIRFLOW_HOME/requirements.txt
 
 # Install Python dependencies
