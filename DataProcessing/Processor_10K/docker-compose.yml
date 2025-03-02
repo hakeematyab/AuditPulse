@@ -12,7 +12,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   airflow:
-    build: .
+#    build: .
+    image : us-east1-docker.pkg.dev/auditpulse/auditpulse-images/airflow:latest
     restart: always
     depends_on:
       - postgres

@@ -22,7 +22,7 @@ class Form10KProcessor:
         device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
 
-        # ✅ Define classification categories
+        # Define classification categories
         self.labels = {
             "Business Overview": "Describes the company's core business, operations, and competitors.",
             "Risk Factors": "Highlights potential financial, operational, and strategic risks.",
@@ -31,7 +31,6 @@ class Form10KProcessor:
             "Irrelevant": "Not relevant to an audit and should be ignored."
         }
 
-        # ✅ Compute label embeddings in half precision (fp16) to reduce memory
         self.label_embeddings = self.model.encode(list(self.labels.values()), convert_to_tensor=True,
                                                   dtype=torch.float16)
 
@@ -68,7 +67,7 @@ class Form10KProcessor:
             batch_chunks = chunks[i:i + batch_size]
             chunk_embeddings = self.model.encode(batch_chunks, convert_to_tensor=True, dtype=torch.float16)
 
-            # ✅ Compute cosine similarity between chunk embeddings and label embeddings
+            # Compute cosine similarity between chunk embeddings and label embeddings
             similarities = util.pytorch_cos_sim(chunk_embeddings, self.label_embeddings)
             best_labels_idx = np.argmax(similarities.cpu().numpy(), axis=1)
             label_names = list(self.labels.keys())
@@ -85,9 +84,9 @@ class Form10KProcessor:
                 elif label == "MD&A":
                     audit_data["mdna"].append(chunk)
 
-            # ✅ Free memory after processing each batch
+            # Free memory after processing each batch
             torch.cuda.empty_cache()
-            gc.collect()  # ✅ Trigger garbage collection
+            gc.collect()  # Trigger garbage collection
 
         # Save classified sections to a JSON file
         classified_data_path = os.path.join(output_path, "audit_phases.json")
@@ -107,7 +106,6 @@ class Form10KProcessor:
 
 if __name__ == "__main__":
     AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/opt/airflow")
-    # AIRFLOW_HOME = os.getcwd()
     input_path = os.path.join(AIRFLOW_HOME, "data/sec-edgar-filings")
     processor = Form10KProcessor(input_path)
     processor.process()
