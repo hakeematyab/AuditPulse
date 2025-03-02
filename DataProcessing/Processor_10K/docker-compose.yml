@@ -12,7 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   airflow:
-    image: us-east1-docker.pkg.dev/auditpulse/auditpulse-images/airflow:latest
+    build: .
     restart: always
     depends_on:
       - postgres
@@ -25,11 +25,15 @@ services:
       - ./plugins:/opt/airflow/plugins
     ports:
       - "8080:8080"
-    deploy:
-      resources:
-        limits:
-          memory: 8g
-    shm_size: '8gb'
+    shm_size: '10gb'
+    mem_limit : 10g
+    mem_reservation: 8g
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     command: >
       bash -c "
         airflow db upgrade &&

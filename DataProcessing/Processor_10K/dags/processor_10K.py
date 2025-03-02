@@ -15,11 +15,12 @@ nltk.download('punkt_tab')
 
 
 class Form10KProcessor:
+
     def __init__(self, input_path):
         self.input_path = input_path
 
-        # ✅ Use a lightweight sentence embedding model
-        self.model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
 
         # ✅ Define classification categories
         self.labels = {
@@ -61,7 +62,7 @@ class Form10KProcessor:
 
         sentences = sent_tokenize(text)
         chunks = self.chunk_text(sentences, chunk_size=5, overlap=2)
-        batch_size = 10  # ✅ Process in smaller batches to reduce memory usage
+        batch_size = 2
 
         for i in range(0, len(chunks), batch_size):
             batch_chunks = chunks[i:i + batch_size]

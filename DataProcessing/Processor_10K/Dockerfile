@@ -1,25 +1,29 @@
-# Use Airflow base image
+# Use Apache Airflow base image
 FROM apache/airflow:2.6.2-python3.8
 
-# Install additional dependencies
+# Install additional system dependencies
 USER root
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-dev \
-    libpq-dev
+    libpq-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV AIRFLOW_HOME=/opt/airflow
+ENV PYTHONUNBUFFERED=1
 
 # Switch back to Airflow user
 USER airflow
 
 # Set working directory
-WORKDIR /opt/airflow
+WORKDIR $AIRFLOW_HOME
 
-# Copy DAGs, plugins, and requirements
-COPY dags/ /opt/airflow/dags/
-COPY requirements.txt /opt/airflow/requirements.txt
+# Copy DAGs, Plugins, and Requirements
+COPY dags/ $AIRFLOW_HOME/dags/
+COPY plugins/ $AIRFLOW_HOME/plugins/
+COPY requirements.txt $AIRFLOW_HOME/requirements.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set Airflow environment variable
-ENV AIRFLOW_HOME=/opt/airflow
