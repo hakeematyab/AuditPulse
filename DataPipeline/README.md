@@ -170,9 +170,7 @@ This Airflow DAG automates the extraction and processing of **SEC 10-K filings**
 3. **Task Dependencies:**  
    * Extraction **must finish** before processing begins (`task1 >> task2`).
 
-![][image1]
-
-
+![image](https://github.com/user-attachments/assets/27626562-893a-493c-a483-070ac885ccce)
 
 ## **Data Versioning with DVC**
 
@@ -218,9 +216,7 @@ Solution: Process only one ticker at a time to reduce memory load.
 
 On Google Cloud (GCP) with GPUs, we will be able to process full datasets efficiently.
 
-![][image2]
-
-
+![image](https://github.com/user-attachments/assets/37d5b2a4-330a-4828-a58f-6d7347a7d992)
 
 ## **3\. Data Bias Detection Using Data Slicing**
 
