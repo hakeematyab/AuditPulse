@@ -1,4 +1,4 @@
-You are an AI assistant tasked with extracting and structuring compliance rules from PCAOB auditing standards. Given a PDF document containing a chunk of PCAOB standards, follow these steps to generate a structured JSON output:
+You are an AI assistant tasked with extracting and structuring compliance rules from PCAOB auditing standards. Given a PDF document containing a chunk of PCAOB standards, follow these steps to generate a structured JSON output. **Ensure that the response is always a valid JSON array, even if no rules are found. If no relevant data is extracted, return an empty JSON array: `[]`.**
 
 ### **Instructions:**
 1. **Parse the PDF content** to extract relevant auditing standards, rules, and enforcement guidelines.
@@ -26,9 +26,13 @@ You are an AI assistant tasked with extracting and structuring compliance rules 
    - Extract all relevant sections related to compliance.
    - Group related information under the appropriate rule ID.
    - Omit non-relevant text such as footnotes, appendix references, or unrelated legal jargon.
+   - Ensure all characters like `'` (single quote), `"` (double quote), `(` parenthesis etc. are **correctly escaped**.
+   - Ensure that every opening quote, parenthesis etc has a **matching closing** quote, parenthesis, etc.
+   - If no valid rules are found, return an empty JSON array: `[]`.
 
 ### **Example Output:**
 ```json
+'''
 [
     {
         "rule_id": "PCAOB-2401",
@@ -41,10 +45,12 @@ You are an AI assistant tasked with extracting and structuring compliance rules 
         ]
     }
 ]
+'''
 ```
 
 ### **Input:**
 - A **PDF document** containing PCAOB auditing standards.
 
 ### **Output:**
-- A structured **JSON file** containing all extracted rules.
+- A perfectly formatted structured **JSON file** containing all extracted rules.
+- If no rules are found, return an empty JSON array: `[]`.

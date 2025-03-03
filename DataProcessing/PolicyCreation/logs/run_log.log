@@ -1,5 +1,0 @@
-2025-02-22 19:37:50,905 - INFO - Run started -------------------------
-2025-02-22 19:38:05,105 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
-2025-02-22 19:38:09,196 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
-2025-02-22 19:38:13,085 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
-2025-02-22 19:38:13,547 - INFO - Policy generation completed successfully in 22.64 seconds.
