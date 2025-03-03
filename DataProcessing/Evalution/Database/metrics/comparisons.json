@@ -1,0 +1,34 @@
+[
+    {
+        "id": 1,
+        "date": "2025-02-20 23:24:05",
+        "Compaired_files": {
+            "file_1": "NEU_COE_INFO6105_Spring2025_Assignment06.pdf",
+            "file_2": "Assignment 5.pdf"
+        },
+        "score": {
+            "OpenAI score": 0.7797793177944023,
+            "T5": 0.8158547878265381,
+            "Sentence Bert": 0.4964371919631958,
+            "RoBERTa": 0.9669782519340515,
+            "Bert": 0.7779075503349304,
+            "Modern BERT": 0.9473555684089661
+        }
+    },
+    {
+        "id": 2,
+        "date": "2025-02-20 23:25:26",
+        "Compaired_files": {
+            "file_1": "DigvijayRaut_Resume.pdf",
+            "file_2": "Assignment 5.pdf"
+        },
+        "score": {
+            "OpenAI score": 0.7153760990371463,
+            "T5": 0.7795453071594238,
+            "Sentence Bert": 0.4302367866039276,
+            "RoBERTa": 0.9025411605834961,
+            "Bert": 0.7037032246589661,
+            "Modern BERT": 0.6874958872795105
+        }
+    }
+]
