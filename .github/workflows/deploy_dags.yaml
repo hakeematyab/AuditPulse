@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: DataProcessing/Processor_10K
+        working-directory: DataPipeline/Processor_10K
 
     steps:
       - name: Checkout Repository
@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Tests
         env:
-          PYTHONPATH: ${{ github.workspace }}/DataProcessing/Processor_10K
+          PYTHONPATH: ${{ github.workspace }}/DataPipeline/Processor_10K
         run: pytest tests/
 
       - name: Test Success Notification

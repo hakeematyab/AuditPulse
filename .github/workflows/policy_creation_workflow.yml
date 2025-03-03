@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # Allow manual trigger of the workflow
   push:
     paths:
-      - 'DataProcessing/PolicyCreation/**'
+      - 'DataPipeline/PolicyCreation/**'
 
 
 
@@ -19,7 +19,7 @@ jobs:
       
     defaults:
       run:
-        working-directory: DataProcessing/PolicyCreation
+        working-directory: DataPipeline/PolicyCreation
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
