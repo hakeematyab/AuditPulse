@@ -8,7 +8,7 @@ from transformers import RobertaTokenizer, RobertaModel, AutoModelForMaskedLM
 from datetime import datetime
 import json
 
-openai.api_key = "api_key"  # Ensure API key is set
+# openai.api_key = "api_key"  # Ensure API key is set
 OUTPUT_DIR = "./Database/metrics/"
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "comparisons.json")
 

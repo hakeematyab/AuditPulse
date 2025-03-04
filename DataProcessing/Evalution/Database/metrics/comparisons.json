@@ -30,5 +30,81 @@
             "Bert": 0.7037032246589661,
             "Modern BERT": 0.6874958872795105
         }
+    },
+    {
+        "id": 3,
+        "date": "2025-02-27 14:16:35",
+        "Compared_files": {
+            "file_1": "intro_boston.pdf",
+            "file_2": "DigvijayRaut_Resume copy 3.pdf"
+        },
+        "scores": {
+            "T5 Similarity": 0.6831809878349304,
+            "SBERT Similarity": 0.9344546794891357
+        }
+    },
+    {
+        "id": 4,
+        "date": "2025-02-27 14:16:39",
+        "Compared_files": {
+            "file_1": "intro_boston.pdf",
+            "file_2": "DigvijayRaut_Resume copy 3.pdf"
+        },
+        "scores": {
+            "T5 Similarity": 0.6831809878349304,
+            "SBERT Similarity": 0.9344546794891357
+        }
+    },
+    {
+        "id": 5,
+        "date": "2025-02-27 14:19:07",
+        "Compared_files": {
+            "file_1": "intro_boston.pdf",
+            "file_2": "conclusion_boston.pdf"
+        },
+        "scores": {
+            "T5 Similarity": 0.9356212019920349,
+            "SBERT Similarity": 0.9363990426063538
+        }
+    },
+    {
+        "id": 6,
+        "date": "2025-02-27 14:19:11",
+        "Compared_files": {
+            "file_1": "intro_boston.pdf",
+            "file_2": "conclusion_boston.pdf"
+        },
+        "scores": {
+            "T5 Similarity": 0.9356212019920349,
+            "SBERT Similarity": 0.9363990426063538
+        }
+    },
+    {
+        "id": 7,
+        "date": "2025-02-27 14:19:14",
+        "Compared_files": {
+            "file_1": "intro_boston.pdf",
+            "file_2": "conclusion_boston.pdf"
+        },
+        "scores": {
+            "T5 Similarity": 0.9356212019920349,
+            "SBERT Similarity": 0.9363990426063538
+        }
+    },
+    {
+        "id": 8,
+        "date": "2025-02-27 14:33:17",
+        "Compaired_files": {
+            "file_1": "intro_boston.pdf",
+            "file_2": "conclusion_boston.pdf"
+        },
+        "score": {
+            "OpenAI score": 0.9183344688809684,
+            "T5": 0.9835113883018494,
+            "Sentence Bert": 0.8346744775772095,
+            "RoBERTa": 0.9961193203926086,
+            "Bert": 0.9579058885574341,
+            "Modern BERT": 0.9929739832878113
+        }
     }
 ]

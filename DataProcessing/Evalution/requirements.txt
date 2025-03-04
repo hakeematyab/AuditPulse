@@ -1,0 +1,9 @@
+beautifulsoup4==4.13.3
+langchain==0.3.19
+numpy
+openai==1.65.2
+pandas==2.2.3
+PyPDF2==3.0.1
+Requests==2.32.3
+torch==2.1.1
+transformers==4.49.0
