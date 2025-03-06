@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 10K_processor
+      - main
 
 jobs:
   build_and_deploy:

@@ -23,6 +23,10 @@ def run_processor():
     script_path = os.path.join(DAGS_DIR, "processor_10K.py")
     subprocess.run(["python3", script_path], check=True)
 
+def run_save():
+    script_path = os.path.join(DAGS_DIR, "forms_upload_to_gcp_bucket.py")
+    subprocess.run(["python3", script_path], check=True)
+
 with DAG(
     '10K_pipeline',
     default_args=default_args,
@@ -40,5 +44,10 @@ with DAG(
         task_id='process_10k_filings',
         python_callable=run_processor
     )
+
+    task3 = PythonOperator(
+        task_id='save to bucket',
+        python_callable=run_save
+    )
     
-    task1 >> task2  
+    task1 >> task2 >> task3

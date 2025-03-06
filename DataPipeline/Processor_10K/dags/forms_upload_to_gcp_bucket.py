@@ -20,6 +20,6 @@ def upload_folder_to_gcs(local_folder, bucket_name, destination_folder):
 AIRFLOW_HOME = os.getenv("AIRFLOW_HOME", "/opt/airflow")
 local_folder = os.path.join(AIRFLOW_HOME, "data/sec-edgar-filings")
 bucket_name = "auditpulse-data"
-destination_folder = "sec-edgar-filings"
+destination_folder = "processed-data/sec-edgar-filings"
 
 upload_folder_to_gcs(local_folder, bucket_name, destination_folder)
