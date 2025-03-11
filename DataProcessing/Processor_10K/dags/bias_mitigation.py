@@ -114,26 +114,6 @@ def check_sector_bias(observed_distribution, original_distribution):
     
     return chi2, p_value
 
-def plot_sector_distribution(sector_distribution, original_distribution, title="Sector Distribution"):
-    """Visualizes the cumulative number of lines by sector, ensuring all sectors are displayed."""
-    
-    # Include all sectors from the original distribution, even if missing in oversampled data
-    all_sectors = set(original_distribution.keys()).union(set(sector_distribution.keys()))
-
-    # Fill missing sectors with zero counts
-    filled_distribution = {sector: sector_distribution.get(sector, 0) for sector in all_sectors}
-
-    sectors = list(filled_distribution.keys())
-    lines = [filled_distribution[sector] for sector in sectors]
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(sectors, lines, color='skyblue')
-    plt.xlabel('Sector')
-    plt.ylabel('Cumulative Number of Lines in Reports')
-    plt.title(title)
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
-    plt.show()
 
 # Step 3: Mitigate Bias Using Oversampling
 def calculate_oversampling_targets(observed_distribution):
@@ -316,7 +296,7 @@ if __name__ == "__main__":
     chi2_before, p_value_before = check_sector_bias(observed_distribution, original_distribution)
     print(f"Chi2 (Before): {chi2_before}, p-value (Before): {p_value_before}")
 
-    plot_sector_distribution(observed_distribution, original_distribution, title="Sector Distribution Before Mitigation")
+   
 
     # Step 3: Mitigate Bias Using Oversampling
     print("\nMitigating bias through oversampling...")
@@ -329,6 +309,6 @@ if __name__ == "__main__":
     else:
         chi2_after, p_value_after = check_sector_bias(oversampled_distribution, original_distribution)
         print(f"Chi2 (After): {chi2_after}, p-value (After): {p_value_after}")
-        plot_sector_distribution(oversampled_distribution, original_distribution, title="Sector Distribution After Mitigation")
+     
 
 
