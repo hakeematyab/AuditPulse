@@ -95,13 +95,18 @@ class Form10KProcessor:
 
     def process(self):
         for company in os.listdir(self.input_path):
-            filePaths = os.path.join(self.input_path, company, "10-K")
-            for year in os.listdir(filePaths):
-                formPath = os.path.join(filePaths, year)
-                for formName in os.listdir(formPath):
-                    text = self.extract_text(os.path.join(formPath, formName))
-                    self.classify_sections(text, formPath)
-                    print("Processing complete. Output saved to: " + formPath)
+            company_path = os.path.join(self.input_path, company)
+            if os.path.isdir(company_path):
+                filePaths = os.path.join(company_path, "10-K")
+                if os.path.isdir(filePaths):
+                    for year in os.listdir(filePaths):
+                        year_path = os.path.join(filePaths, year)
+                        if os.path.isdir(year_path):
+                            for formName in os.listdir(year_path):
+                                text = self.extract_text(os.path.join(year_path, formName))
+                                self.classify_sections(text, year_path)
+                                print("Processing complete. Output saved to: " + year_path)
+
 
 
 if __name__ == "__main__":
