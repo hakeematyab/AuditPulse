@@ -27,6 +27,10 @@ def run_save():
     script_path = os.path.join(DAGS_DIR, "forms_upload_to_gcp_bucket.py")
     subprocess.run(["python3", script_path], check=True)
 
+def run_bias():
+    script_path = os.path.join(DAGS_DIR, "bias_mitigation.py")
+    subprocess.run(["python3", script_path], check=True)
+
 with DAG(
     '10K_pipeline',
     default_args=default_args,
@@ -45,9 +49,15 @@ with DAG(
         python_callable=run_processor
     )
 
+
     task3 = PythonOperator(
+        task_id='bias_code',
+        python_callable=run_bias
+    )
+
+    task4 = PythonOperator(
         task_id='save_to_bucket',
         python_callable=run_save
     )
-    
-    task1 >> task2 >> task3
+
+    task1 >> task2 >> task3 >> task4

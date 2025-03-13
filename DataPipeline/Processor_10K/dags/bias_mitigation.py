@@ -1,11 +1,9 @@
 import os
 import json
 import yfinance as yf
-import matplotlib.pyplot as plt
 from collections import defaultdict
 from scipy.stats import chisquare
-import random
-import shutil
+
 
 # Base directory containing SEC filings
 base_dir = "/opt/airflow/data/sec-edgar-filings/"
