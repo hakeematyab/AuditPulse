@@ -1,7 +1,8 @@
 from flask import Flask, jsonify
-from ....DataPipeline.DataValidation import DataValidator
+from data_validation.data_validation import DataValidator
 
 from auditpulse_flow.main import kickoff
+
 app = Flask(__name__)
 
 @app.route("/",methods=["GET"])
@@ -14,6 +15,7 @@ def health_check():
 @app.route("/generate",methods=["GET"])
 def generate_audit_report():
     company_name, central_index_key, company_ticker, year = get_update_latest_entry()
+    download_compliance_policy()
     data_validator = DataValidator(company_name, central_index_key, year)
     status, message = data_validator.run_validation()
     if status:
@@ -31,15 +33,22 @@ def generate_audit_report():
             status = False
             message = str(e)
     update_results(status, message)
-
+    return jsonify({    
+        "status":"Success!" if status else "Failure!",
+        "message":"Report generated!" if status else message}
+        )
 def get_update_latest_entry():
     company_name, central_index_key, company_ticker, year = None, None, None, None
+    company_name, central_index_key, company_ticker, year = "Apple Inc.", 320193, "AAPL", "2024"
     return (company_name, 
             central_index_key, 
             company_ticker, 
             year)
 
-def update_results(status):
+def update_results(status, message):
+    pass
+
+def download_compliance_policy():
     pass
 
 if __name__=="__main__":
