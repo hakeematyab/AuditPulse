@@ -1,0 +1,52 @@
+client_background_and_integrity_assessment:
+  description: >
+    Perform a comprehensive assessment of {company_name} ({company_ticker}), identified by central index key {central_index_key}.
+    Ensure that all information used in the evaluation is from {year} or earlier. Verify the integrity and reputation of the client’s management and owners,
+    including compliance with PCAOB and SEC independence standards. Search public records, court filings, media sources, and regulatory databases
+    to detect fraud, unethical behavior, regulatory violations, or past legal issues. Conduct a sentiment analysis of financial news, social media, and
+    whistleblower reports to detect negative patterns. Conduct conflict of interest checks to ensure compliance with independence standards.
+
+    Cross-reference findings for consistency and corroboration with SEC, PCAOB, and industry watchdog reports. Document identified ethical concerns,
+    risk factors, or independence issues, including a risk rating with supporting evidence. Utilize PCAOB guidelines as outlined in the JSON provided
+    to ensure compliance. All citations from data sources and references must be clearly documented and properly attributed. The report should include detailed and comprehensive paragraphs
+    per section, providing clear evidence and reasoning.
+  expected_output: >
+    A comprehensive **Client Background & Integrity Report** for {company_name}, detailing integrity concerns, regulatory penalties, litigation risks,
+    conflict of interest assessment, and independence verification with appropriate source citations in a markdown file. The report should include risk categorization and recommendations for mitigating
+    risks or rejecting the engagement. Ensure all findings are compliant with {year} restrictions.
+    The document should be detailed, with comprehensive paragraphs per section, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
+
+financial_risk_and_independence_assessment:
+  description: >
+    Evaluate the financial stability and risk profile of {company_name} ({company_ticker}). Analyze creditworthiness, potential audit risks, and compliance
+    with PCAOB financial integrity standards as outlined in the JSON provided. Verify auditor independence by confirming that no conflicts of interest,
+    financial ties, or consulting relationships exist that could impair objectivity. Cross-check financial data from independent sources, ensuring consistency.
+    Utilize PCAOB guidelines to evaluate financial risk factors, auditor independence, and material misstatement risks.
+
+    Perform a preliminary analytical review of financial statements to identify unusual trends or anomalies, comparing financial data across periods.
+    Include assessments of competence and past audit engagements, considering only information from {year} or earlier. If applicable, review predecessor
+    auditor reports to identify potential risk factors or limitations from past engagements. Document the methodology and findings in detail with supporting evidence.
+    All citations from data sources and references must be clearly documented and properly attributed. Each section should be detailed with comprehensive paragraphs to ensure clarity and completeness.
+  expected_output: >
+    A detailed **Financial Risk & Independence Assessment Report**, detailing creditworthiness, audit risks, auditor independence, and significant financial
+    health indicators with appropriate source citations in a markdown file. Clearly document the methodology and conclusions, with evidence and recommendations for engagement decisions.
+    The document should be detailed, with comprehensive paragraphs per section, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
+
+engagement_scope_and_strategy:
+  description: >
+    Define the audit strategy and scope for {company_name} ({company_ticker}), aligning audit procedures with identified risk factors. Specify high-risk,
+    medium-risk, and low-risk areas, focusing on financial statement line items and disclosures. Assign audit responsibilities to team members based on expertise.
+
+    Develop a strategy that accounts for identified financial risks, integrity issues, and auditor independence checks. Ensure that audit procedures comply
+    with PCAOB and SEC standards, and that the team allocation plan is robust and efficient.
+
+    Include an evaluation of potential scope challenges such as complex transactions, multiple locations, or industry-specific considerations.
+    Gauge the level of risk the engagement poses to the firm and outline appropriate mitigation strategies. All citations from data sources and references must
+    be clearly documented and properly attributed. Ensure each section is detailed with comprehensive paragraphs to support conclusions and planning decisions.
+  expected_output: >
+    A detailed **Audit Strategy and Scope Report**, including risk-mapped procedures, resource allocation, and audit timeline with appropriate source citations in a markdown file. Clearly specify audit responsibilities
+    and planned procedures.
+    The document should be detailed, with comprehensive paragraphs per section, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
