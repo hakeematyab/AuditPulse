@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from data_validation.data_validation import DataValidator
 
 from auditpulse_flow.main import kickoff
+import agentops
 
 app = Flask(__name__)
 
@@ -25,10 +26,12 @@ def generate_audit_report():
         company_ticker = validated_inputs.company_ticker
         year = validated_inputs.year
         try:
+            session = agentops.init()
             kickoff(company_name,
                     central_index_key,
                     company_ticker,
                     year)
+            session.end_session()
         except Exception as e:
             status = False
             message = str(e)
