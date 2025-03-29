@@ -33,6 +33,10 @@ class AuditPuleApp:
         @self.app.route("/generate",methods=["GET"])
         def generate_audit_report():
             try:
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                run_log_file = f"logs/run_{timestamp}.txt"
+                debug_log_file =f"logs/debug_{timestamp}.log"
+                setup_logging(run_log_file, debug_log_file)
                 logging.info("Report generation called"+"-"*75)
                 start_time = time.time()
                 company_name, central_index_key, company_ticker, year = get_update_latest_entry()
@@ -71,20 +75,38 @@ class AuditPuleApp:
                 "message":"Report generated!" if status else message}
                 )
     def run(self,debug=True):
-        self.app.run(debug=debug)
+        self.app.run(debug=debug, use_reloader=False)
 
-def setup_logging(log_file='logs/run_log.log', log_level=logging.INFO):
-    """Set up logging"""
-    dir_name = os.path.dirname(log_file)
-    os.makedirs(dir_name,exist_ok=True)
+class TeeStream:
+    def __init__(self, original_stream, log_file):
+        self.original_stream = original_stream
+        self.log_file = log_file
+        
+    def write(self, data):
+        self.original_stream.write(data)
+        self.original_stream.flush()
+        with open(self.log_file, 'a', encoding='utf-8') as f:
+            f.write(data)
+            
+    def flush(self):
+        self.original_stream.flush()
+
+def setup_logging(run_log_file, debug_log_file, log_level=logging.INFO):
+    """Set up logging that captures all stdout and stderr"""
+    # Set up normal logging for your custom log messages
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler(log_file)
+            logging.StreamHandler(),
+            logging.FileHandler(debug_log_file)
         ]
     )
+    
+    # Redirect stdout to both console and file
+    sys.stdout = TeeStream(sys.stdout, run_log_file)
+    sys.stderr = TeeStream(sys.stderr, debug_log_file)
+    
 def get_update_latest_entry():
     company_name, central_index_key, company_ticker, year = None, None, None, None
     company_name, central_index_key, company_ticker, year = "Apple Inc.", 320193, "AAPL", "2024"
@@ -156,7 +178,7 @@ def upload_to_gcp(bucket, gcp_file_path, local_file_path):
 
 
 if __name__=="__main__":
-    log_file_path = 'logs/run_log.log'
+    log_dir = 'logs'
     local_policy_path = 'auditpulse_flow/data/compliance.json'
     gcp_policy_path = 'configs/policy'
     gcp_logs_path = f'logs/deployment/log-{datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log'
@@ -164,7 +186,11 @@ if __name__=="__main__":
     collection_name = 'config'
     document_name = 'deployment'
     phase_names = ['client_acceptance','audit_planning','testing_evidence_gathering','evaluation_reporting']
-    setup_logging(log_file_path)
+    os.makedirs(log_dir, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_log_file = f"logs/run_{timestamp}.txt"
+    debug_log_file =f"logs/debug_{timestamp}.log"
+    setup_logging(run_log_file, debug_log_file)
     try:
         logging.info("Run started"+"="*75)
         db_client = firestore.Client(project='auditpulse')
