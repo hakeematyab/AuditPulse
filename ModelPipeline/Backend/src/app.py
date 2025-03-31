@@ -7,8 +7,9 @@ import time
 import datetime
 import logging
 import traceback
+import json
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from data_validation.data_validation import DataValidator
 
 from auditpulse_flow.main import kickoff
@@ -30,16 +31,18 @@ class AuditPuleApp:
                 "message":"AuditPulse Live!"}
                 )
 
-        @self.app.route("/generate",methods=["GET"])
+        @self.app.route("/generate",methods=["POST"])
         def generate_audit_report():
             try:
+                start_time = time.time()
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                 run_log_file = f"logs/run_{timestamp}.txt"
                 debug_log_file =f"logs/debug_{timestamp}.log"
                 setup_logging(run_log_file, debug_log_file)
                 logging.info("Report generation called"+"-"*75)
-                start_time = time.time()
-                company_name, central_index_key, company_ticker, year = get_update_latest_entry()
+                envelope = request.get_json()
+                print(envelope)
+                run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
                 data_validator = DataValidator(company_name, central_index_key, year)
                 status, message = data_validator.run_validation()
                 if status:
@@ -54,6 +57,7 @@ class AuditPuleApp:
                             company_ticker,
                             year)
                     session.end_session()
+                    print(validated_inputs)
                     end_time = time.time()
                     duration = round(end_time - start_time, 2)
                     logging.info(f"Report generation completed successfully in {duration} seconds.")
@@ -107,10 +111,19 @@ def setup_logging(run_log_file, debug_log_file, log_level=logging.INFO):
     sys.stdout = TeeStream(sys.stdout, run_log_file)
     sys.stderr = TeeStream(sys.stderr, debug_log_file)
     
-def get_update_latest_entry():
-    company_name, central_index_key, company_ticker, year = None, None, None, None
-    company_name, central_index_key, company_ticker, year = "Apple Inc.", 320193, "AAPL", "2024"
-    return (company_name, 
+def get_input_data(envelope):
+    message = envelope.get('message',None)
+    if not message:
+        raise ValueError("Input data absent.")
+    data = json.loads(message['data'])
+    run_id = data.get('run_id')
+    company_name = data.get('company_name')
+    central_index_key = data.get('central_index_key')
+    company_ticker = data.get('company_ticker')
+    year = data.get('year')
+    run_id, company_name, central_index_key, company_ticker, year = 8459, "Apple Inc.", 320193, "AAPL", "2024"
+    return (run_id,
+            company_name, 
             central_index_key, 
             company_ticker, 
             year)
