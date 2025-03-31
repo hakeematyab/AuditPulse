@@ -36,12 +36,18 @@ class AuditPuleApp:
             try:
                 start_time = time.time()
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{timestamp}.md'
+                gcp_visualization_path = f'generated_reports/visualization_report/visualization_{timestamp}.txt'
+                gcp_logs_path = f'generated_reports/logs/log_{timestamp}.md'
+
+                visualization_file = f'output/visualization/visualization_{timestamp}.txt'
+                audit_report_file = f'output/final_report/audit_report_{timestamp}.md'
                 run_log_file = f"logs/run_{timestamp}.txt"
                 debug_log_file =f"logs/debug_{timestamp}.log"
+
                 setup_logging(run_log_file, debug_log_file)
                 logging.info("Report generation called"+"-"*75)
                 envelope = request.get_json()
-                print(envelope)
                 run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
                 data_validator = DataValidator(company_name, central_index_key, year)
                 status, message = data_validator.run_validation()
@@ -57,11 +63,12 @@ class AuditPuleApp:
                             company_ticker,
                             year)
                     session.end_session()
-                    print(validated_inputs)
+                    upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
+                    upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
+                    upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
                     end_time = time.time()
                     duration = round(end_time - start_time, 2)
                     logging.info(f"Report generation completed successfully in {duration} seconds.")
-                    # upload_to_gcp(bucket,gcp_logs_path, log_file_path)
             except Exception as e:
                 end_time = time.time()
                 duration = round(end_time - start_time, 2)   
@@ -69,7 +76,7 @@ class AuditPuleApp:
                 logging.error(f"Report generation failed after {duration} seconds.")
                 logging.error(f"Error: {str(e)}")
                 logging.error(f"Stack Trace:\n{stack_trace}")
-                # upload_to_gcp(bucket,gcp_logs_path, log_file_path)
+                upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
                 status = False
                 message = str(e) +'\n'+ str(stack_trace)
             
@@ -185,6 +192,10 @@ def upload_to_gcp(bucket, gcp_file_path, local_file_path):
     Returns:
         None
     """
+    if not os.path.exists(local_file_path):
+        os.makedirs(os.path.dirname(local_file_path),exist_ok=True)
+        with open(local_file_path, 'w') as f:
+            f.write('Hello World!')
     blob = bucket.blob(gcp_file_path)
     blob.upload_from_filename(local_file_path)
 
