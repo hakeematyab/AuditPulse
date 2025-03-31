@@ -1,0 +1,75 @@
+name: Evaluation Workflow
+
+on:
+  workflow_dispatch: # Allow manual trigger of the workflow
+  # push:
+  #   paths:
+  #     - 'DataPipeline/Evaluation/**'
+
+
+
+  
+jobs:
+  evaluation_test_and_deploy:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      REGION: us-east1
+      REPOSITORY_NAME: auditpulse-images
+      
+    defaults:
+      run:
+        working-directory: DataPipeline/Evaluation
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set-up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11.4
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate With GCP
+        uses: 'google-github-actions/auth@v2'
+        with:
+            credentials_json: '${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
+
+      - name: Run Tests
+        run: python test_eval.py
+
+      - name: Test Success Notification
+        if: success()
+        run: echo "All tests passed. Proceeding to deployment."
+      
+      - name: Setup GCP CLI
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Setup Project ID
+        run: gcloud config set project ${{secrets.GCP_PROJECT_ID}}
+      
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{env.REGION}}-docker.pkg.dev
+      
+      - name: Create Timestamp
+        id: timestamp
+        run: echo "timestamp=$(date -u +"%Y-%m-%dT%H-%M-%SZ")" >> $GITHUB_ENV
+
+      - name: Build & Push Docker Image
+        run: |
+          IMAGE_NAME="${{env.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/${{env.REPOSITORY_NAME}}/evaluation"
+          TIMESTAMP="${{env.timestamp}}"
+          echo "Building Docker image: $IMAGE_NAME"
+          docker build -t "$IMAGE_NAME:$TIMESTAMP" -t "$IMAGE_NAME:latest" .
+          docker push "$IMAGE_NAME:$TIMESTAMP"
+          docker push "$IMAGE_NAME:latest"
+        
+      - name: Deployment Success Notification
+        if: success()
+        run: echo "Docker image for policy creation created and pushed."
+    
+      - name: Deployment Failure Notification
+        if: failure()
+        run: echo "Deployment failed."
