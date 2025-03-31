@@ -1,0 +1,10 @@
+Flask==2.2.2
+google-cloud-storage==2.19.0
+PyPDF2==3.0.1
+openai==1.63.2
+numpy==1.24.3
+torch==2.5.1
+transformers==4.49.0
+werkzeug==2.2.3
+google-cloud-firestore==2.20.1
+sentencepiece==0.2.0
