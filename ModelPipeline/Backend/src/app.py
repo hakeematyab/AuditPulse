@@ -16,6 +16,7 @@ from auditpulse_flow.main import kickoff
 import agentops
 
 from google.cloud import firestore, storage
+import mysql.connector
 
 
 class AuditPuleApp:
@@ -57,18 +58,36 @@ class AuditPuleApp:
                     central_index_key = validated_inputs.company_name
                     company_ticker = validated_inputs.company_ticker
                     year = validated_inputs.year
-                    session = agentops.init()
-                    kickoff(company_name,
-                            central_index_key,
-                            company_ticker,
-                            year)
-                    session.end_session()
-                    upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
-                    upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
-                    upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
+                    query = get_query("status_update")
+                    values = (
+                            "ran",
+                            run_id
+                            )
+                    update_status(query, values)
+                    # session = agentops.init()
+                    # kickoff(company_name,
+                    #         central_index_key,
+                    #         company_ticker,
+                    #         year)
+                    # session.end_session()
                     end_time = time.time()
                     duration = round(end_time - start_time, 2)
                     logging.info(f"Report generation completed successfully in {duration} seconds.")
+                    upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
+                    upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
+                    upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
+                    query = get_query("run_update")
+                    values = (
+                            "completed",
+                            gcp_audit_report_path,
+                            gcp_visualization_path,
+                            gcp_logs_path,
+                            f"Report generation completed successfully in {duration} seconds.",
+                            run_id
+                            )
+                    update_status(query, values)
+                else:
+                    raise ValueError(f"Inputs not valid.\nDetails: {message}")
             except Exception as e:
                 end_time = time.time()
                 duration = round(end_time - start_time, 2)   
@@ -77,10 +96,18 @@ class AuditPuleApp:
                 logging.error(f"Error: {str(e)}")
                 logging.error(f"Stack Trace:\n{stack_trace}")
                 upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
+                query = get_query("run_update")
+                values = (
+                        'failed',
+                        '',
+                        '',
+                        gcp_logs_path,
+                        f"{str(e)[:100]}",
+                        run_id
+                        )
+                update_status(query, values)
                 status = False
                 message = str(e) +'\n'+ str(stack_trace)
-            
-            update_results(status, message)
             return jsonify({    
                 "status":"Success!" if status else "Failure!",
                 "message":"Report generated!" if status else message}
@@ -128,7 +155,6 @@ def get_input_data(envelope):
     central_index_key = data.get('central_index_key')
     company_ticker = data.get('company_ticker')
     year = data.get('year')
-    run_id, company_name, central_index_key, company_ticker, year = 8459, "Apple Inc.", 320193, "AAPL", "2024"
     return (run_id,
             company_name, 
             central_index_key, 
@@ -157,6 +183,29 @@ def get_document(db_client, collection_name, document_name):
         return policy_document.to_dict()
     else:
         raise ValueError('Policy document does not exist.')
+
+def get_query(type):
+    mapping = {
+        'status_update':(
+                        """
+                        UPDATE runs
+                        SET status=%s
+                        WHERE run_id=%s
+                        """
+                        ),
+        'run_update':(
+                      """
+                        UPDATE runs
+                        SET status=%s, audit_report_path=%s, explainability_report_path=%s, logs_path=%s, message=%s
+                        WHERE run_id=%s
+                      """
+                    )
+    }
+    return mapping.get(type,None)
+
+def update_status(query,values):
+    mysql_cursor.execute(query,values)
+    mysql_conn.commit()
 
 def update_collection(db_client, collection_name, document_name, updated_collection):
     """
@@ -220,6 +269,14 @@ if __name__=="__main__":
         db_client = firestore.Client(project='auditpulse')
         storage_client = storage.Client(project='auditpulse')
         bucket = storage_client.bucket(bucket_name)
+        mysql_conn = mysql.connector.connect(
+            host='34.46.191.121',
+            port=3306,
+            user='root',
+            database='auditpulse',
+            password=os.getenv('MYSQL_GCP_PASS')
+        )
+        mysql_cursor = mysql_conn.cursor()
         deployment_config = get_document(db_client, collection_name, document_name)
         gcp_policy_path = deployment_config.get('active_policy_path')
         gcp_prompt_path = deployment_config.get('active_prompts_path')
