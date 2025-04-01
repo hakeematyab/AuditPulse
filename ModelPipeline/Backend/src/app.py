@@ -64,12 +64,12 @@ class AuditPuleApp:
                             run_id
                             )
                     update_status(query, values)
-                    # session = agentops.init()
-                    # kickoff(company_name,
-                    #         central_index_key,
-                    #         company_ticker,
-                    #         year)
-                    # session.end_session()
+                    session = agentops.init()
+                    kickoff(company_name,
+                            central_index_key,
+                            company_ticker,
+                            year)
+                    session.end_session()
                     end_time = time.time()
                     duration = round(end_time - start_time, 2)
                     logging.info(f"Report generation completed successfully in {duration} seconds.")
