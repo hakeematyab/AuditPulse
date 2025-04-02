@@ -8,6 +8,6 @@ RUN pip install -r requirements.txt
 
 ENV TOKENIZERS_PARALLELISM=false
 
-EXPOSE 5000
+EXPOSE 8080
 
 ENTRYPOINT ["python", "app.py"]
