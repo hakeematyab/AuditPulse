@@ -1,17 +1,43 @@
-research_task:
+substantive_testing_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
+    Perform detailed substantive testing of financial transactions, account balances, and disclosures for {company_name} ({company_ticker}). 
+    Verify the accuracy, completeness, and validity of financial data by tracing transactions to supporting documentation, 
+    recalculating balances, and confirming external party information. Focus on high risk areas identified during the planning phase.
+    Ensure compliance with PCAOB guidelines and document all findings systematically.
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    A comprehensive report detailing the results of substantive testing, including. Evidence of transaction accuracy, completeness, and validity,
+    Identification of any anomalies or material misstatements, Recommendations for adjustments or further investigation.
+    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
+  agent: substantive_testing_agent
 
-reporting_task:
+control_testing_task:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Execute tests of internal controls for {company_name} ({company_ticker}) to evaluate their design and operational effectiveness. 
+    Assess whether controls are effectively mitigating risks related to financial reporting. Perform walkthroughs, re-performance, 
+    and inquiry procedures to verify control functionality. Identify control deficiencies or weaknesses that could lead to material misstatements.
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    A detailed report categorizing controls as effective or deficient, including. Evidence supporting control effectiveness or failure,
+    Classification of deficiencies as significant or material weaknesses, Recommendations for remediation or additional substantive testing,
+    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
+  agent: control_testing_agent
+
+analytical_procedures_task:
+  description: >
+    Conduct analytical procedures on financial data for {company_name} ({company_ticker}) to identify unusual trends, outliers, or discrepancies. 
+    Use ratio analysis, trend analysis, and benchmarking against industry standards to detect potential misstatements or fraud risks. 
+    Compare financial data across periods and against expectations established during planning.
+  expected_output: >
+    A comprehensive report summarizing analytical findings, including. Identification of anomalies or trends requiring further investigation. 
+    Ratio analysis results with explanations for significant variances, Recommendations for additional testing based on analytical insights,
+    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
+  agent: analytical_procedures_agent
+
+evidence_documentation_task:
+  description: >
+    Systematically document all audit evidence collected during testing procedures for {company_name} ({company_ticker}). 
+    Ensure proper organization, referencing, and compliance with PCAOB documentation standards. Cross-reference evidence 
+    with tasks performed (substantive testing, control testing, analytical procedures) to ensure completeness.
+  expected_output: >
+    A well-organized evidence repository in Markdown format including. Detailed descriptions of evidence collected,
+    Cross-references to relevant tasks and findings, Compliance checklists verifying adherence to PCAOB standards.
+  agent: evidence_documentation_agent

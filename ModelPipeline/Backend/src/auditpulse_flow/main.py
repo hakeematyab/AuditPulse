@@ -7,6 +7,8 @@ from crewai.flow import Flow, listen, start
 
 from auditpulse_flow.crews.client_acceptance_crew.client_acceptance_crew import ClientAcceptanceCrew
 from auditpulse_flow.crews.audit_planning_crew.audit_planning_crew import AuditPlanningCrew
+from auditpulse_flow.crews.testing_evidence_gathering_crew.testing_evidence_gathering_crew import TestingEvidenceGatheringCrew
+from auditpulse_flow.crews.evaluation_reporting_crew.evaluation_reporting_crew import EvaluationReportingCrew
 
 class AuditPulseState(BaseModel):
     """Validated and sanitized inputs."""
@@ -49,11 +51,32 @@ class AuditPulseFlow(Flow[AuditPulseState]):
 
     @listen(audit_planning_crew)
     def testing_evidence_gathering_crew(self):
-        pass
+        print("Starting Testing and Evidence Gathering Crew...")
+        self.state.testing_evidence_gathering_result = TestingEvidenceGatheringCrew().crew().kickoff(
+            inputs={
+                'audit_firm': self.state.audit_firm,
+                'company_name': self.state.company_name,
+                'central_index_key': self.state.central_index_key,
+                'company_ticker': self.state.company_ticker,
+                'year': self.state.year
+            }
+        )
+        print(f"Testing Evidence Gathering Result: {self.state.testing_evidence_gathering_result}")
 
     @listen(testing_evidence_gathering_crew)
-    def evaluation_reporting_crew(self,):
-        pass
+    def evaluation_reporting_crew(self):
+        print("Starting Evaluation and Reporting Crew...")
+        self.state.evaluation_reporting_result = EvaluationReportingCrew().crew().kickoff(
+            inputs={
+                'audit_firm': self.state.audit_firm,
+                'company_name': self.state.company_name,
+                'central_index_key': self.state.central_index_key,
+                'company_ticker': self.state.company_ticker,
+                'year': self.state.year
+            }
+        )
+        print(f"Evaluation Reporting Result: {self.state.evaluation_reporting_result}")
+
 
 
 def kickoff(company_name, central_index_key, company_ticker, year):

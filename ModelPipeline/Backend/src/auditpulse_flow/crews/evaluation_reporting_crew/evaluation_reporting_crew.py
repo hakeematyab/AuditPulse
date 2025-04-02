@@ -1,62 +1,158 @@
+import os
+
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from crewai_tools import SerperDevTool, ScrapeWebsiteTool, WebsiteSearchTool, JSONSearchTool, TXTSearchTool
 
-# If you want to run a snippet of code before or after the crew starts, 
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+from crewai.llm import LLM
 
 @CrewBase
 class EvaluationReportingCrew():
-	"""EvaluationReportingCrew crew"""
+    """EvaluationReportingCrew crew"""
 
-	# Learn more about YAML configuration files here:
-	# Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-	# Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-	agents_config = 'config/agents.yaml'
-	tasks_config = 'config/tasks.yaml'
+    agents_config = 'config/agents.yaml'
+    tasks_config = 'config/tasks.yaml'
+    compliance_file_path = './auditpulse_flow/crews/evaluation_reporting_crew/data/compliance.json'
+    auditpulse_file_path = './auditpulse_flow/crews/evaluation_reporting_crew/data/AuditPulseInfo.md'
+    output_dir = "./output/evaluation_reporting"
+    log_path = "./logs/evaluation_reporting.txt"
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
-	# If you would like to add tools to your agents, you can learn more about it here:
-	# https://docs.crewai.com/concepts/agents#agent-tools
-	@agent
-	def researcher(self) -> Agent:
-		return Agent(
-			config=self.agents_config['researcher'],
-			verbose=True
-		)
+    pcaob_guidlines_tool = JSONSearchTool(config={
+        "llm": {
+            "provider": "vertexai",
+            "config": {
+                "model": "gemini-2.0-flash-lite-001",
+            },
+        },
+        "embedder": {
+            "provider": "vertexai",
+            "config": {
+                "model": "text-embedding-004",
+            },
+        },
+    }, json_path=compliance_file_path)
 
-	@agent
-	def reporting_analyst(self) -> Agent:
-		return Agent(
-			config=self.agents_config['reporting_analyst'],
-			verbose=True
-		)
+    website_search_tool = WebsiteSearchTool(config={
+        "llm": {
+            "provider": "vertexai",
+            "config": {
+                "model": "gemini-2.0-flash-lite-001",
+            },
+        },
+        "embedder": {
+            "provider": "vertexai",
+            "config": {
+                "model": "text-embedding-004",
+            },
+        },
+    })
 
-	# To learn more about structured task outputs, 
-	# task dependencies, and task callbacks, check out the documentation:
-	# https://docs.crewai.com/concepts/tasks#overview-of-a-task
-	@task
-	def research_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['research_task'],
-		)
+    auditpulse_file_tool = TXTSearchTool(config={
+        "llm": {
+            "provider": "vertexai",
+            "config": {
+                "model": "gemini-2.0-flash-lite-001",
+            },
+        },
+        "embedder": {
+            "provider": "vertexai",
+            "config": {
+                "model": "text-embedding-004",
+            },
+        },
+    }, file_path=auditpulse_file_path)
 
-	@task
-	def reporting_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
-		)
+    llm = LLM(
+        model="vertex_ai/gemini-2.0-flash-lite-001",
+        max_tokens=64,
+        context_window_size=950000,
+    )
 
-	@crew
-	def crew(self) -> Crew:
-		"""Creates the EvaluationReportingCrew crew"""
-		# To learn how to add knowledge sources to your crew, check out the documentation:
-		# https://docs.crewai.com/concepts/knowledge#what-is-knowledge
+    @agent
+    def researcher(self) -> Agent:
+        return Agent(
+            config=self.agents_config['researcher'],
+            verbose=True,
+            tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                self.website_search_tool,
+                self.pcaob_guidlines_tool,
+                self.auditpulse_file_tool
+            ],
+            llm=self.llm,
+            respect_context_window=True,
+            max_rpm=10,
+            cache=True,
+            max_retry_limit=10
+        )
 
-		return Crew(
-			agents=self.agents, # Automatically created by the @agent decorator
-			tasks=self.tasks, # Automatically created by the @task decorator
-			process=Process.sequential,
-			verbose=True,
-			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
-		)
+    @agent
+    def reporting_analyst(self) -> Agent:
+        return Agent(
+            config=self.agents_config['reporting_analyst'],
+            verbose=True,
+            tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                self.website_search_tool,
+                self.pcaob_guidlines_tool,
+                self.auditpulse_file_tool
+            ],
+            llm=self.llm,
+            respect_context_window=True,
+            max_rpm=10,
+            cache=True,
+            max_retry_limit=10
+        )
+
+    @task
+    def evidence_evaluation_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['evidence_evaluation_task'],
+            async_execution=False,
+            agent=self.researcher(),
+            output_file=os.path.join(self.output_dir, 'evidence_evaluation_task.md'),
+        )
+
+    @task
+    def misstatement_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['misstatement_analysis_task'],
+            async_execution=False,
+            agent=self.researcher(),
+            context=[self.evidence_evaluation_task()],
+            output_file=os.path.join(self.output_dir, 'misstatement_analysis_task.md'),
+        )
+
+    @task
+    def conclusion_formation_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['conclusion_formation_task'],
+            async_execution=False,
+            agent=self.reporting_analyst(),
+            context=[self.evidence_evaluation_task(), self.misstatement_analysis_task()],
+            output_file=os.path.join(self.output_dir, 'conclusion_formation_task.md'),
+        )
+
+    @task
+    def audit_report_drafting_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['audit_report_drafting_task'],
+            async_execution=False,
+            agent=self.reporting_analyst(),
+            context=[self.conclusion_formation_task()],
+            output_file=os.path.join(self.output_dir, 'audit_report_drafting_task.md'),
+        )
+
+    @crew
+    def crew(self) -> Crew:
+        """Creates the EvaluationReportingCrew crew"""
+        return Crew(
+            agents=self.agents,
+            tasks=self.tasks,
+            verbose=True,
+            output_log_file=self.log_path
+        )
