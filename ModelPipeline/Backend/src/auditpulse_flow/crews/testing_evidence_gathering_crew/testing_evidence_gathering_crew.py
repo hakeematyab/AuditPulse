@@ -1,62 +1,195 @@
+import os
+
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+from crewai_tools import SerperDevTool, ScrapeWebsiteTool, WebsiteSearchTool, JSONSearchTool, TXTSearchTool
 
-# If you want to run a snippet of code before or after the crew starts, 
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+from crewai.llm import LLM
 
 @CrewBase
 class TestingEvidenceGatheringCrew():
-	"""TestingEvidenceGatheringCrew crew"""
+    """TestingEvidenceGatheringCrew crew"""
 
-	# Learn more about YAML configuration files here:
-	# Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-	# Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-	agents_config = 'config/agents.yaml'
-	tasks_config = 'config/tasks.yaml'
+    agents_config = 'config/agents.yaml'
+    tasks_config = 'config/tasks.yaml'
+    compliance_file_path = './auditpulse_flow/crews/testing_evidence_crew/data/compliance.json'
+    auditpulse_file_path = './auditpulse_flow/crews/testing_evidence_crew/data/AuditPulseInfo.md'
+    output_dir = "./output/testing_evidence"
+    log_path = "./logs/testing_evidence.txt"
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
-	# If you would like to add tools to your agents, you can learn more about it here:
-	# https://docs.crewai.com/concepts/agents#agent-tools
-	@agent
-	def researcher(self) -> Agent:
-		return Agent(
-			config=self.agents_config['researcher'],
-			verbose=True
-		)
+    pcaob_guidelines_tool = JSONSearchTool(config={
+        "llm": {
+            "provider": "vertexai",
+            "config": {
+                "model": "gemini-2.0-flash-lite-001",
+            },
+        },
+        "embedder": {
+            "provider": "vertexai",
+            "config": {
+                "model": "text-embedding-004",
+            },
+        },
+    }, json_path=compliance_file_path)
 
-	@agent
-	def reporting_analyst(self) -> Agent:
-		return Agent(
-			config=self.agents_config['reporting_analyst'],
-			verbose=True
-		)
+    website_search_tool = WebsiteSearchTool(config={
+        "llm": {
+            "provider": "vertexai",
+            "config": {
+                "model": "gemini-2.0-flash-lite-001",
+            },
+        },
+        "embedder": {
+            "provider": "vertexai",
+            "config": {
+                "model": "text-embedding-004",
+            },
+        },
+    })
 
-	# To learn more about structured task outputs, 
-	# task dependencies, and task callbacks, check out the documentation:
-	# https://docs.crewai.com/concepts/tasks#overview-of-a-task
-	@task
-	def research_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['research_task'],
-		)
+    auditpulse_file_tool = TXTSearchTool(config={
+        "llm": {
+            "provider": "vertexai",
+            "config": {
+                "model": "gemini-2.0-flash-lite-001",
+            },
+        },
+        "embedder": {
+            "provider": "vertexai",
+            "config": {
+                "model": "text-embedding-004",
+            },
+        },
+    }, file_path=auditpulse_file_path)
 
-	@task
-	def reporting_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
-		)
+    llm = LLM(
+        model="vertex_ai/gemini-2.0-flash-lite-001",
+        max_tokens=64,
+        context_window_size=950000,
+    )
 
-	@crew
-	def crew(self) -> Crew:
-		"""Creates the TestingEvidenceGatheringCrew crew"""
-		# To learn how to add knowledge sources to your crew, check out the documentation:
-		# https://docs.crewai.com/concepts/knowledge#what-is-knowledge
+    @agent
+    def substantive_testing_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['substantive_testing_agent'],
+            verbose=True,
+            tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                self.website_search_tool,
+                self.pcaob_guidelines_tool,
+                self.auditpulse_file_tool
+            ],
+            llm=self.llm,
+            respect_context_window=True,
+            max_rpm=10,
+            cache=True,
+            max_retry_limit=10
+        )
 
-		return Crew(
-			agents=self.agents, # Automatically created by the @agent decorator
-			tasks=self.tasks, # Automatically created by the @task decorator
-			process=Process.sequential,
+    @agent
+    def control_testing_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['control_testing_agent'],
+            verbose=True,
+            tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                self.website_search_tool,
+                self.pcaob_guidelines_tool,
+                self.auditpulse_file_tool
+            ],
+            llm=self.llm,
+            respect_context_window=True,
+            max_rpm=10,
+            cache=True,
+            max_retry_limit=10
+        )
+
+    @agent
+    def analytical_procedures_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['analytical_procedures_agent'],
+            verbose=True,
+            tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                self.website_search_tool,
+                self.pcaob_guidelines_tool,
+                self.auditpulse_file_tool
+            ],
+            llm=self.llm,
+            respect_context_window=True,
+            max_rpm=10,
+            cache=True,
+            max_retry_limit=10
+        )
+
+    @agent
+    def evidence_documentation_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['evidence_documentation_agent'],
+            verbose=True,
+            tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                self.website_search_tool,
+                self.pcaob_guidelines_tool,
+                self.auditpulse_file_tool
+            ],
+            llm=self.llm,
+            respect_context_window=True,
+            max_rpm=10,
+            cache=True,
+            max_retry_limit=10
+        )
+
+    @task
+    def substantive_testing_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['substantive_testing_task'],
+            async_execution=False,
+            agent=self.substantive_testing_agent(),
+            output_file=os.path.join(self.output_dir, 'substantive_testing_task.md'),
+        )
+
+    @task
+    def control_testing_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['control_testing_task'],
+            async_execution=False,
+            agent=self.control_testing_agent(),
+            output_file=os.path.join(self.output_dir, 'control_testing_task.md'),
+        )
+
+    @task
+    def analytical_procedures_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['analytical_procedures_task'],
+            async_execution=False,
+            agent=self.analytical_procedures_agent(),
+            output_file=os.path.join(self.output_dir, 'analytical_procedures_task.md'),
+        )
+
+    @task
+    def evidence_documentation_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['evidence_documentation_task'],
+            async_execution=False,
+            agent=self.evidence_documentation_agent(),
+            context=[self.substantive_testing_task(), self.control_testing_task(), self.analytical_procedures_task()],
+            output_file=os.path.join(self.output_dir, 'evidence_documentation_task.md'),
+        )
+
+    @crew
+    def crew(self) -> Crew:
+        """Creates the TestingEvidenceGatheringCrew crew"""
+        return Crew(
+            agents=self.agents,  # Automatically created by the @agent decorator
+            tasks=self.tasks,  # Automatically created by the @task decorator
+            process=Process.sequential,  # Tasks will be executed sequentially in this phase.
 			verbose=True,
-			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+			output_log_file=self.log_path  # Log all outputs for debugging and tracking.
 		)
