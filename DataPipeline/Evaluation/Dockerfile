@@ -10,4 +10,4 @@ ENV TOKENIZERS_PARALLELISM=false
 
 EXPOSE 8080
 
-ENTRYPOINT ["python", "app.py"]
+ENTRYPOINT ["python", "eval.py"]
