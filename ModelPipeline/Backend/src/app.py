@@ -8,6 +8,8 @@ import datetime
 import logging
 import traceback
 import json
+import glob
+import shutil
 
 from flask import Flask, jsonify, request
 from data_validation.data_validation import DataValidator
@@ -37,12 +39,12 @@ class AuditPuleApp:
             try:
                 start_time = time.time()
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{timestamp}.md'
-                gcp_visualization_path = f'generated_reports/visualization_report/visualization_{timestamp}.txt'
-                gcp_logs_path = f'generated_reports/logs/log_{timestamp}.md'
+                gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{timestamp}_{run_id}.md'
+                gcp_visualization_path = f'generated_reports/visualization_report/visualization_{timestamp}_{run_id}.txt'
+                gcp_logs_path = f'generated_reports/logs/log_{timestamp}_{run_id}.md'
 
-                visualization_file = f'output/visualization/visualization_{timestamp}.txt'
-                audit_report_file = f'output/final_report/audit_report_{timestamp}.md'
+                visualization_file = f'output/visualization/visualization_{timestamp}_{run_id}.html'
+                audit_report_file = f'output/final_report/audit_report_{timestamp}_{run_id}.md'
                 run_log_file = f"logs/run_{timestamp}.txt"
                 debug_log_file =f"logs/debug_{timestamp}.log"
 
@@ -50,7 +52,7 @@ class AuditPuleApp:
                 logging.info("Report generation called"+"-"*75)
                 envelope = request.get_json()
                 run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
-                data_validator = DataValidator(company_name, central_index_key, year)
+                data_validator = DataValidator(str(company_name), str(central_index_key), str(year))
                 status, message = data_validator.run_validation()
                 if status:
                     validated_inputs = data_validator.auditpulse_validated_inputs
@@ -60,10 +62,11 @@ class AuditPuleApp:
                     year = validated_inputs.year
                     query = get_query("status_update")
                     values = (
-                            "ran",
+                            "running",
                             run_id
                             )
                     update_status(query, values)
+                    setup_dirs()
                     session = agentops.init()
                     kickoff(company_name,
                             central_index_key,
@@ -72,6 +75,8 @@ class AuditPuleApp:
                     session.end_session()
                     end_time = time.time()
                     duration = round(end_time - start_time, 2)
+                    compile_report(audit_report_file)
+                    compile_visualization(visualization_file)
                     logging.info(f"Report generation completed successfully in {duration} seconds.")
                     upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
                     upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
@@ -108,6 +113,7 @@ class AuditPuleApp:
                 update_status(query, values)
                 status = False
                 message = str(e) +'\n'+ str(stack_trace)
+            cleanup_dirs('output')
             return jsonify({    
                 "status":"Success!" if status else "Failure!",
                 "message":"Report generated!" if status else message}
@@ -160,10 +166,6 @@ def get_input_data(envelope):
             central_index_key, 
             company_ticker, 
             year)
-
-def update_results(status, message):
-    pass
-
 
 def get_document(db_client, collection_name, document_name):
     """
@@ -226,6 +228,8 @@ def update_collection(db_client, collection_name, document_name, updated_collect
     policy_collection.update(updated_collection)
 
 def download_from_gcp(bucket, gcp_file_path, local_file_path):
+    # if os.path.exists(local_file_path):
+    #     return
     blob = bucket.blob(gcp_file_path)
     blob.download_to_filename(local_file_path)
 
@@ -248,7 +252,43 @@ def upload_to_gcp(bucket, gcp_file_path, local_file_path):
     blob = bucket.blob(gcp_file_path)
     blob.upload_from_filename(local_file_path)
 
+def compile_report(final_report_path):
+    base_path = 'output'
+    if not os.path.exists(os.path.dirname(final_report_path)):
+        os.makedirs(os.path.dirname(final_report_path),exist_ok=True)
+    phase_task_mapping = {
+                        'client_acceptance':['client_background_task.md', 'financial_risk_task.md', 'engagement_scope_task.md'],
+                        'audit_planning':['preliminary_engagement_task.md','business_risk_task.md','internal_control_task.md','audit_strategy_task.md'],
+                        'testing_evidence':['substantive_testing_task.md','control_testing_task.md','analytical_procedures_task.md','evidence_documentation_task.md'],
+                        'evaluation_reporting':['evidence_evaluation_task.md','misstatement_analysis_task.md','conclusion_formation_task.md','audit_report_drafting_task.md']
+                        }
+    
+    with open(final_report_path, 'w') as final_report_file:
+        for phase in phase_task_mapping.keys():
+            for task_file in phase_task_mapping[phase]:
+                file = os.path.join(base_path, phase, task_file)
+                with open(file, 'r') as task_report_file:
+                    final_report_file.write(task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```'))
+                    final_report_file.write(f'\n')
 
+def compile_visualization(logs_path, final_visualization_path):
+    base_path = 'output'
+    # TODO: Call visualization function and compile all into one file.
+
+def setup_dirs():
+    phases = [
+            'client_acceptance',
+            'audit_planning',
+            'testing_evidence',
+            'evaluation_reporting'
+            ]
+    for phase in phases:
+        os.makedirs(os.path.join('output',phase))
+    # os.makedirs('logs')
+
+def cleanup_dirs(temp_dir):
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
 
 if __name__=="__main__":
     log_dir = 'logs'

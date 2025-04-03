@@ -16,8 +16,6 @@ class ClientAcceptanceCrew():
 	auditpulse_file_path = './auditpulse_flow/crews/client_acceptance_crew/data/AuditPulseInfo.md'
 	output_dir = "./output/client_acceptance"
 	log_path = "./logs/client_acceptance.txt"
-	os.makedirs(output_dir,exist_ok=True)
-	os.makedirs(os.path.dirname(log_path),exist_ok=True)
 
 	pcaob_guidlines_tool = JSONSearchTool(config={
         "llm": {
@@ -66,7 +64,7 @@ class ClientAcceptanceCrew():
 
 	llm = LLM(
 			model="vertex_ai/gemini-2.0-flash-lite-001",
-			max_tokens=	64,
+			max_tokens=3072,
 			context_window_size=950000,
 		)
 	@agent
@@ -83,9 +81,9 @@ class ClientAcceptanceCrew():
 				],
 				llm=self.llm,
 				respect_context_window=True,
-				max_rpm=10,
+				max_rpm=25,
 				cache=True,
-				max_retry_limit=10
+				max_retry_limit=3
 				)
 
 	@task

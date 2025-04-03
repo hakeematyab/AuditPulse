@@ -16,8 +16,6 @@ class TestingEvidenceGatheringCrew():
     auditpulse_file_path = './auditpulse_flow/crews/testing_evidence_crew/data/AuditPulseInfo.md'
     output_dir = "./output/testing_evidence"
     log_path = "./logs/testing_evidence.txt"
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
     pcaob_guidelines_tool = JSONSearchTool(config={
         "llm": {
@@ -66,7 +64,7 @@ class TestingEvidenceGatheringCrew():
 
     llm = LLM(
         model="vertex_ai/gemini-2.0-flash-lite-001",
-        max_tokens=64,
+        max_tokens=2048,
         context_window_size=950000,
     )
 
@@ -84,9 +82,9 @@ class TestingEvidenceGatheringCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=10,
+            max_rpm=25,
             cache=True,
-            max_retry_limit=10
+            max_retry_limit=3
         )
 
     @agent
@@ -103,9 +101,9 @@ class TestingEvidenceGatheringCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=10,
+            max_rpm=25,
             cache=True,
-            max_retry_limit=10
+            max_retry_limit=3
         )
 
     @agent
@@ -122,9 +120,9 @@ class TestingEvidenceGatheringCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=10,
+            max_rpm=25,
             cache=True,
-            max_retry_limit=10
+            max_retry_limit=3
         )
 
     @agent
@@ -141,9 +139,9 @@ class TestingEvidenceGatheringCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=10,
+            max_rpm=25,
             cache=True,
-            max_retry_limit=10
+            max_retry_limit=3
         )
 
     @task
