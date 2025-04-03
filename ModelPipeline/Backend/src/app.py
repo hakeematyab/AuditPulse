@@ -21,7 +21,7 @@ from google.cloud import firestore, storage
 import mysql.connector
 
 
-class AuditPuleApp:
+class AuditPulseApp:
     def __init__(self,):
         self.app = Flask(__name__)
         self.setup_endpoints()
@@ -332,7 +332,7 @@ if __name__=="__main__":
             except Exception as e:
                 logging.error(f"Error at {local_phase_prompt_path}")
                 logging.error(str(e))
-        app = AuditPuleApp()
+        app = AuditPulseApp()
         app.run()
     except Exception as e:
         stack_trace = traceback.format_exc()
