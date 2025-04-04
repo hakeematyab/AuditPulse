@@ -177,37 +177,37 @@ fig.update_layout(
     margin=dict(l=20, r=20, t=40, b=20)
 )
 
-fig.show()
-fig.write_html("crew_ai_graph.html")
+# fig.write_html("crew_ai_graph.html")
+html_str = fig.to_html(full_html=False, include_plotlyjs='cdn')
 
 # ✅ Create HTML Report Programmatically
-html_content = """
+html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Agent Log Visualizations</title>
     <style>
-        body {
+        body {{
             font-family: Arial, sans-serif;
             padding: 2rem;
             background-color: #f9f9f9;
-        }
-        h1, h2 {
+        }}
+        h1, h2 {{
             color: #333;
-        }
-        .plot {
+        }}
+        .plot {{
             margin-bottom: 40px;
-        }
-        img {
+        }}
+        img {{
             max-width: 100%;
             border: 1px solid #ccc;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        a {
+        }}
+        a {{
             color: #007acc;
             font-weight: bold;
-        }
+        }}
     </style>
 </head>
 <body>
@@ -229,7 +229,7 @@ html_content = """
     <div class="plot">
         <h2>🤖 Agent Reasoning Flow</h2>
         <p>View the interactive graph that shows the agent's reasoning process, thoughts, and tool usage:</p>
-        <a href="crew_ai_graph.html" target="_blank">🔗 Open Agent Reasoning Graph</a>
+        {html_str}
     </div>
 
 </body>
