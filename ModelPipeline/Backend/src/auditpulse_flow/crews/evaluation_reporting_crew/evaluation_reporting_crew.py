@@ -5,6 +5,7 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai_tools import SerperDevTool, ScrapeWebsiteTool, WebsiteSearchTool, JSONSearchTool, TXTSearchTool
 
 from crewai.llm import LLM
+from ...tools.custom_tool import WrappedScrapeWebsiteTool
 
 @CrewBase
 class EvaluationReportingCrew():
@@ -65,7 +66,7 @@ class EvaluationReportingCrew():
     llm = LLM(
         model="vertex_ai/gemini-2.0-flash-lite-001",
         max_tokens=3072,
-        context_window_size=950000,
+        context_window_size=1000000,
     )
 
     @agent
@@ -74,17 +75,18 @@ class EvaluationReportingCrew():
             config=self.agents_config['researcher'],
             verbose=True,
             tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
+                SerperDevTool(n_results=5),
+                WrappedScrapeWebsiteTool(),
                 self.website_search_tool,
                 self.pcaob_guidlines_tool,
                 self.auditpulse_file_tool
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=25,
+            max_rpm=10,
             cache=True,
-            max_retry_limit=3
+			max_iter=5,
+            max_retry_limit=20
         )
 
     @agent
@@ -93,17 +95,18 @@ class EvaluationReportingCrew():
             config=self.agents_config['reporting_analyst'],
             verbose=True,
             tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
+                SerperDevTool(n_results=5),
+                WrappedScrapeWebsiteTool(),
                 self.website_search_tool,
                 self.pcaob_guidlines_tool,
                 self.auditpulse_file_tool
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=25,
+            max_rpm=10,
             cache=True,
-            max_retry_limit=3
+			max_iter=5,
+            max_retry_limit=20
         )
 
     @task
@@ -131,7 +134,7 @@ class EvaluationReportingCrew():
             config=self.tasks_config['conclusion_formation_task'],
             async_execution=False,
             agent=self.reporting_analyst(),
-            context=[self.evidence_evaluation_task(), self.misstatement_analysis_task()],
+            context=[self.misstatement_analysis_task()],
             output_file=os.path.join(self.output_dir, 'conclusion_formation_task.md'),
         )
 

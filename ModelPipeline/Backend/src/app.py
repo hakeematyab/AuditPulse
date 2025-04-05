@@ -39,12 +39,12 @@ class AuditPuleApp:
             try:
                 start_time = time.time()
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{timestamp}_{run_id}.md'
-                gcp_visualization_path = f'generated_reports/visualization_report/visualization_{timestamp}_{run_id}.txt'
-                gcp_logs_path = f'generated_reports/logs/log_{timestamp}_{run_id}.md'
+                gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{timestamp}.md'
+                gcp_visualization_path = f'generated_reports/visualization_report/visualization_{timestamp}.html'
+                gcp_logs_path = f'generated_reports/logs/log_{timestamp}'
 
-                visualization_file = f'output/visualization/visualization_{timestamp}_{run_id}.html'
-                audit_report_file = f'output/final_report/audit_report_{timestamp}_{run_id}.md'
+                visualization_file = f'output/visualization/visualization_{timestamp}.html'
+                audit_report_file = f'output/final_report/audit_report_{timestamp}.md'
                 run_log_file = f"logs/run_{timestamp}.txt"
                 debug_log_file =f"logs/debug_{timestamp}.log"
 
@@ -65,7 +65,9 @@ class AuditPuleApp:
                             "running",
                             run_id
                             )
-                    update_status(query, values)
+                    # update_status(query, values)
+                    cleanup_dirs('output')
+                    cleanup_dirs('logs')
                     setup_dirs()
                     session = agentops.init()
                     kickoff(company_name,
@@ -90,7 +92,7 @@ class AuditPuleApp:
                             f"Report generation completed successfully in {duration} seconds.",
                             run_id
                             )
-                    update_status(query, values)
+                    # update_status(query, values)
                 else:
                     raise ValueError(f"Inputs not valid.\nDetails: {message}")
             except Exception as e:
@@ -102,21 +104,21 @@ class AuditPuleApp:
                 logging.error(f"Stack Trace:\n{stack_trace}")
                 upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
                 query = get_query("run_update")
+                fail_message = str(e)[:50]
                 values = (
                         'failed',
                         '',
                         '',
                         gcp_logs_path,
-                        f"{str(e)[:100]}",
+                        fail_message,
                         run_id
                         )
-                update_status(query, values)
+                # update_status(query, values)
                 status = False
                 message = str(e) +'\n'+ str(stack_trace)
-            cleanup_dirs('output')
             return jsonify({    
                 "status":"Success!" if status else "Failure!",
-                "message":"Report generated!" if status else message}
+                "message":"Report generated!" if status else message[:100]}
                 )
     def run(self,debug=True):
         self.app.run(debug=debug, use_reloader=False)
@@ -267,6 +269,8 @@ def compile_report(final_report_path):
         for phase in phase_task_mapping.keys():
             for task_file in phase_task_mapping[phase]:
                 file = os.path.join(base_path, phase, task_file)
+                if not os.path.exists(file):
+                    raise ValueError(f"Missing phase: {phase}")
                 with open(file, 'r') as task_report_file:
                     final_report_file.write(task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```'))
                     final_report_file.write(f'\n')
@@ -283,8 +287,8 @@ def setup_dirs():
             'evaluation_reporting'
             ]
     for phase in phases:
-        os.makedirs(os.path.join('output',phase))
-    # os.makedirs('logs')
+        os.makedirs(os.path.join('output',phase),exist_ok=True)
+    os.makedirs('logs')
 
 def cleanup_dirs(temp_dir):
     if os.path.exists(temp_dir):
@@ -309,14 +313,14 @@ if __name__=="__main__":
         db_client = firestore.Client(project='auditpulse')
         storage_client = storage.Client(project='auditpulse')
         bucket = storage_client.bucket(bucket_name)
-        mysql_conn = mysql.connector.connect(
-            host='34.46.191.121',
-            port=3306,
-            user='root',
-            database='auditpulse',
-            password=os.getenv('MYSQL_GCP_PASS')
-        )
-        mysql_cursor = mysql_conn.cursor()
+        # mysql_conn = mysql.connector.connect(
+        #     host='34.46.191.121',
+        #     port=3306,
+        #     user='root',
+        #     database='auditpulse',
+        #     password=os.getenv('MYSQL_GCP_PASS')
+        # )
+        # mysql_cursor = mysql_conn.cursor()
         deployment_config = get_document(db_client, collection_name, document_name)
         gcp_policy_path = deployment_config.get('active_policy_path')
         gcp_prompt_path = deployment_config.get('active_prompts_path')

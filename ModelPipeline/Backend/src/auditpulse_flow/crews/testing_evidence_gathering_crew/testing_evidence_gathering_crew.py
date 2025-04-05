@@ -5,6 +5,8 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai_tools import SerperDevTool, ScrapeWebsiteTool, WebsiteSearchTool, JSONSearchTool, TXTSearchTool
 
 from crewai.llm import LLM
+from ...tools.custom_tool import WrappedScrapeWebsiteTool
+
 
 @CrewBase
 class TestingEvidenceGatheringCrew():
@@ -64,27 +66,35 @@ class TestingEvidenceGatheringCrew():
 
     llm = LLM(
         model="vertex_ai/gemini-2.0-flash-lite-001",
-        max_tokens=2048,
-        context_window_size=950000,
+        max_tokens=3072,
+        context_window_size=1000000,
     )
 
+    def task_limit_context(self, task_output):
+        context_len = 1_000_000
+        n_tasks = 3
+        max_chars = int((context_len*3.3)/n_tasks)
+        task_output.raw = task_output.raw[:max_chars]
+        return True, task_output
+    
     @agent
     def substantive_testing_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['substantive_testing_agent'],
             verbose=True,
             tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
+                SerperDevTool(n_results=5),
+                WrappedScrapeWebsiteTool(),
                 self.website_search_tool,
                 self.pcaob_guidelines_tool,
                 self.auditpulse_file_tool
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=25,
+            max_rpm=10,
             cache=True,
-            max_retry_limit=3
+			max_iter=5,
+            max_retry_limit=20
         )
 
     @agent
@@ -93,17 +103,18 @@ class TestingEvidenceGatheringCrew():
             config=self.agents_config['control_testing_agent'],
             verbose=True,
             tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
+                SerperDevTool(n_results=5),
+                WrappedScrapeWebsiteTool(),
                 self.website_search_tool,
                 self.pcaob_guidelines_tool,
                 self.auditpulse_file_tool
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=25,
+            max_rpm=10,
             cache=True,
-            max_retry_limit=3
+			max_iter=5,
+            max_retry_limit=20
         )
 
     @agent
@@ -112,17 +123,18 @@ class TestingEvidenceGatheringCrew():
             config=self.agents_config['analytical_procedures_agent'],
             verbose=True,
             tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
+                SerperDevTool(n_results=5),
+                WrappedScrapeWebsiteTool(),
                 self.website_search_tool,
                 self.pcaob_guidelines_tool,
                 self.auditpulse_file_tool
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=25,
+            max_rpm=10,
             cache=True,
-            max_retry_limit=3
+			max_iter=5,
+            max_retry_limit=20
         )
 
     @agent
@@ -131,17 +143,18 @@ class TestingEvidenceGatheringCrew():
             config=self.agents_config['evidence_documentation_agent'],
             verbose=True,
             tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
+                SerperDevTool(n_results=5),
+                WrappedScrapeWebsiteTool(),
                 self.website_search_tool,
                 self.pcaob_guidelines_tool,
                 self.auditpulse_file_tool
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=25,
+            max_rpm=10,
             cache=True,
-            max_retry_limit=3
+			max_iter=5,
+            max_retry_limit=20
         )
 
     @task
@@ -150,6 +163,7 @@ class TestingEvidenceGatheringCrew():
             config=self.tasks_config['substantive_testing_task'],
             async_execution=False,
             agent=self.substantive_testing_agent(),
+            guardrail=self.task_limit_context,
             output_file=os.path.join(self.output_dir, 'substantive_testing_task.md'),
         )
 
@@ -159,6 +173,7 @@ class TestingEvidenceGatheringCrew():
             config=self.tasks_config['control_testing_task'],
             async_execution=False,
             agent=self.control_testing_agent(),
+            guardrail=self.task_limit_context,
             output_file=os.path.join(self.output_dir, 'control_testing_task.md'),
         )
 
@@ -168,6 +183,7 @@ class TestingEvidenceGatheringCrew():
             config=self.tasks_config['analytical_procedures_task'],
             async_execution=False,
             agent=self.analytical_procedures_agent(),
+            guardrail=self.task_limit_context,
             output_file=os.path.join(self.output_dir, 'analytical_procedures_task.md'),
         )
 

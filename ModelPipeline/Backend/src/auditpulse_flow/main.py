@@ -1,14 +1,25 @@
-#!/usr/bin/env python
+import time
+from datetime import datetime
 from random import randint
+
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from crewai.flow import Flow, listen, start
 
+from crewai.utilities.events import crewai_event_bus, LLMCallCompletedEvent
+
 from auditpulse_flow.crews.client_acceptance_crew.client_acceptance_crew import ClientAcceptanceCrew
 from auditpulse_flow.crews.audit_planning_crew.audit_planning_crew import AuditPlanningCrew
 from auditpulse_flow.crews.testing_evidence_gathering_crew.testing_evidence_gathering_crew import TestingEvidenceGatheringCrew
 from auditpulse_flow.crews.evaluation_reporting_crew.evaluation_reporting_crew import EvaluationReportingCrew
+
+@crewai_event_bus.on(LLMCallCompletedEvent)
+def on_llm_call_complete(source: Any, event):
+    sleeptime = 5
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}][🕒 LLM DELAY]: Sleeping for {sleeptime} seconds before next call...")
+    time.sleep(sleeptime)
 
 class AuditPulseState(BaseModel):
     """Validated and sanitized inputs."""
@@ -39,7 +50,7 @@ class AuditPulseFlow(Flow[AuditPulseState]):
         
     @listen(client_acceptance_crew)
     def audit_planning_crew(self):
-        self.state.client_acceptance_result = AuditPlanningCrew().crew().kickoff(
+        self.state.audit_planning_result = AuditPlanningCrew().crew().kickoff(
                                                 inputs={
                                                 'audit_firm':self.state.audit_firm,
                                                 'company_name': self.state.company_name,
@@ -51,7 +62,6 @@ class AuditPulseFlow(Flow[AuditPulseState]):
 
     @listen(audit_planning_crew)
     def testing_evidence_gathering_crew(self):
-        print("Starting Testing and Evidence Gathering Crew...")
         self.state.testing_evidence_gathering_result = TestingEvidenceGatheringCrew().crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,
@@ -65,7 +75,6 @@ class AuditPulseFlow(Flow[AuditPulseState]):
 
     @listen(testing_evidence_gathering_crew)
     def evaluation_reporting_crew(self):
-        print("Starting Evaluation and Reporting Crew...")
         self.state.evaluation_reporting_result = EvaluationReportingCrew().crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,
