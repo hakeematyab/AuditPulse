@@ -43,7 +43,7 @@ jobs:
             credentials_json: '${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
 
       - name: Run Tests
-        run: python test/test_audit_report_generation.py
+        run: python tests/test_audit_report_generation.py
 
       - name: Test Success Notification
         if: success()
