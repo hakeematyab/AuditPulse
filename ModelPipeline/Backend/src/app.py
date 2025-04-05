@@ -120,8 +120,8 @@ class AuditPulseApp:
                 "status":"Success!" if status else "Failure!",
                 "message":"Report generated!" if status else message[:100]}
                 )
-    def run(self,debug=True):
-        self.app.run(debug=debug, use_reloader=False)
+    def run(self,host='0.0.0.0', port=5000, debug=True):
+        self.app.run(host=host, port=port, debug=debug, use_reloader=False)
 
 class TeeStream:
     def __init__(self, original_stream, log_file):
