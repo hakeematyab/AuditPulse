@@ -78,7 +78,7 @@ class AuditPulseApp:
                     end_time = time.time()
                     duration = round(end_time - start_time, 2)
                     compile_report(audit_report_file)
-                    compile_visualization(visualization_file)
+                    # compile_visualization(visualization_file)
                     logging.info(f"Report generation completed successfully in {duration} seconds.")
                     upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
                     upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
