@@ -1,0 +1,13 @@
+FROM python:3.12.9
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+WORKDIR /app/src
+
+EXPOSE 5000
+
+ENTRYPOINT ["python", "app.py"]
