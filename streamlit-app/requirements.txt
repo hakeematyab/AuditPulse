@@ -4,3 +4,4 @@ datetime
 pymysql
 cloud-sql-python-connector
 sqlalchemy
+google-cloud-pubsub
