@@ -3,8 +3,8 @@ name: 10K Processing Workflow
 on:
   workflow_dispatch:
   push:
-    branches:
-      - master
+    paths:
+      - 'DataPipeline/Processor_10K/**'
 
 jobs:
   build_and_deploy:
