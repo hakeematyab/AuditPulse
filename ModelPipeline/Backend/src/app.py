@@ -11,6 +11,7 @@ import json
 import glob
 import shutil
 
+import base64
 from flask import Flask, jsonify, request
 from data_validation.data_validation import DataValidator
 
@@ -50,7 +51,19 @@ class AuditPulseApp:
 
                 setup_logging(run_log_file, debug_log_file)
                 logging.info("Report generation called"+"-"*75)
-                envelope = request.get_json()
+                try:
+                    envelope = request.get_json()
+                    print(envelope)
+                except:
+                    pass
+                try:
+                    envelope = request.get_data()
+                    print(envelope)
+                except:
+                    pass
+                return jsonify({    
+                "status":"Test"
+                })
                 run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
                 data_validator = DataValidator(str(company_name), str(central_index_key), str(year))
                 status, message = data_validator.run_validation()
@@ -157,7 +170,8 @@ def get_input_data(envelope):
     message = envelope.get('message',None)
     if not message:
         raise ValueError("Input data absent.")
-    data = json.loads(message['data'])
+    data = base64.b64decode(message['data']).decode('utf-8')
+    data = json.loads(data)
     run_id = data.get('run_id')
     company_name = data.get('company_name')
     central_index_key = data.get('central_index_key')
