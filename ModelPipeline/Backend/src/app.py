@@ -65,7 +65,7 @@ class AuditPulseApp:
                             "running",
                             run_id
                             )
-                    # update_status(query, values)
+                    update_status(query, values)
                     cleanup_dirs('output')
                     cleanup_dirs('logs')
                     setup_dirs()
@@ -92,7 +92,7 @@ class AuditPulseApp:
                             f"Report generation completed successfully in {duration} seconds.",
                             run_id
                             )
-                    # update_status(query, values)
+                    update_status(query, values)
                 else:
                     raise ValueError(f"Inputs not valid.\nDetails: {message}")
             except Exception as e:
@@ -113,7 +113,7 @@ class AuditPulseApp:
                         fail_message,
                         run_id
                         )
-                # update_status(query, values)
+                update_status(query, values)
                 status = False
                 message = str(e) +'\n'+ str(stack_trace)
             return jsonify({    
@@ -313,14 +313,14 @@ if __name__=="__main__":
         db_client = firestore.Client(project='auditpulse')
         storage_client = storage.Client(project='auditpulse')
         bucket = storage_client.bucket(bucket_name)
-        # mysql_conn = mysql.connector.connect(
-        #     host='34.46.191.121',
-        #     port=3306,
-        #     user='root',
-        #     database='auditpulse',
-        #     password=os.getenv('MYSQL_GCP_PASS')
-        # )
-        # mysql_cursor = mysql_conn.cursor()
+        mysql_conn = mysql.connector.connect(
+            host='34.46.191.121',
+            port=3306,
+            user='root',
+            database='auditpulse',
+            password=os.getenv('MYSQL_GCP_PASS')
+        )
+        mysql_cursor = mysql_conn.cursor()
         deployment_config = get_document(db_client, collection_name, document_name)
         gcp_policy_path = deployment_config.get('active_policy_path')
         gcp_prompt_path = deployment_config.get('active_prompts_path')
