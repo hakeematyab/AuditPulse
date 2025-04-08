@@ -51,19 +51,7 @@ class AuditPulseApp:
 
                 setup_logging(run_log_file, debug_log_file)
                 logging.info("Report generation called"+"-"*75)
-                try:
-                    envelope = request.get_json()
-                    print(envelope)
-                except:
-                    pass
-                try:
-                    envelope = request.get_data()
-                    print(envelope)
-                except:
-                    pass
-                return jsonify({    
-                "status":"Test"
-                })
+                envelope = request.get_json()
                 run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
                 data_validator = DataValidator(str(company_name), str(central_index_key), str(year))
                 status, message = data_validator.run_validation()
