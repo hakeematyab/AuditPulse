@@ -163,7 +163,7 @@ def compile_report(base_path, final_report_path):
             for task_file in phase_task_mapping[phase]:
                 file = os.path.join(base_path, phase, task_file)
                 if not os.path.exists(file):
-                    raise ValueError(f"Missing phase: {phase}")
+                    raise ValueError(f"Missing phase: {phase}. File: {file}")
                 with open(file, 'r') as task_report_file:
                     final_report_file.write(task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```'))
                     final_report_file.write(f'\n')
@@ -186,20 +186,19 @@ def cleanup_dirs(temp_dir):
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
-def subscriber():
+def subscriber(process_idx):
     from auditpulse_flow.main import kickoff
     import agentops
     def generate_audit_report(envelope, bucket, mysql_cursor, mysql_conn):
         try:
             start_time = time.time()
+            run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            run_log_file = f"logs/run_{timestamp}.txt"
-            debug_log_file =f"logs/debug_{timestamp}.log"
+            run_log_file = f"logs/run_{run_id}_{timestamp}.txt"
+            debug_log_file =f"logs/debug_{run_id}_{timestamp}.log"
 
             setup_logging(run_log_file, debug_log_file)
             logging.info("Report generation called"+"-"*75)
-
-            run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
 
             gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{run_id}_{timestamp}.md'
             gcp_visualization_path = f'generated_reports/visualization_report/visualization_{run_id}_{timestamp}.html'
@@ -233,7 +232,7 @@ def subscriber():
                 session.end_session()
                 end_time = time.time()
                 duration = round(end_time - start_time, 2)
-                compile_report(audit_report_file)
+                compile_report(base_output_path, audit_report_file)
                 # compile_visualization(base_output_path, run_log_file, visualization_file)
                 logging.info(f"Report generation completed successfully in {duration} seconds.")
                 upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
@@ -283,7 +282,7 @@ def subscriber():
     )
     mysql_cursor = mysql_conn.cursor()
     subscriber = pubsub_v1.SubscriberClient()
-    timeout = 30
+    timeout = float('inf')
     start_time = 0
     while True:
         try:
@@ -296,11 +295,14 @@ def subscriber():
                         )
             subscriber.acknowledge({"subscription": subscriber_path, "ack_ids": [response.received_messages[0].ack_id]})
             start_time = 0
+            print(f"Process {process_idx+1} picked up a task.")
             generate_audit_report(response.received_messages[0].message, bucket, mysql_cursor, mysql_conn)
+            print(f"Process {process_idx+1} completed the task.")
         except:
             if start_time==0:
                 start_time = time.perf_counter()
             elif time.perf_counter() - start_time > timeout:
+                print(f"Timeout. Process {process_idx+1} exiting.")
                 break
             else:
                 pass
@@ -309,7 +311,7 @@ def start_worker(num_workers):
     workers = []
     for i in range(num_workers):
         print(f'Process {i+1} started.')
-        p = Process(target=subscriber)
+        p = Process(target=subscriber, args=(i,))
         p.start()
         workers.append(p)
     for i, p in enumerate(workers):
@@ -331,9 +333,9 @@ def main():
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     run_log_file = f"logs/run_{timestamp}.txt"
     debug_log_file =f"logs/debug_{timestamp}.log"
-    setup_logging(run_log_file, debug_log_file)
+    # setup_logging(run_log_file, debug_log_file)
     try:
-        logging.info("Run started"+"="*75)
+        print("Run started"+"="*75)
         db_client = firestore.Client(project='auditpulse')
         storage_client = storage.Client(project='auditpulse')
         bucket = storage_client.bucket(bucket_name)
@@ -358,16 +360,16 @@ def main():
             try:
                 download_from_gcp(bucket, phase_prompt_path, local_phase_prompt_path)
             except Exception as e:
-                logging.error(f"Error at {local_phase_prompt_path}")
-                logging.error(str(e))
+                print(f"Error at {local_phase_prompt_path}")
+                print(str(e))
         start_worker(num_workers)
         cleanup_dirs('output')
         cleanup_dirs('logs')
     except Exception as e:
         stack_trace = traceback.format_exc()
-        logging.error(f"Run failed.")
-        logging.error(f"Error: {str(e)}")
-        logging.error(f"Stack Trace:\n{stack_trace}")
+        print("Run failed.")
+        print(f"Error: {str(e)}")
+        print(f"Stack Trace:\n{stack_trace}")
 
 if __name__=="__main__":
     main()

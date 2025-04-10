@@ -11,12 +11,11 @@ from ...tools.custom_tool import WrappedScrapeWebsiteTool
 class EvaluationReportingCrew():
     """EvaluationReportingCrew crew"""
 
-    run_id = '000000000'
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
     compliance_file_path = './auditpulse_flow/crews/evaluation_reporting_crew/data/compliance.json'
     auditpulse_file_path = './auditpulse_flow/crews/evaluation_reporting_crew/data/AuditPulseInfo.md'
-    output_dir = f"./output/{run_id}/evaluation_reporting"
+    output_dir = "./output/{run_id}/evaluation_reporting"
     log_path = "./logs/evaluation_reporting.txt"
 
     pcaob_guidlines_tool = JSONSearchTool(config={
@@ -84,7 +83,7 @@ class EvaluationReportingCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=10,
+            max_rpm=30,
             cache=True,
 			max_iter=5,
             max_retry_limit=20
@@ -104,7 +103,7 @@ class EvaluationReportingCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=10,
+            max_rpm=30,
             cache=True,
 			max_iter=5,
             max_retry_limit=20

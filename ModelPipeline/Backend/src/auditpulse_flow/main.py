@@ -39,7 +39,7 @@ class AuditPulseFlow(Flow[AuditPulseState]):
     @start()
     def client_acceptance_crew(self):
         client_acceptance = ClientAcceptanceCrew()
-        client_acceptance.run_id = self.state.run_id
+        client_acceptance.output_dir = client_acceptance.output_dir.format(run_id=self.state.run_id)
         self.state.client_acceptance_result = client_acceptance.crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,
@@ -53,7 +53,7 @@ class AuditPulseFlow(Flow[AuditPulseState]):
     @listen(client_acceptance_crew)
     def audit_planning_crew(self):
         audit_planning = AuditPlanningCrew()
-        audit_planning.run_id = self.state.run_id
+        audit_planning.output_dir = audit_planning.output_dir.format(run_id=self.state.run_id)
         self.state.audit_planning_result = audit_planning.crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,
@@ -67,7 +67,7 @@ class AuditPulseFlow(Flow[AuditPulseState]):
     @listen(audit_planning_crew)
     def testing_evidence_gathering_crew(self):
         test_crew = TestingEvidenceGatheringCrew()
-        test_crew.run_id = self.state.run_id
+        test_crew.output_dir = test_crew.output_dir.format(run_id=self.state.run_id)
         self.state.testing_evidence_gathering_result = test_crew.crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,
@@ -81,7 +81,7 @@ class AuditPulseFlow(Flow[AuditPulseState]):
     @listen(testing_evidence_gathering_crew)
     def evaluation_reporting_crew(self):
         eval_crew = EvaluationReportingCrew()
-        eval_crew.run_id = self.state.run_id
+        eval_crew.output_dir = eval_crew.output_dir.format(run_id=self.state.run_id)
         self.state.evaluation_reporting_result = eval_crew.crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,

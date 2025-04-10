@@ -11,12 +11,11 @@ from ...tools.custom_tool import WrappedScrapeWebsiteTool
 class ClientAcceptanceCrew():
 	"""ClientAcceptanceCrew crew"""
 
-	run_id = '000000000'
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
 	compliance_file_path = './auditpulse_flow/crews/client_acceptance_crew/data/compliance.json'
 	auditpulse_file_path = './auditpulse_flow/crews/client_acceptance_crew/data/AuditPulseInfo.md'
-	output_dir = f"./output/{run_id}/client_acceptance"
+	output_dir = "./output/{run_id}/client_acceptance"
 	log_path = "./logs/client_acceptance.txt"
 
 	pcaob_guidlines_tool = JSONSearchTool(config={
@@ -83,7 +82,7 @@ class ClientAcceptanceCrew():
 				],
 				llm=self.llm,
 				respect_context_window=True,
-				max_rpm=10,
+				max_rpm=30,
 				cache=True,
 				max_iter=5,
 				max_retry_limit=20

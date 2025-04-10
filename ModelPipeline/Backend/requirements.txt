@@ -60,6 +60,7 @@ google-cloud-core==2.4.3
 google-cloud-resource-manager==1.14.1
 google-cloud-storage
 google-cloud-firestore
+google-cloud-pubsub
 google-crc32c==1.6.0
 google-generativeai==0.8.4
 google-resumable-media==2.7.2
