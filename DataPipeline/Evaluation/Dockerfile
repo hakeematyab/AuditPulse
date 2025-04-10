@@ -8,4 +8,4 @@ RUN pip install -r requirements.txt
 
 ENV TOKENIZERS_PARALLELISM=false
 
-ENTRYPOINT ["python", "app.py"]
+ENTRYPOINT ["python", "t5.py"]
