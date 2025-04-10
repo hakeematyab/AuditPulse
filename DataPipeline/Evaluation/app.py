@@ -11,6 +11,7 @@ from transformers import T5Tokenizer, T5ForConditionalGeneration, AutoTokenizer,
 import torch
 from transformers import RobertaTokenizer, RobertaModel, AutoModelForMaskedLM
 from google.cloud import firestore, storage
+from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -37,15 +38,26 @@ def submit():
         print('\n\n\n')
         documents_download(path1, path2)
         print('\n\n\n')
-        evaluate_similarity(company_name, path1, path2)
+        sbert_score = compare_sbert_with_saved("./temp/generated.txt")
+        mbert_score = compare_modernbert_with_saved("./temp/generated.txt")
+        bert_score = compare_bert_with_saved("./temp/generated.txt")
+        roberta_score = compare_roberta_with_saved("./temp/generated.txt")
+        print(sbert_score)
+        print(mbert_score)
+        print(bert_score)
+        print(roberta_score)
         print('\n\n\n')
         clear_temp_folder()                                                 # refresh temp
     except subprocess.CalledProcessError as e:
         return f"Error running the scripts: {e}"
 
     # After running the scripts, redirect to result page
-    return redirect(url_for('result'))
-
+    return render_template('results.html',
+                           company_name=company_name,
+                           sbert_score=sbert_score,
+                           mbert_score=mbert_score,
+                           bert_score=bert_score,
+                           roberta_score=roberta_score)
 
 @app.route('/result')
 def result():
@@ -58,6 +70,117 @@ def result():
         return render_template('result.html', result=policy_doc)
     except ValueError as e:
         return e
+
+def cosine_similarity_custom(vector1, vector2):
+    """
+    Compute cosine similarity between two vectors from scratch.
+    
+    Args:
+        vector1 (numpy.array): The first vector.
+        vector2 (numpy.array): The second vector.
+    
+    Returns:
+        float: The cosine similarity between the two vectors.
+    """
+    # Ensure both vectors are numpy arrays
+    vector1 = np.asarray(vector1)
+    vector2 = np.asarray(vector2)
+    
+    # Compute dot product
+    dot_product = np.dot(vector1, vector2)
+    
+    # Compute the magnitudes (norms) of the vectors
+    norm1 = np.linalg.norm(vector1)
+    norm2 = np.linalg.norm(vector2)
+    
+    # Calculate cosine similarity
+    similarity = dot_product / (norm1 * norm2)
+    
+    return similarity
+
+def compare_embedding_with_saved(
+    new_file_path,
+    model_name,
+    gcp_bucket,
+    gcs_embedding_path,
+    chunk_char_size=1000
+):
+    # Load model & tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModel.from_pretrained(model_name)
+    model.eval()
+
+    # Load saved embedding from GCS
+    client = storage.Client()
+    bucket = client.bucket(gcp_bucket)
+    blob = bucket.blob(gcs_embedding_path)
+    with tempfile.NamedTemporaryFile(suffix=".npy") as temp_file:
+        blob.download_to_filename(temp_file.name)
+        saved_embedding = np.load(temp_file.name)
+
+    # Generate embedding for the new file
+    embedding_sum = None
+    chunk_count = 0
+    with open(new_file_path, 'r', encoding='utf-8') as f:
+        buffer = ""
+        for line in f:
+            buffer += line
+            if len(buffer) >= chunk_char_size:
+                inputs = tokenizer(buffer, return_tensors="pt", truncation=True, padding=True, max_length=512)
+                with torch.no_grad():
+                    embedding = model(**inputs).last_hidden_state.mean(dim=1).squeeze()
+                embedding_sum = embedding if embedding_sum is None else embedding_sum + embedding
+                chunk_count += 1
+                buffer = ""
+        if buffer:
+            inputs = tokenizer(buffer, return_tensors="pt", truncation=True, padding=True, max_length=512)
+            with torch.no_grad():
+                embedding = model(**inputs).last_hidden_state.mean(dim=1).squeeze()
+            embedding_sum = embedding if embedding_sum is None else embedding_sum + embedding
+            chunk_count += 1
+
+    new_embedding = (embedding_sum / chunk_count).numpy()
+
+    # Compare embeddings
+    similarity = cosine_similarity(
+        new_embedding.reshape(1, -1),
+        saved_embedding.reshape(1, -1)
+    )[0][0]
+
+    print(f"✅ Cosine Similarity: {similarity:.4f}")
+    return similarity
+
+def compare_sbert_with_saved(new_file_path, gcp_bucket="auditpulse-data", gcs_embedding_path="Evaluation/Doc3/sbert_embd-large.npy"):
+    return compare_embedding_with_saved(
+        new_file_path=new_file_path,
+        model_name="Muennighoff/SBERT-base-nli-v2",
+        gcp_bucket=gcp_bucket,
+        gcs_embedding_path=gcs_embedding_path
+    )
+
+def compare_bert_with_saved(new_file_path, gcp_bucket="auditpulse-data", gcs_embedding_path="Evaluation/Doc3/bert_embd-large.npy"):
+    return compare_embedding_with_saved(
+        new_file_path=new_file_path,
+        model_name='google-bert/bert-base-uncased',
+        gcp_bucket=gcp_bucket,
+        gcs_embedding_path=gcs_embedding_path
+    )
+
+def compare_modernbert_with_saved(new_file_path, gcp_bucket="auditpulse-data", gcs_embedding_path="Evaluation/Doc3/modernbert_embd-large.npy"):
+    return compare_embedding_with_saved(
+        new_file_path=new_file_path,
+        model_name='answerdotai/ModernBERT-base',
+        gcp_bucket=gcp_bucket,
+        gcs_embedding_path=gcs_embedding_path
+    )
+
+def compare_roberta_with_saved(new_file_path, gcp_bucket="auditpulse-data", gcs_embedding_path="Evaluation/Doc3/roberta_embd-large.npy"):
+    return compare_embedding_with_saved(
+        new_file_path=new_file_path,
+        model_name='roberta-base',
+        gcp_bucket=gcp_bucket,
+        gcs_embedding_path=gcs_embedding_path
+    )
 
 
 def clear_temp_folder(folder_path="temp"):
@@ -491,5 +614,4 @@ def detail_info(doc1, doc2):
     return [doc1, doc2]
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=8080)
