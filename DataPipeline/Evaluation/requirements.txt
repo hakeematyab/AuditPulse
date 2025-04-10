@@ -8,3 +8,4 @@ transformers==4.49.0
 werkzeug==2.2.3
 google-cloud-firestore==2.20.1
 sentencepiece==0.2.0
+scikit-learn==1.2.2
