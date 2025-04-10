@@ -24,6 +24,7 @@ def on_llm_call_complete(source: Any, event):
 class AuditPulseState(BaseModel):
     """Validated and sanitized inputs."""
     audit_firm: str = "AuditPulse"
+    run_id: str = Field("0000000", description="Identifier of the run.")
     company_name: str = Field(None, description="Name of the company to audit.")
     central_index_key: int = Field(None, description="A unique central index key to identify the company.") 
     company_ticker: str = Field(None, description="The ticker associated with the company.") 
@@ -33,36 +34,41 @@ class AuditPulseState(BaseModel):
     testing_evidence_gathering_result: str = Field(None,description="Result of the testing, evidence gathering phase.")
     evaluation_reporting_result: str = Field(None,description="Result of the evaluation reporting phase.")
 
-class AuditPulseFlow(Flow[AuditPulseState]):
 
+class AuditPulseFlow(Flow[AuditPulseState]):
     @start()
     def client_acceptance_crew(self):
-        print("Generating sentence count")
-        self.state.client_acceptance_result = ClientAcceptanceCrew().crew().kickoff(
-                                                inputs={
-                                                'audit_firm':self.state.audit_firm,
-                                                'company_name': self.state.company_name,
-                                                'central_index_key': self.state.central_index_key,
-                                                'company_ticker': self.state.company_ticker,
-                                                'year': self.state.year
-                                                }
-                                                )
-        
+        client_acceptance = ClientAcceptanceCrew()
+        client_acceptance.run_id = self.state.run_id
+        self.state.client_acceptance_result = client_acceptance.crew().kickoff(
+            inputs={
+                'audit_firm': self.state.audit_firm,
+                'company_name': self.state.company_name,
+                'central_index_key': self.state.central_index_key,
+                'company_ticker': self.state.company_ticker,
+                'year': self.state.year
+            }
+        )
+
     @listen(client_acceptance_crew)
     def audit_planning_crew(self):
-        self.state.audit_planning_result = AuditPlanningCrew().crew().kickoff(
-                                                inputs={
-                                                'audit_firm':self.state.audit_firm,
-                                                'company_name': self.state.company_name,
-                                                'central_index_key': self.state.central_index_key,
-                                                'company_ticker': self.state.company_ticker,
-                                                'year': self.state.year
-                                                }
-                                                )
+        audit_planning = AuditPlanningCrew()
+        audit_planning.run_id = self.state.run_id
+        self.state.audit_planning_result = audit_planning.crew().kickoff(
+            inputs={
+                'audit_firm': self.state.audit_firm,
+                'company_name': self.state.company_name,
+                'central_index_key': self.state.central_index_key,
+                'company_ticker': self.state.company_ticker,
+                'year': self.state.year
+            }
+        )
 
     @listen(audit_planning_crew)
     def testing_evidence_gathering_crew(self):
-        self.state.testing_evidence_gathering_result = TestingEvidenceGatheringCrew().crew().kickoff(
+        test_crew = TestingEvidenceGatheringCrew()
+        test_crew.run_id = self.state.run_id
+        self.state.testing_evidence_gathering_result = test_crew.crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,
                 'company_name': self.state.company_name,
@@ -71,11 +77,12 @@ class AuditPulseFlow(Flow[AuditPulseState]):
                 'year': self.state.year
             }
         )
-        print(f"Testing Evidence Gathering Result: {self.state.testing_evidence_gathering_result}")
 
     @listen(testing_evidence_gathering_crew)
     def evaluation_reporting_crew(self):
-        self.state.evaluation_reporting_result = EvaluationReportingCrew().crew().kickoff(
+        eval_crew = EvaluationReportingCrew()
+        eval_crew.run_id = self.state.run_id
+        self.state.evaluation_reporting_result = eval_crew.crew().kickoff(
             inputs={
                 'audit_firm': self.state.audit_firm,
                 'company_name': self.state.company_name,
@@ -84,12 +91,11 @@ class AuditPulseFlow(Flow[AuditPulseState]):
                 'year': self.state.year
             }
         )
-        print(f"Evaluation Reporting Result: {self.state.evaluation_reporting_result}")
 
 
-
-def kickoff(company_name, central_index_key, company_ticker, year):
+def kickoff(run_id, company_name, central_index_key, company_ticker, year):
     auditpulse_flow = AuditPulseFlow()
+    auditpulse_flow.state.run_id = run_id
     auditpulse_flow.state.company_name = company_name
     auditpulse_flow.state.central_index_key = central_index_key
     auditpulse_flow.state.company_ticker = company_ticker

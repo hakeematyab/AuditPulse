@@ -11,11 +11,12 @@ from ...tools.custom_tool import WrappedScrapeWebsiteTool
 class AuditPlanningCrew():
     """AuditPlanningCrew crew"""
 
+    run_id = '000000000'
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
     compliance_file_path = './auditpulse_flow/crews/audit_planning_crew/data/compliance.json'
     auditpulse_file_path = './auditpulse_flow/crews/audit_planning_crew/data/AuditPulseInfo.md'
-    output_dir = './output/audit_planning'
+    output_dir = f"./output/{run_id}/audit_planning"
     log_path = './logs/audit_planning.txt'
 
     pcaob_guidlines_tool = JSONSearchTool(config={

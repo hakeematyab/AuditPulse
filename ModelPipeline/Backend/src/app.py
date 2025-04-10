@@ -12,117 +12,12 @@ import glob
 import shutil
 
 import base64
-from flask import Flask, jsonify, request
 from data_validation.data_validation import DataValidator
 
-from auditpulse_flow.main import kickoff
-import agentops
-
 from google.cloud import firestore, storage
+from google.cloud import pubsub_v1
 import mysql.connector
-
-
-class AuditPulseApp:
-    def __init__(self,):
-        self.app = Flask(__name__)
-        self.setup_endpoints()
-
-    def setup_endpoints(self,):
-        @self.app.route("/",methods=["GET"])
-        def health_check():
-            return jsonify({    
-                "status":"OK",
-                "message":"AuditPulse Live!"}
-                )
-
-        @self.app.route("/generate",methods=["POST"])
-        def generate_audit_report():
-            try:
-                start_time = time.time()
-                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{timestamp}.md'
-                gcp_visualization_path = f'generated_reports/visualization_report/visualization_{timestamp}.html'
-                gcp_logs_path = f'generated_reports/logs/log_{timestamp}'
-
-                visualization_file = f'output/visualization/visualization_{timestamp}.html'
-                audit_report_file = f'output/final_report/audit_report_{timestamp}.md'
-                run_log_file = f"logs/run_{timestamp}.txt"
-                debug_log_file =f"logs/debug_{timestamp}.log"
-
-                setup_logging(run_log_file, debug_log_file)
-                logging.info("Report generation called"+"-"*75)
-                envelope = request.get_json()
-                run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
-                data_validator = DataValidator(str(company_name), str(central_index_key), str(year))
-                status, message = data_validator.run_validation()
-                if status:
-                    validated_inputs = data_validator.auditpulse_validated_inputs
-                    company_name = validated_inputs.company_name
-                    central_index_key = validated_inputs.company_name
-                    company_ticker = validated_inputs.company_ticker
-                    year = validated_inputs.year
-                    query = get_query("status_update")
-                    values = (
-                            "running",
-                            run_id
-                            )
-                    update_status(query, values)
-                    cleanup_dirs('output')
-                    cleanup_dirs('logs')
-                    setup_dirs()
-                    session = agentops.init()
-                    kickoff(company_name,
-                            central_index_key,
-                            company_ticker,
-                            year)
-                    session.end_session()
-                    end_time = time.time()
-                    duration = round(end_time - start_time, 2)
-                    compile_report(audit_report_file)
-                    # compile_visualization(visualization_file)
-                    logging.info(f"Report generation completed successfully in {duration} seconds.")
-                    upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
-                    upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
-                    upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
-                    query = get_query("run_update")
-                    values = (
-                            "completed",
-                            gcp_audit_report_path,
-                            gcp_visualization_path,
-                            gcp_logs_path,
-                            f"Report generation completed successfully in {duration} seconds.",
-                            run_id
-                            )
-                    update_status(query, values)
-                else:
-                    raise ValueError(f"Inputs not valid.\nDetails: {message}")
-            except Exception as e:
-                end_time = time.time()
-                duration = round(end_time - start_time, 2)   
-                stack_trace = traceback.format_exc()
-                logging.error(f"Report generation failed after {duration} seconds.")
-                logging.error(f"Error: {str(e)}")
-                logging.error(f"Stack Trace:\n{stack_trace}")
-                upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
-                query = get_query("run_update")
-                fail_message = str(e)[:50]
-                values = (
-                        'failed',
-                        '',
-                        '',
-                        gcp_logs_path,
-                        fail_message,
-                        run_id
-                        )
-                update_status(query, values)
-                status = False
-                message = str(e) +'\n'+ str(stack_trace)
-            return jsonify({    
-                "status":"Success!" if status else "Failure!",
-                "message":"Report generated!" if status else message[:100]}
-                )
-    def run(self,host='0.0.0.0', port=5000, debug=True):
-        self.app.run(host=host, port=port, debug=debug, use_reloader=False)
+from multiprocessing import Process
 
 class TeeStream:
     def __init__(self, original_stream, log_file):
@@ -155,10 +50,7 @@ def setup_logging(run_log_file, debug_log_file, log_level=logging.INFO):
     sys.stderr = TeeStream(sys.stderr, debug_log_file)
     
 def get_input_data(envelope):
-    message = envelope.get('message',None)
-    if not message:
-        raise ValueError("Input data absent.")
-    data = base64.b64decode(message['data']).decode('utf-8')
+    data = envelope.data
     data = json.loads(data)
     run_id = data.get('run_id')
     company_name = data.get('company_name')
@@ -209,7 +101,7 @@ def get_query(type):
     }
     return mapping.get(type,None)
 
-def update_status(query,values):
+def update_status(mysql_cursor, mysql_conn, query,values):
     mysql_cursor.execute(query,values)
     mysql_conn.commit()
 
@@ -256,8 +148,7 @@ def upload_to_gcp(bucket, gcp_file_path, local_file_path):
     blob = bucket.blob(gcp_file_path)
     blob.upload_from_filename(local_file_path)
 
-def compile_report(final_report_path):
-    base_path = 'output'
+def compile_report(base_path, final_report_path):
     if not os.path.exists(os.path.dirname(final_report_path)):
         os.makedirs(os.path.dirname(final_report_path),exist_ok=True)
     phase_task_mapping = {
@@ -281,7 +172,7 @@ def compile_visualization(logs_path, final_visualization_path):
     base_path = 'output'
     # TODO: Call visualization function and compile all into one file.
 
-def setup_dirs():
+def setup_dirs(output_path):
     phases = [
             'client_acceptance',
             'audit_planning',
@@ -289,14 +180,145 @@ def setup_dirs():
             'evaluation_reporting'
             ]
     for phase in phases:
-        os.makedirs(os.path.join('output',phase),exist_ok=True)
-    os.makedirs('logs')
+        os.makedirs(os.path.join(output_path,phase),exist_ok=True)
 
 def cleanup_dirs(temp_dir):
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
-if __name__=="__main__":
+def subscriber():
+    from auditpulse_flow.main import kickoff
+    import agentops
+    def generate_audit_report(envelope, bucket, mysql_cursor, mysql_conn):
+        try:
+            start_time = time.time()
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            run_log_file = f"logs/run_{timestamp}.txt"
+            debug_log_file =f"logs/debug_{timestamp}.log"
+
+            setup_logging(run_log_file, debug_log_file)
+            logging.info("Report generation called"+"-"*75)
+
+            run_id, company_name, central_index_key, company_ticker, year = get_input_data(envelope)
+
+            gcp_audit_report_path = f'generated_reports/audit_report/audit_report_{run_id}_{timestamp}.md'
+            gcp_visualization_path = f'generated_reports/visualization_report/visualization_{run_id}_{timestamp}.html'
+            gcp_logs_path = f'generated_reports/logs/log_{run_id}_{timestamp}'
+
+            visualization_file = f'output/visualization/visualization_{run_id}_{timestamp}.html'
+            audit_report_file = f'output/final_report/audit_report_{run_id}_{timestamp}.md'
+            base_output_path = f'output/{run_id}'
+
+            data_validator = DataValidator(str(company_name), str(central_index_key), str(year))
+            status, message = data_validator.run_validation()
+            if status:
+                validated_inputs = data_validator.auditpulse_validated_inputs
+                company_name = validated_inputs.company_name
+                central_index_key = validated_inputs.company_name
+                company_ticker = validated_inputs.company_ticker
+                year = validated_inputs.year
+                query = get_query("status_update")
+                values = (
+                        "running",
+                        run_id
+                        )
+                update_status(mysql_cursor, mysql_conn, query, values)
+                setup_dirs(base_output_path)
+                session = agentops.init()
+                kickoff(run_id,
+                        company_name,
+                        central_index_key,
+                        company_ticker,
+                        year)
+                session.end_session()
+                end_time = time.time()
+                duration = round(end_time - start_time, 2)
+                compile_report(audit_report_file)
+                # compile_visualization(visualization_file)
+                logging.info(f"Report generation completed successfully in {duration} seconds.")
+                upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
+                upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
+                upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
+                query = get_query("run_update")
+                values = (
+                        "completed",
+                        gcp_audit_report_path,
+                        gcp_visualization_path,
+                        gcp_logs_path,
+                        f"Report generation completed successfully in {duration} seconds.",
+                        run_id
+                        )
+                update_status(mysql_cursor, mysql_conn, query, values)
+            else:
+                raise ValueError(f"Inputs not valid.\nDetails: {message}")
+        except Exception as e:
+            end_time = time.time()
+            duration = round(end_time - start_time, 2)   
+            stack_trace = traceback.format_exc()
+            logging.error(f"Report generation failed after {duration} seconds.")
+            logging.error(f"Error: {str(e)}")
+            logging.error(f"Stack Trace:\n{stack_trace}")
+            upload_to_gcp(bucket,gcp_logs_path, debug_log_file)
+            query = get_query("run_update")
+            fail_message = str(e)[:50]
+            values = (
+                    'failed',
+                    '',
+                    '',
+                    gcp_logs_path,
+                    fail_message,
+                    run_id
+                    )
+            update_status(mysql_cursor, mysql_conn, query, values)
+
+    subscriber_path = 'projects/auditpulse/subscriptions/deployment-request-queue-sub'
+    storage_client = storage.Client(project='auditpulse')
+    bucket = storage_client.bucket('auditpulse-data')
+    mysql_conn = mysql.connector.connect(
+        host='34.46.191.121',
+        port=3306,
+        user='root',
+        database='auditpulse',
+        password=os.getenv('MYSQL_GCP_PASS')
+    )
+    mysql_cursor = mysql_conn.cursor()
+    subscriber = pubsub_v1.SubscriberClient()
+    timeout = 30
+    start_time = 0
+    while True:
+        try:
+            response = subscriber.pull(
+                            request={
+                                "subscription": subscriber_path,
+                                "max_messages": 1,
+                                "return_immediately": True,
+                            },
+                        )
+            subscriber.acknowledge({"subscription": subscriber_path, "ack_ids": [response.received_messages[0].ack_id]})
+            start_time = 0
+            generate_audit_report(response.received_messages[0].message, bucket, mysql_cursor, mysql_conn)
+        except:
+            if start_time==0:
+                start_time = time.perf_counter()
+            elif time.perf_counter() - start_time > timeout:
+                break
+            else:
+                pass
+
+def start_worker(num_workers):
+    workers = []
+    for i in range(num_workers):
+        print(f'Process {i+1} started.')
+        p = Process(target=subscriber)
+        p.start()
+        workers.append(p)
+    for i, p in enumerate(workers):
+        p.join()
+        print(f'Process {i+1} completed.')
+
+
+def main():
+    num_workers = 2
     log_dir = 'logs'
     local_policy_path = 'auditpulse_flow/data/compliance.json'
     gcp_policy_path = 'configs/policy'
@@ -338,10 +360,14 @@ if __name__=="__main__":
             except Exception as e:
                 logging.error(f"Error at {local_phase_prompt_path}")
                 logging.error(str(e))
-        app = AuditPulseApp()
-        app.run()
+        start_worker(num_workers)
+        cleanup_dirs('output')
+        cleanup_dirs('logs')
     except Exception as e:
         stack_trace = traceback.format_exc()
         logging.error(f"Run failed.")
         logging.error(f"Error: {str(e)}")
         logging.error(f"Stack Trace:\n{stack_trace}")
+
+if __name__=="__main__":
+    main()
