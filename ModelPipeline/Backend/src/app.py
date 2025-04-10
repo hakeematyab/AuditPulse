@@ -168,8 +168,7 @@ def compile_report(base_path, final_report_path):
                     final_report_file.write(task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```'))
                     final_report_file.write(f'\n')
 
-def compile_visualization(logs_path, final_visualization_path):
-    base_path = 'output'
+def compile_visualization(base_path, logs_path, final_visualization_path):
     # TODO: Call visualization function and compile all into one file.
 
 def setup_dirs(output_path):
@@ -234,7 +233,7 @@ def subscriber():
                 end_time = time.time()
                 duration = round(end_time - start_time, 2)
                 compile_report(audit_report_file)
-                # compile_visualization(visualization_file)
+                # compile_visualization(base_output_path, run_log_file, visualization_file)
                 logging.info(f"Report generation completed successfully in {duration} seconds.")
                 upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
                 upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
