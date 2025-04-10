@@ -170,6 +170,7 @@ def compile_report(base_path, final_report_path):
 
 def compile_visualization(base_path, logs_path, final_visualization_path):
     # TODO: Call visualization function and compile all into one file.
+    pass
 
 def setup_dirs(output_path):
     phases = [
