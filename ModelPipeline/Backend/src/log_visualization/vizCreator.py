@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import re
 import matplotlib.pyplot as plt
@@ -240,7 +241,8 @@ def makeHTML(final_visualization_path, html_str) :
     </body>
     </html>
     """
-
+    if not os.path.exists(os.path.dirname(final_visualization_path)):
+        os.makedirs(os.path.dirname(final_visualization_path),exist_ok=True)
     with open(final_visualization_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 
