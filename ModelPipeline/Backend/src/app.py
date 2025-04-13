@@ -13,6 +13,7 @@ import shutil
 
 import base64
 from data_validation.data_validation import DataValidator
+from log_visualization.vizCreator import createVisualizations
 
 from google.cloud import firestore, storage
 from google.cloud import pubsub_v1
@@ -169,8 +170,7 @@ def compile_report(base_path, final_report_path):
                     final_report_file.write(f'\n')
 
 def compile_visualization(base_path, logs_path, final_visualization_path):
-    # TODO: Call visualization function and compile all into one file.
-    pass
+    createVisualizations(logs_path, final_visualization_path)
 
 def setup_dirs(output_path):
     phases = [
