@@ -1,43 +1,49 @@
-substantive_testing_task:
-  description: >
-    Perform detailed substantive testing of financial transactions, account balances, and disclosures for {company_name} ({company_ticker}). 
-    Verify the accuracy, completeness, and validity of financial data by tracing transactions to supporting documentation, 
-    recalculating balances, and confirming external party information. Focus on high risk areas identified during the planning phase.
-    Ensure compliance with PCAOB guidelines and document all findings systematically.
-  expected_output: >
-    A comprehensive report detailing the results of substantive testing, including. Evidence of transaction accuracy, completeness, and validity,
-    Identification of any anomalies or material misstatements, Recommendations for adjustments or further investigation.
-    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
-  agent: substantive_testing_agent
-
 control_testing_task:
   description: >
-    Execute tests of internal controls for {company_name} ({company_ticker}) to evaluate their design and operational effectiveness. 
-    Assess whether controls are effectively mitigating risks related to financial reporting. Perform walkthroughs, re-performance, 
-    and inquiry procedures to verify control functionality. Identify control deficiencies or weaknesses that could lead to material misstatements.
+    Conduct tests of controls for {company_name} ({company_ticker}) to evaluate their operating effectiveness in preventing, detecting, 
+    and correcting material misstatements. Perform procedures such as conducting interviews with client personnel, observing business processes, 
+    inspecting documents, and reconstructing processes to compare with the numbers provided by the client. Generate questions based on information 
+    gathered from previous phases and attempt to answer these questions using publicly available information (e.g., reviews, blog posts). 
+    Ensure that all information used in the evaluation is from {year} or earlier. Search and extract relevant information from multiple independent sources, 
+    cross-referencing details for consistency and corroboration. Utilize PCAOB guidelines as outlined in the JSON provided to ensure compliance. 
+    Output the findings to the markdown file in a detailed and comprehensive manner.
   expected_output: >
-    A detailed report categorizing controls as effective or deficient, including. Evidence supporting control effectiveness or failure,
-    Classification of deficiencies as significant or material weaknesses, Recommendations for remediation or additional substantive testing,
-    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
+    A comprehensive report detailing control testing results, including: Evaluation of operating effectiveness of controls,
+    Insights gained from interviews, observations, and document inspections, Identification of control deficiencies or weaknesses,
+    Recommendations for improvements, The report should be formatted in Markdown without '```'.
   agent: control_testing_agent
 
-analytical_procedures_task:
+process_mining_task:
   description: >
-    Conduct analytical procedures on financial data for {company_name} ({company_ticker}) to identify unusual trends, outliers, or discrepancies. 
-    Use ratio analysis, trend analysis, and benchmarking against industry standards to detect potential misstatements or fraud risks. 
-    Compare financial data across periods and against expectations established during planning.
+    Perform process mining for {company_name} ({company_ticker}) by examining event logs and analyzing internal documents (if available) to identify patterns 
+    and gain insights into business processes. Evaluate relationships between business processes and financial accounts to detect anomalies or discrepancies. 
+    Ensure that all information used is from {year} or earlier. Search multiple independent sources to corroborate findings. Utilize PCAOB guidelines as outlined 
+    in JSON provided to ensure compliance. Output findings systematically in a markdown file.
   expected_output: >
-    A comprehensive report summarizing analytical findings, including. Identification of anomalies or trends requiring further investigation. 
-    Ratio analysis results with explanations for significant variances, Recommendations for additional testing based on analytical insights,
-    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
-  agent: analytical_procedures_agent
+    A detailed report summarizing process mining insights, including: Patterns detected in event logs or documents,
+    Relationships between business processes and financial accounts, Identification of discrepancies or anomalies,
+    Recommendations for further investigation, The report should be formatted in Markdown without '```'.
+  agent: process_mining_agent
 
-evidence_documentation_task:
+substantive_testing_task:
   description: >
-    Systematically document all audit evidence collected during testing procedures for {company_name} ({company_ticker}). 
-    Ensure proper organization, referencing, and compliance with PCAOB documentation standards. Cross-reference evidence 
-    with tasks performed (substantive testing, control testing, analytical procedures) to ensure completeness.
+    Conduct substantive testing procedures for {company_name} ({company_ticker}) to detect material misstatements in transactions, account balances, 
+    and disclosures. Perform tests of details and substantive analytical procedures by analyzing transactions and financial documents/contracts (if available). 
+    Identify anomalies or unusual trends using AI-driven anomaly detection techniques (e.g., deep learning models). Ensure that all information used is from {year} 
+    or earlier. Search multiple independent sources to corroborate findings. Utilize PCAOB guidelines as outlined in JSON provided to ensure compliance. Output findings systematically in a markdown file.
   expected_output: >
-    A well-organized evidence repository in Markdown format including. Detailed descriptions of evidence collected,
-    Cross-references to relevant tasks and findings, Compliance checklists verifying adherence to PCAOB standards.
-  agent: evidence_documentation_agent
+    A comprehensive report detailing substantive testing results, including: Analysis of transactions, account balances, and disclosures,
+    Identification of anomalies or unusual trends,  Recommendations for adjustments or further investigation,
+    The report should be formatted in Markdown without '```
+  agent: substantive_testing_agent
+
+evidence_gathering_task:
+  description: >
+    Compile relevant audit evidence collected during testing procedures for {company_name} ({company_ticker}). Ensure that evidence is sufficient, appropriate, 
+    reliable, and relevant to support audit conclusions. Summarize insights concisely while maintaining proper organization and referencing. Ensure that all 
+    information used is from {year} or earlier. Search multiple independent sources to corroborate findings. Utilize PCAOB guidelines as outlined in JSON provided 
+    to ensure compliance. Output findings systematically in a markdown file.
+  expected_output: >
+    A detailed markdown report summarizing audit evidence collected during testing procedures, including: Description of evidence collected,
+    Cross-references to relevant tasks (e.g., control testing, substantive testing), Recommendations for further investigation if necessary.
+  agent: evidence_gathering_agent

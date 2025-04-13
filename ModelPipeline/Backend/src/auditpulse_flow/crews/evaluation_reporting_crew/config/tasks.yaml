@@ -2,26 +2,29 @@ evidence_evaluation_task:
   description: >
     Conduct a thorough evaluation of the audit evidence collected for {company_name} ({company_ticker}). 
     Assess the sufficiency, reliability, and relevance of the evidence gathered during the fieldwork phase. 
-    Analyze the evidence in relation to the audit objectives and risk areas identified in the planning phase. 
-    Ensure all evaluations are based on information from {year} or earlier.
+    Ensure that all information used in the evaluation is from {year} or earlier. Search and extract relevant 
+    information from multiple independent sources, cross-referencing details for consistency 
+    and corroboration. Utilize PCAOB guidelines as outlined in the JSON provided to ensure compliance. 
+    Output the findings to the markdown file in a detailed and comprehensive manner.
   expected_output: >
-    A comprehensive report detailing the evaluation of audit evidence, including assessment of evidence 
-    sufficiency and appropriateness, analysis of reliability and relevance, identification of gaps or 
-    inconsistencies, and recommendations for additional evidence collection if necessary. The report 
-    should be formatted in Markdown without '```'.
+    A comprehensive report detailing the evaluation of audit evidence, including. Assessment of sufficiency, appropriateness, reliability, and relevance,
+    Identification of gaps or inconsistencies,Recommendations for additional evidence collection if necessary,
+    The report should be formatted in Markdown without '```'.
   agent: researcher
 
 misstatement_analysis_task:
   description: >
-    Review and analyze identified misstatements in the financial statements of {company_name} ({company_ticker}).
+    Review and analyze identified misstatements in the financial statements of {company_name} ({company_ticker}). 
     Classify misstatements as factual, judgmental, or projected. Assess the materiality of individual and 
     aggregate misstatements. Evaluate the impact of uncorrected misstatements on the financial statements.
-    Consider only information from {year} or earlier in your analysis.
+    Ensure that all information used in the evaluation is from {year} or earlier. Search and extract relevant 
+    information from multiple independent sources, cross-referencing details for consistency 
+    and corroboration. Utilize PCAOB guidelines as outlined in the JSON provided to ensure compliance. 
+    Output the findings to the markdown file in a detailed and comprehensive manner.
   expected_output: >
-    A detailed report on misstatement analysis, including classification of identified misstatements, 
-    assessment of materiality for individual and aggregate misstatements, evaluation of the impact of 
-    uncorrected misstatements, and recommendations for adjustments or disclosures. The report should 
-    be formatted in Markdown without '```'.
+    A detailed report on misstatement analysis, including: Classification of identified misstatements (factual, judgmental, projected),
+    Assessment of materiality for individual and aggregate misstatements, Evaluation of the impact of uncorrected misstatements,
+    Recommendations for adjustments or disclosures, The report should be formatted in Markdown without '```'.
   agent: researcher
 
 conclusion_formation_task:
@@ -29,23 +32,34 @@ conclusion_formation_task:
     Based on the evidence evaluation and misstatement analysis, form conclusions on the financial 
     statement assertions for {company_name} ({company_ticker}). Assess the overall fairness of the 
     financial statements. Determine if there are any significant deficiencies or material weaknesses 
-    in internal controls. Consider only information from {year} or earlier in your conclusions.
+    in internal controls. Ensure that all information used in forming conclusions is from {year} or earlier. Search 
+    relevant sources independently to corroborate findings using PCAOB guidelines as outlined in JSON provided. Document
+    findings comprehensively with reasoning supported by clear citations.
   expected_output: >
-    A comprehensive report detailing audit conclusions, including conclusions on financial statement 
-    assertions, assessment of overall fairness of financial statements, identification of significant 
-    deficiencies or material weaknesses in internal controls, and the basis for the audit opinion. 
-    The report should be formatted in Markdown without '```'.
+    A comprehensive report detailing audit conclusions based on gathered findings, including: Conclusions on financial statement assertions, 
+    Fairness assessment of financial statements, Identification of significant deficiencies or material weaknesses in internal controls,
+    Basis for audit opinion with supporting evidence. The report should be formatted in Markdown without '```'.
   agent: reporting_analyst
 
 audit_report_drafting_task:
   description: >
-    Draft the audit report for {company_name} ({company_ticker}) based on the conclusions formed. 
-    Include an executive summary, detailed findings, recommendations, and the basis for the audit opinion. 
-    Ensure the report adheres to professional standards and regulatory requirements. Use only information 
-    from {year} or earlier in the report.
+    Draft a comprehensive audit report for {company_name} ({company_ticker}) based on conclusions formed during evaluation. 
+    Include an executive summary, detailed findings with implications, recommendations for improvements, basis for audit opinion, 
+    and any required disclosures or emphasis-of-matter paragraphs. Ensure compliance with professional standards and regulatory requirements. 
+    Use only information from {year} or earlier in drafting the report.
   expected_output: >
-    A complete draft audit report, including an executive summary, detailed audit findings and their 
-    implications, recommendations for improvements, basis for the audit opinion, and any required 
-    disclosures or emphasis of matter paragraphs. The report should be formatted in Markdown without '```'.
+    A complete draft audit report including: Executive summary, Detailed audit findings with implications,
+    Recommendations for improvements, Basis for audit opinion, Required disclosures or emphasis-of-matter paragraphs,
+    The report should be formatted in Markdown without '```'.
   agent: reporting_analyst
 
+personnel_interview_task:
+  description: >
+    Conduct a review of publicly available employee reviews, blog posts, news articles, and other sources to understand employee sentiment about {company_name} ({company_ticker}). 
+    Identify potential red flags such as allegations of fraud, unethical practices, or operational inefficiencies that could impact financial reporting or internal controls.
+    Ensure that all information used is from {year} or earlier. Search multiple independent sources to corroborate findings. Utilize PCAOB guidelines as outlined in JSON provided to ensure compliance.
+  expected_output: >
+    A detailed markdown report summarizing employee sentiment about {company_name}, including:
+    Key themes from employee reviews or blog posts (e.g., fraud allegations, operational inefficiencies),
+    Identification of potential red flags impacting financial reporting or internal controls, Recommendations for further investigation if necessary.
+  agent: researcher
