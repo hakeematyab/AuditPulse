@@ -95,7 +95,7 @@ def get_query(type):
         'run_update':(
                       """
                         UPDATE runs
-                        SET status=%s, audit_report_path=%s, explainability_report_path=%s, logs_path=%s, message=%s
+                        SET status=%s, audit_report_path=%s, explainability_report_path=%s, logs_path=%s, prompt_path=%s, message=%s
                         WHERE run_id=%s
                       """
                     )
@@ -186,7 +186,7 @@ def cleanup_dirs(temp_dir):
     if os.path.exists(temp_dir):
         shutil.rmtree(temp_dir)
 
-def subscriber(process_idx):
+def subscriber(process_idx, gcp_prompt_path):
     from auditpulse_flow.main import kickoff
     import agentops
     def generate_audit_report(envelope, bucket, mysql_cursor, mysql_conn):
@@ -244,6 +244,7 @@ def subscriber(process_idx):
                         gcp_audit_report_path,
                         gcp_visualization_path,
                         gcp_logs_path,
+                        gcp_prompt_path,
                         f"Report generation completed successfully in {duration} seconds.",
                         run_id
                         )
@@ -265,6 +266,7 @@ def subscriber(process_idx):
                     '',
                     '',
                     gcp_logs_path,
+                    gcp_prompt_path,
                     fail_message,
                     run_id
                     )
@@ -307,11 +309,11 @@ def subscriber(process_idx):
             else:
                 pass
 
-def start_worker(num_workers):
+def start_worker(num_workers, gcp_prompt_path):
     workers = []
     for i in range(num_workers):
         print(f'Process {i+1} started.')
-        p = Process(target=subscriber, args=(i,))
+        p = Process(target=subscriber, args=(i, gcp_prompt_path))
         p.start()
         workers.append(p)
     for i, p in enumerate(workers):
@@ -362,7 +364,7 @@ def main():
             except Exception as e:
                 print(f"Error at {local_phase_prompt_path}")
                 print(str(e))
-        start_worker(num_workers)
+        start_worker(num_workers, gcp_prompt_path)
         cleanup_dirs('output')
         cleanup_dirs('logs')
     except Exception as e:
