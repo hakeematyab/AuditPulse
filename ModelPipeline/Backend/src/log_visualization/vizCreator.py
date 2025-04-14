@@ -14,11 +14,11 @@ def createVisualizations(path, final_visualization_path):
     with open(path, 'r', encoding='utf-8') as f:
         raw_log = f.read()
 
-    createCharts(raw_log)
+    createCharts(raw_log, final_visualization_path)
     html_str = makeGraph(raw_log)
     makeHTML(final_visualization_path, html_str)
 
-def createCharts(raw_log):
+def createCharts(raw_log, final_visualization_path):
     # Parse log lines with timestamps and events
     pattern = r"\[(.*?)\]\[(.*?)\]: (.*?)$"
     matches = re.findall(pattern, raw_log, re.MULTILINE)
@@ -61,7 +61,7 @@ def createCharts(raw_log):
     plt.ylabel('Seconds')
     plt.xlabel('Event Type')
     plt.tight_layout()
-    plt.savefig('plot1.png')
+    plt.savefig(os.path.join(os.path.dirname(final_visualization_path),'plot1.png'))
 
     gantt_data = []
 
@@ -86,7 +86,7 @@ def createCharts(raw_log):
     plt.title('Crew & Task Timeline')
     plt.xlabel('Timestamp')
     plt.tight_layout()
-    plt.savefig('plot2.png')
+    plt.savefig(os.path.join(os.path.dirname(final_visualization_path),'plot2.png'))
 
 def wrap_text(text, width=60):
     # Break long text into lines of `width` characters using <br> for HTML
