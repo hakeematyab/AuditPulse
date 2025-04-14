@@ -16,7 +16,7 @@ def createVisualizations(path, final_visualization_path):
 
     createCharts(raw_log)
     html_str = makeGraph(raw_log)
-    makeHTML(html_str, final_visualization_path)
+    makeHTML(final_visualization_path, html_str)
 
 def createCharts(raw_log):
     # Parse log lines with timestamps and events
