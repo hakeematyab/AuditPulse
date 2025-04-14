@@ -133,7 +133,7 @@ def files_to_be_evaluated():
     mysql_cursor = mysql_conn.cursor()
 
     query = """
-    SELECT run_id, audit_report_path
+    SELECT run_id, audit_report_path, prompt_path
     FROM runs
     WHERE evaluation_status = 0 AND audit_report_path IS NOT NULL;
     """
@@ -142,15 +142,17 @@ def files_to_be_evaluated():
     id_and_paths = mysql_cursor.fetchall()  # Use fetchall() to get the result
     path=[]
     run_id=[]
+    prompt_path=[]
     for id_and_path in id_and_paths:
         print(id_and_path)
         path.append(id_and_path[1])
         run_id.append(id_and_path[0])
+        prompt_path.append(id_and_path[2])
 
     # No need to commit after a SELECT query
     mysql_cursor.close()
     mysql_conn.close()
-    return [path, run_id]
+    return [path, run_id, prompt_path]
 
 def download_specific_files_from_gcp(bucket_name, folder_name, local_folder, file_paths):
     """Downloads specific files from a GCP folder based on full file paths."""
@@ -265,6 +267,7 @@ if __name__ == "__main__":
     files = files_to_be_evaluated()
     file_paths_to_evaluate = files[0]
     run_id = files[1]
+    prompt_path = files[2]
 
     #download the files
     local_path = documents_download("generated_reports/audit_report", file_paths_to_evaluate)
@@ -294,7 +297,7 @@ if __name__ == "__main__":
             print(f"{index+1}: ",file_paths_to_evaluate[index])    
             print("run_id:")
             print(f"{index+1}: ", run_id[index])
-            update_metrice_table(file_paths_to_evaluate[index], float(sbert_score), float(mbert_score), float(bert_score), float(roberta_score), run_id[index], "sudo/path")
+            update_metrice_table(file_paths_to_evaluate[index], float(sbert_score), float(mbert_score), float(bert_score), float(roberta_score), run_id[index], prompt_path[index])
         # clear temp
         clear_temp_folder("./temp")
     
