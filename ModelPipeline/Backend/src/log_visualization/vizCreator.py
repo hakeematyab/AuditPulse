@@ -93,25 +93,29 @@ def wrap_text(text, width=60):
     return "<br>".join([text[i:i + width] for i in range(0, len(text), width)])
 
 def makeGraph(raw_log):
+
     cleaned_log = re.sub(r'\x1b\[[0-9;]*m', '', raw_log)
 
-    # Unified log pattern
+    # Extract timestamped log lines
     log_pattern = r"\[(.*?)\]\[(.*?)\]: (.*?)$"
     matches = re.findall(log_pattern, cleaned_log, re.MULTILINE)
 
     thoughts = []
     tools = []
 
+    # 1. Extract structured TOOL events from timestamped logs
     for ts, event, detail in matches:
         event_lower = event.lower()
-        if any(keyword in event_lower for keyword in ['thought', 'llm call started', 'agent']):
-            thoughts.append(detail.strip().replace("\n", " "))
-        elif 'tool usage started' in event_lower:
-            tool_name_match = re.search(r"tool usage started: (.*?)$", event, re.IGNORECASE)
-            if tool_name_match:
-                tools.append(tool_name_match.group(1).strip())
-            else:
-                tools.append("Tool Used")
+        if 'tool usage started' in event_lower:
+            tool_name_match = re.search(r"tool usage started: ['\"]?(.*?)['\"]?$", event, re.IGNORECASE)
+            tools.append(tool_name_match.group(1).strip() if tool_name_match else "Tool Used")
+
+    # 2. Extract thoughts from lines starting with "## Thought:"
+    thought_pattern = r"## Thought:\s*([\s\S]*?)(?:\n##|$)"
+    raw_thoughts = re.findall(thought_pattern, cleaned_log)
+    for t in raw_thoughts:
+        clean_t = re.sub(r"\x1b\[[0-9;]*m", "", t).strip()
+        thoughts.append(clean_t.replace("\n", " "))
 
     # Build graph nodes
     nodes = ["Start"]
