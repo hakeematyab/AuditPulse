@@ -10,16 +10,26 @@ import plotly.graph_objects as go
 
 
 def createVisualizations(path, final_visualization_path):
-    # Load the log file
     with open(path, 'r', encoding='utf-8') as f:
         raw_log = f.read()
 
-    createCharts(raw_log, final_visualization_path)
+    chart1_b64, chart2_b64 = createCharts(raw_log)
     html_str = makeGraph(raw_log)
-    makeHTML(final_visualization_path, html_str)
+    makeHTML(final_visualization_path, html_str, chart1_b64, chart2_b64)
 
-def createCharts(raw_log, final_visualization_path):
-    # Parse log lines with timestamps and events
+
+from io import BytesIO
+import base64
+
+def fig_to_base64(fig):
+    buf = BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    encoded = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    return f"data:image/png;base64,{encoded}"
+
+def createCharts(raw_log):
     pattern = r"\[(.*?)\]\[(.*?)\]: (.*?)$"
     matches = re.findall(pattern, raw_log, re.MULTILINE)
 
@@ -29,18 +39,15 @@ def createCharts(raw_log, final_visualization_path):
     log_df['event_type'] = log_df['event'].str.extract(r'(✅|🤖|📋|🚀)')
     log_df['event_desc'] = log_df['event'].str.replace(r'(✅|🤖|📋|🚀)', '', regex=True).str.strip()
 
-    # Duration calculations (for STARTED/COMPLETED pairs)
     duration_df = []
-
     for event_prefix in ['LLM CALL', 'TOOL USAGE']:
         start_mask = log_df['event_desc'].str.startswith(f"{event_prefix} STARTED")
         end_mask = log_df['event_desc'].str.startswith(f"{event_prefix} COMPLETED") | \
                    log_df['event_desc'].str.startswith(f"{event_prefix} FINISHED")
-
         starts = log_df[start_mask].copy()
         ends = log_df[end_mask].copy()
 
-        for i, start in starts.iterrows():
+        for _, start in starts.iterrows():
             later_ends = ends[ends['timestamp'] > start['timestamp']]
             if not later_ends.empty:
                 end = later_ends.iloc[0]
@@ -55,38 +62,35 @@ def createCharts(raw_log, final_visualization_path):
 
     duration_df = pd.DataFrame(duration_df)
 
-    plt.figure(figsize=(10, 5))
-    sns.barplot(data=duration_df, x='Type', y='Duration (s)', estimator='mean')
-    plt.title('Average Duration by Event Type')
-    plt.ylabel('Seconds')
-    plt.xlabel('Event Type')
-    plt.tight_layout()
-    plt.savefig(os.path.join(os.path.dirname(final_visualization_path),'plot1.png'))
+    fig1, ax1 = plt.subplots(figsize=(10, 5))
+    sns.barplot(data=duration_df, x='Type', y='Duration (s)', estimator='mean', ax=ax1)
+    ax1.set_title('Average Duration by Event Type')
+    ax1.set_ylabel('Seconds')
+    ax1.set_xlabel('Event Type')
+    chart1_b64 = fig_to_base64(fig1)
 
     gantt_data = []
-
-    for i, row in log_df.iterrows():
+    for _, row in log_df.iterrows():
         if 'STARTED' in row['event_desc'] or 'CREW' in row['event_desc']:
             label = row['event_desc'].split(':')[0] if ':' in row['event_desc'] else row['event_desc']
-            gantt_data.append({
-                'Label': label,
-                'Start': row['timestamp']
-            })
+            gantt_data.append({'Label': label, 'Start': row['timestamp']})
 
     timeline_df = pd.DataFrame(gantt_data)
     timeline_df['End'] = timeline_df['Start'].shift(-1)
     timeline_df = timeline_df.dropna()
     timeline_df['Duration'] = (timeline_df['End'] - timeline_df['Start']).dt.total_seconds()
 
-    plt.figure(figsize=(40, 32))
+    fig2, ax2 = plt.subplots(figsize=(40, 32))
     for i, row in timeline_df.iterrows():
-        plt.barh(i, row['Duration'], left=row['Start'].timestamp(), height=0.6)
-        plt.text(row['Start'].timestamp(), i, row['Label'], va='center', ha='left')
-    plt.yticks([])
-    plt.title('Crew & Task Timeline')
-    plt.xlabel('Timestamp')
-    plt.tight_layout()
-    plt.savefig(os.path.join(os.path.dirname(final_visualization_path),'plot2.png'))
+        ax2.barh(i, row['Duration'], left=row['Start'].timestamp(), height=0.6)
+        ax2.text(row['Start'].timestamp(), i, row['Label'], va='center', ha='left')
+    ax2.set_yticks([])
+    ax2.set_title('Crew & Task Timeline')
+    ax2.set_xlabel('Timestamp')
+    chart2_b64 = fig_to_base64(fig2)
+
+    return chart1_b64, chart2_b64
+
 
 def wrap_text(text, width=60):
     # Break long text into lines of `width` characters using <br> for HTML
@@ -188,9 +192,7 @@ def makeGraph(raw_log):
 
     return html_str
 
-def makeHTML(final_visualization_path, html_str) :
-
-    # ✅ Create HTML Report Programmatically
+def makeHTML(final_visualization_path, html_str, chart1_b64, chart2_b64):
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -214,10 +216,6 @@ def makeHTML(final_visualization_path, html_str) :
                 border: 1px solid #ccc;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             }}
-            a {{
-                color: #007acc;
-                font-weight: bold;
-            }}
         </style>
     </head>
     <body>
@@ -227,13 +225,13 @@ def makeHTML(final_visualization_path, html_str) :
         <div class="plot">
             <h2>⏱️ Average Duration by Event Type</h2>
             <p>This bar chart shows the average duration (in seconds) of key event types like LLM calls and tool usage.</p>
-            <img src="plot1.png" alt="Average Duration by Event Type">
+            <img src="{chart1_b64}" alt="Average Duration by Event Type">
         </div>
 
         <div class="plot">
             <h2>📋 Task Timeline Overview</h2>
             <p>A horizontal timeline showing when each crew or task-related event occurred, ordered by timestamp.</p>
-            <img src="plot2.png" alt="Crew & Task Timeline">
+            <img src="{chart2_b64}" alt="Crew & Task Timeline">
         </div>
 
         <div class="plot">
@@ -245,9 +243,10 @@ def makeHTML(final_visualization_path, html_str) :
     </body>
     </html>
     """
+
     if not os.path.exists(os.path.dirname(final_visualization_path)):
-        os.makedirs(os.path.dirname(final_visualization_path),exist_ok=True)
+        os.makedirs(os.path.dirname(final_visualization_path), exist_ok=True)
     with open(final_visualization_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 
-    print("✅ HTML report created")
+    print("✅ HTML report created without saving any images to disk")
