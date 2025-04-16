@@ -4,11 +4,15 @@ import logging
 from datetime import datetime
 import mysql.connector
 from google.cloud import storage
+from google.cloud import firestore
 from crewai import Agent, Task, Crew
 from crewai.llm import LLM
+import re
+from types import MappingProxyType
+import collections.abc
 
 # ---------------- CONFIG ----------------
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'auditpulse-9aaddcc95ee9.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'auditpulse-9aaddcc95ee9.json'
 GCS_BUCKET_NAME = "auditpulse-data"
 SUBFOLDERS = [
     "audit_planning",
@@ -45,7 +49,8 @@ db = mysql.connector.connect(
     port=3306,
     user='root',
     database='auditpulse',
-    password=os.getenv("MYSQL_GCP_PASS")
+    # password=os.getenv("MYSQL_GCP_PASS")
+    password='.}F,BOs)v=Ca@2|T'
 )
 cursor = db.cursor(dictionary=True)
 
@@ -61,6 +66,18 @@ def update_prompt_path_to_v1(run_id, new_path):
     cursor.execute("UPDATE runs SET prompt_path = %s WHERE run_id = %s", (new_path, run_id))
     db.commit()
 # -------------------------------------------
+
+def get_next_version_path(prompt_path: str) -> str:
+    """
+    Given a prompt path ending in /v(num), returns the same path but with v(num+1).
+    """
+    match = re.search(r"(.*?/v)(\d+)$", prompt_path)
+    if not match:
+        raise ValueError(f"Could not extract version from path: {prompt_path}")
+
+    base, version = match.groups()
+    next_version = int(version) + 1
+    return f"{base}{next_version}"
 
 
 # ---------------- CREWAI SETUP ----------------
@@ -101,9 +118,31 @@ def read_yaml_from_gcs(bucket, path):
     blob = gcs_client.bucket(bucket).blob(path)
     return yaml.safe_load(blob.download_as_text())
 
+
+def to_serializable(obj):
+    try:
+        if isinstance(obj, dict):
+            return {k: to_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [to_serializable(v) for v in obj]
+        elif isinstance(obj, (MappingProxyType, type, property)):
+            return None  # Skip unserializable types
+        elif isinstance(obj, collections.abc.Mapping):
+            return dict(obj)
+        elif hasattr(obj, '__dict__'):
+            return to_serializable(vars(obj))
+        else:
+            return obj
+    except Exception:
+        return str(obj)  # fallback to string if completely unserializable
+
 def write_yaml_to_gcs(bucket, path, content):
+    cleaned_content = to_serializable(content)
     blob = gcs_client.bucket(bucket).blob(path)
-    blob.upload_from_string(yaml.dump(content, sort_keys=False), content_type='application/x-yaml')
+    blob.upload_from_string(
+        yaml.dump(cleaned_content, sort_keys=False),
+        content_type='application/x-yaml'
+    )
 
 def upload_log_to_log_folder():
     log_bucket = "auditpulse-data"
@@ -113,6 +152,21 @@ def upload_log_to_log_folder():
     blob = gcs_client.bucket(log_bucket).blob(f"{log_prefix}/{log_filename}")
     blob.upload_from_filename(LOG_FILE)
     logging.info(f"📄 Uploaded central log file to gs://{log_bucket}/{log_prefix}/{log_filename}")
+
+
+def update_firestore_prompt_path(path):
+
+    db = firestore.Client()
+
+    update_data = {
+        "active_prompts_path": path
+    }
+
+    try:
+        db.collection("config").document("deployment").update(update_data)
+        print(f"✅ Updated Firestore field to '{path}'")
+    except Exception as e:
+        print(f"❌ Failed to update Firestore: {e}")
 
 # ----------------------------------------------
 
@@ -130,11 +184,11 @@ def process_all_runs():
 
         logging.info(f"\n🔄 Processing run_id {run_id} | Path: {v0_path}")
 
-        if not v0_path.endswith("/v0"):
-            logging.warning(f"⚠️ Skipping invalid v0 path: {v0_path}")
-            continue
+        # if not v0_path.endswith("/v0"):
+        #     logging.warning(f"⚠️ Skipping invalid v0 path: {v0_path}")
+        #     continue
 
-        v1_path = v0_path.replace("/v0", "/v1")
+        v1_path = get_next_version_path(v0_path)
 
         try:
             for subfolder in SUBFOLDERS:
@@ -163,11 +217,15 @@ def process_all_runs():
 
         except Exception as e:
             logging.error(f"❌ Failed to process run_id {run_id}: {e}")
+
+        return v1_path
 # ------------------------------------------------
 
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    process_all_runs()
+
+    v1_path = process_all_runs()
     upload_log_to_log_folder()
+    update_firestore_prompt_path(v1_path)
     logging.info("🎉 Refinement pipeline completed.")

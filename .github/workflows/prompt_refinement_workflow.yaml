@@ -1,0 +1,78 @@
+name: Prompt Refiner Workflow
+
+on:
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  prompt_refiner_build_and_deploy:
+    runs-on: ubuntu-latest
+    env:
+      MYSQL_GCP_PASS: ${{ secrets.MYSQL_GCP_PASS }}
+      REGION: us-east1
+      REPOSITORY_NAME: auditpulse-images
+
+    defaults:
+      run:
+        working-directory: ModelPipeline/AutoPromptRefinement
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set-up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.9
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Authenticate With GCP
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
+
+      - name: Setup GCP CLI
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Setup Project ID
+        run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Create Timestamp
+        id: timestamp
+        run: echo "timestamp=$(date -u +"%Y-%m-%dT%H-%M-%SZ")" >> $GITHUB_ENV
+
+      - name: Build & Push Docker Image
+        run: |
+          IMAGE_NAME="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/prompt-refiner"
+          TIMESTAMP="${{ env.timestamp }}"
+          echo "Building Docker image: $IMAGE_NAME"
+          docker build -t "$IMAGE_NAME:$TIMESTAMP" -t "$IMAGE_NAME:latest" .
+          docker push "$IMAGE_NAME:$TIMESTAMP"
+          docker push "$IMAGE_NAME:latest"
+
+      - name: Deployment Success Email Notification
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.AH_SMTP_USERNAME }}
+          password: ${{ secrets.AH_SMTP_PASS }}
+          subject: Auditpulse - Prompt Refiner Image Deployed
+          to: ${{ secrets.AH_SMTP_USERNAME }}
+          from: AuditPulse CI/CD <${{ secrets.AH_SMTP_USERNAME }}>
+          body: |
+            ✅ A new Docker image for the Prompt Refiner job has been built and pushed.
+
+            🔧 Image: prompt-refiner
+            📦 Registry: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/prompt-refiner
+            🏷 Tag: latest and ${{ env.timestamp }}
+            🕒 Deployed At: ${{ env.timestamp }}
+
+      - name: Deployment Failure Notification
+        if: failure()
+        run: echo "Prompt Refiner deployment failed."
