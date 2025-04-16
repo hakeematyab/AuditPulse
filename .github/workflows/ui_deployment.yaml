@@ -30,7 +30,7 @@ jobs:
         gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
     - name: Build Docker Image
-      working-directory: DataPipeline/UI  # Update to your UI component directory
+      working-directory: streamlit-app  # Update to your UI component directory
       run: |
         docker build -t \
         ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}:latest \
