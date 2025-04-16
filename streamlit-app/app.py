@@ -191,7 +191,7 @@ def main():
     if not json_data:
         st.error("Failed to load company data.")
         return
-
+    print("Hi")
     st.divider()
     st.markdown("### 🧾 Enter Report Details")
 
