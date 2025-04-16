@@ -74,6 +74,23 @@ jobs:
       - name: Deployment Success Notification
         if: success()
         run: echo "Docker image for auditpulse app created and pushed."
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{secrets.AH_SMTP_USERNAME}}
+          password: ${{secrets.AH_SMTP_PASS}}
+          subject: Auditpulse - New Backend Image Deployed
+          to: ${{secrets.AH_SMTP_USERNAME}}
+          from: AuditPulse CI/CD <${{secrets.AH_SMTP_USERNAME}}>
+          body: |
+            🎉 A new Docker image for Auditpulse backend has been successfully built and pushed.
+
+            ✅ Repository: ${{ env.REPOSITORY_NAME }}
+            ✅ Image Tag: ${{ env.timestamp }}
+            ✅ Registry: "${{env.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/${{env.REPOSITORY_NAME}}/auditpulse-app"
+
+            🕒 Time: ${{ env.timestamp }}
     
       - name: Deployment Failure Notification
         if: failure()
