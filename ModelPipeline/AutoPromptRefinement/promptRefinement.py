@@ -12,7 +12,6 @@ from types import MappingProxyType
 import collections.abc
 
 # ---------------- CONFIG ----------------
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'auditpulse-9aaddcc95ee9.json'
 GCS_BUCKET_NAME = "auditpulse-data"
 SUBFOLDERS = [
     "audit_planning",
@@ -49,8 +48,7 @@ db = mysql.connector.connect(
     port=3306,
     user='root',
     database='auditpulse',
-    # password=os.getenv("MYSQL_GCP_PASS")
-    password='.}F,BOs)v=Ca@2|T'
+    password=os.getenv("MYSQL_GCP_PASS")
 )
 cursor = db.cursor(dictionary=True)
 
@@ -224,7 +222,6 @@ def process_all_runs():
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-
     v1_path = process_all_runs()
     upload_log_to_log_folder()
     update_firestore_prompt_path(v1_path)
