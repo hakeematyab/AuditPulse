@@ -5,3 +5,4 @@ pymysql
 cloud-sql-python-connector
 sqlalchemy
 google-cloud-pubsub
+google-cloud-storage
