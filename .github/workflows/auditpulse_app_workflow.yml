@@ -74,6 +74,9 @@ jobs:
       - name: Deployment Success Notification
         if: success()
         run: echo "Docker image for auditpulse app created and pushed."
+  
+      - name: Deployment Success Email Notification
+        if: success()
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
