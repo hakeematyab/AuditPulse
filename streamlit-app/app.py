@@ -34,8 +34,10 @@ def fetch_json_from_gcs(bucket_name, blob_name):
 def connect_to_cloud_sql():
     try:
         # Read config from environment variables
-        instance_connection_name = os.environ["INSTANCE_CONNECTION_NAME"]
+        instance_connection_name = "auditpulse:us-central1:auditpulse"
         db_user = "root"
+        host = '34.46.191.121'
+        port = 3306
         db_pass = os.getenv('MYSQL_GCP_PASS')
         db_name = "auditpulse"
         ip_type = os.environ.get("IP_TYPE", "PUBLIC").upper()  # Optional: set to "PRIVATE" if needed
