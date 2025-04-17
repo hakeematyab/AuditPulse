@@ -1,6 +1,6 @@
 import streamlit as st
 from google.cloud import storage
-from google.oauth2 import service_account
+import os
 import json
 import datetime
 from google.cloud.sql.connector import Connector, IPTypes
@@ -33,13 +33,22 @@ def fetch_json_from_gcs(bucket_name, blob_name):
 # Cloud SQL connection
 def connect_to_cloud_sql():
     try:
-        config = st.secrets["cloud_sql"]
-        connector = Connector(ip_type=IPTypes.PRIVATE if config.get("private_ip", False) else IPTypes.PUBLIC)
+        # Read config from environment variables
+        instance_connection_name = os.environ["INSTANCE_CONNECTION_NAME"]
+        db_user = os.environ["DB_USER"]
+        db_pass = os.environ["DB_PASS"]
+        db_name = os.environ["DB_NAME"]
+        ip_type = os.environ.get("IP_TYPE", "PUBLIC").upper()  # Optional: set to "PRIVATE" if needed
+
+        connector = Connector(ip_type=IPTypes.PRIVATE if ip_type == "PRIVATE" else IPTypes.PUBLIC)
 
         def getconn():
             return connector.connect(
-                config["instance_connection_name"], "pymysql",
-                user=config["db_user"], password=config["db_pass"], db=config["db_name"]
+                instance_connection_name,
+                "pymysql",
+                user=db_user,
+                password=db_pass,
+                db=db_name,
             )
 
         return sqlalchemy.create_engine("mysql+pymysql://", creator=getconn)
