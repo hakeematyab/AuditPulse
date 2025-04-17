@@ -36,8 +36,6 @@ def connect_to_cloud_sql():
         # Read config from environment variables
         instance_connection_name = "auditpulse:us-central1:auditpulse"
         db_user = "root"
-        host = '34.46.191.121'
-        port = 3306
         db_pass = os.getenv('MYSQL_GCP_PASS')
         db_name = "auditpulse"
         ip_type = os.environ.get("IP_TYPE", "PUBLIC").upper()  # Optional: set to "PRIVATE" if needed
@@ -115,11 +113,12 @@ def generate_report(username, central_index_key, year, json_data):
 
         run_id = str(uuid.uuid4())
         company = json_data.get(str(central_index_key), {})
+        status = "queued"
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         insert_query = text("""
-            INSERT INTO runs (run_id, run_at, user_id, cik, ticker, company_name, year)
-            VALUES (:run_id, :run_at, :user_id, :cik, :ticker, :company_name, :year)
+            INSERT INTO runs (run_id, run_at, user_id, cik, ticker, company_name, year, status)
+            VALUES (:run_id, :run_at, :user_id, :cik, :ticker, :company_name, :year, :status)
         """)
 
         with engine.begin() as conn:
@@ -131,6 +130,7 @@ def generate_report(username, central_index_key, year, json_data):
                 "ticker": company.get("ticker", "Unknown"),
                 "company_name": company.get("title", "Unknown"),
                 "year": year,
+                "status": status,
             })
 
         st.session_state["current_run_id"] = run_id
@@ -185,7 +185,6 @@ def main():
     if not json_data:
         st.error("Failed to load company data.")
         return
-    print("Hi")
     st.divider()
     st.markdown("### 🧾 Enter Report Details")
 
@@ -193,7 +192,7 @@ def main():
 
     col1, col2 = st.columns(2)
     username = col1.text_input("👤 Username", placeholder="Type your username")
-    central_index_key = col2.number_input("🏢 Central Index Key", min_value=0, value=valid_ciks[0], step=1)
+    central_index_key = col2.number_input("🏢 Central Index Key", min_value=0, value=valid_ciks[4], step=1)
 
     current_year = datetime.datetime.now().year
     year = st.number_input("📅 Year", min_value=1990, max_value=current_year, value=current_year - 1, step=1)
