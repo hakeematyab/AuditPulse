@@ -35,9 +35,9 @@ def connect_to_cloud_sql():
     try:
         # Read config from environment variables
         instance_connection_name = os.environ["INSTANCE_CONNECTION_NAME"]
-        db_user = os.environ["DB_USER"]
-        db_pass = os.environ["DB_PASS"]
-        db_name = os.environ["DB_NAME"]
+        db_user = "root"
+        db_pass = os.getenv('MYSQL_GCP_PASS')
+        db_name = "auditpulse"
         ip_type = os.environ.get("IP_TYPE", "PUBLIC").upper()  # Optional: set to "PRIVATE" if needed
 
         connector = Connector(ip_type=IPTypes.PRIVATE if ip_type == "PRIVATE" else IPTypes.PUBLIC)
