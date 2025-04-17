@@ -13,8 +13,8 @@ class ClientAcceptanceCrew():
 
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
-	compliance_file_path = './auditpulse_flow/crews/client_acceptance_crew/data/compliance.json'
-	auditpulse_file_path = './auditpulse_flow/crews/client_acceptance_crew/data/AuditPulseInfo.md'
+	compliance_file_path = './auditpulse_flow/data/compliance.json'
+	auditpulse_file_path = './auditpulse_flow/data/AuditPulseInfo.md'
 	output_dir = "./output/{run_id}/client_acceptance"
 	log_path = "./logs/client_acceptance.txt"
 

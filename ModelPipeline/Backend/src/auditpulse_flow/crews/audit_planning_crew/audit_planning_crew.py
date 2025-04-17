@@ -13,8 +13,8 @@ class AuditPlanningCrew():
 
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
-    compliance_file_path = './auditpulse_flow/crews/audit_planning_crew/data/compliance.json'
-    auditpulse_file_path = './auditpulse_flow/crews/audit_planning_crew/data/AuditPulseInfo.md'
+    compliance_file_path = './auditpulse_flow/data/compliance.json'
+    auditpulse_file_path = './auditpulse_flow/data/AuditPulseInfo.md'
     output_dir = "./output/{run_id}/audit_planning"
     log_path = './logs/audit_planning.txt'
 

@@ -155,8 +155,8 @@ def compile_report(base_path, final_report_path):
     phase_task_mapping = {
                         'client_acceptance':['client_background_task.md', 'financial_risk_task.md', 'engagement_scope_task.md'],
                         'audit_planning':['preliminary_engagement_task.md','business_risk_task.md','internal_control_task.md','audit_strategy_task.md'],
-                        'testing_evidence':['substantive_testing_task.md','control_testing_task.md','analytical_procedures_task.md','evidence_documentation_task.md'],
-                        'evaluation_reporting':['evidence_evaluation_task.md','misstatement_analysis_task.md','conclusion_formation_task.md','audit_report_drafting_task.md']
+                        'testing_evidence':['control_testing_task.md','financial_statement_analysis_task.md','significant_transaction_testing_task.md','fraud_risk_assessment_task.md'],
+                        'evaluation_reporting':['evidence_evaluation_task.md','financial_statement_compliance_task.md','going_concern_task.md','audit_opinion_task.md']
                         }
     
     with open(final_report_path, 'w') as final_report_file:

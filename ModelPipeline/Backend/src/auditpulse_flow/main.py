@@ -24,6 +24,7 @@ def on_llm_call_complete(source: Any, event):
 class AuditPulseState(BaseModel):
     """Validated and sanitized inputs."""
     audit_firm: str = "AuditPulse"
+    current_date: str = Field(datetime.now().date().isoformat(), description="Todays date.")
     run_id: str = Field("0000000", description="Identifier of the run.")
     company_name: str = Field(None, description="Name of the company to audit.")
     central_index_key: int = Field(None, description="A unique central index key to identify the company.") 
@@ -46,7 +47,8 @@ class AuditPulseFlow(Flow[AuditPulseState]):
                 'company_name': self.state.company_name,
                 'central_index_key': self.state.central_index_key,
                 'company_ticker': self.state.company_ticker,
-                'year': self.state.year
+                'year': self.state.year,
+                'current_date': self.state.current_date
             }
         )
 
@@ -60,7 +62,8 @@ class AuditPulseFlow(Flow[AuditPulseState]):
                 'company_name': self.state.company_name,
                 'central_index_key': self.state.central_index_key,
                 'company_ticker': self.state.company_ticker,
-                'year': self.state.year
+                'year': self.state.year,
+                'current_date': self.state.current_date
             }
         )
 
@@ -74,7 +77,8 @@ class AuditPulseFlow(Flow[AuditPulseState]):
                 'company_name': self.state.company_name,
                 'central_index_key': self.state.central_index_key,
                 'company_ticker': self.state.company_ticker,
-                'year': self.state.year
+                'year': self.state.year,
+                'current_date': self.state.current_date
             }
         )
 
@@ -88,13 +92,15 @@ class AuditPulseFlow(Flow[AuditPulseState]):
                 'company_name': self.state.company_name,
                 'central_index_key': self.state.central_index_key,
                 'company_ticker': self.state.company_ticker,
-                'year': self.state.year
+                'year': self.state.year,
+                'current_date': self.state.current_date
             }
         )
 
 
 def kickoff(run_id, company_name, central_index_key, company_ticker, year):
     auditpulse_flow = AuditPulseFlow()
+    print(f'Date: {auditpulse_flow.state.current_date}')
     auditpulse_flow.state.run_id = run_id
     auditpulse_flow.state.company_name = company_name
     auditpulse_flow.state.central_index_key = central_index_key
