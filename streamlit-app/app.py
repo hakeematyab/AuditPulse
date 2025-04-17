@@ -10,6 +10,7 @@ import uuid
 import time
 from google.cloud import pubsub_v1
 
+'''
 # Load credentials
 def load_credentials(file_path):
     try:
@@ -20,14 +21,17 @@ def load_credentials(file_path):
         return None
 
 json_key = load_credentials('creds.json')
+'''
 
 # GCS utilities
 def download_file_from_gcs(bucket_name, file_path):
     try:
+        '''
         credentials = service_account.Credentials.from_service_account_info(
             json_key, scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
-        client = storage.Client(credentials=credentials)
+        '''
+        client = storage.Client()#credentials=credentials)
         blob = client.bucket(bucket_name).blob(file_path)
         return blob.download_as_bytes()
     except Exception as e:
@@ -36,10 +40,12 @@ def download_file_from_gcs(bucket_name, file_path):
 
 def fetch_json_from_gcs(bucket_name, blob_name):
     try:
+        '''
         credentials = service_account.Credentials.from_service_account_info(
             json_key, scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
-        client = storage.Client(credentials=credentials)
+        '''
+        client = storage.Client()#credentials=credentials)
         blob = client.bucket(bucket_name).blob(blob_name)
         return json.loads(blob.download_as_string())
     except Exception as e:
