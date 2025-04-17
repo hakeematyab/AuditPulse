@@ -10,28 +10,11 @@ import uuid
 import time
 from google.cloud import pubsub_v1
 
-'''
-# Load credentials
-def load_credentials(file_path):
-    try:
-        with open(file_path, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        st.error(f"Failed to load credentials: {e}")
-        return None
-
-json_key = load_credentials('creds.json')
-'''
-
+st.set_page_config(page_title="Audit Pulse", layout="centered")
 # GCS utilities
 def download_file_from_gcs(bucket_name, file_path):
     try:
-        '''
-        credentials = service_account.Credentials.from_service_account_info(
-            json_key, scopes=["https://www.googleapis.com/auth/cloud-platform"]
-        )
-        '''
-        client = storage.Client()#credentials=credentials)
+        client = storage.Client()
         blob = client.bucket(bucket_name).blob(file_path)
         return blob.download_as_bytes()
     except Exception as e:
@@ -40,12 +23,7 @@ def download_file_from_gcs(bucket_name, file_path):
 
 def fetch_json_from_gcs(bucket_name, blob_name):
     try:
-        '''
-        credentials = service_account.Credentials.from_service_account_info(
-            json_key, scopes=["https://www.googleapis.com/auth/cloud-platform"]
-        )
-        '''
-        client = storage.Client()#credentials=credentials)
+        client = storage.Client()
         blob = client.bucket(bucket_name).blob(blob_name)
         return json.loads(blob.download_as_string())
     except Exception as e:
@@ -184,7 +162,6 @@ def submit_feedback(run_id, liked_report, additional_feedback):
 
 # Main UI
 def main():
-    st.set_page_config(page_title="Audit Pulse", layout="centered")
     st.title("📊 Audit Pulse")
     st.markdown("Generate and download audit and explainability reports for US public companies.")
 
