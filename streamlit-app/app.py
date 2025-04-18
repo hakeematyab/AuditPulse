@@ -77,8 +77,18 @@ def publish_to_pubsub(run_id, username, central_index_key, company_name, ticker,
 def monitor_status_and_download(run_id, bucket_name, start_time):
     try:
         engine = connect_to_cloud_sql()
+        total_time = 15 * 60  # 15 minutes in seconds
         with st.spinner("⏳ Generating reports, please wait (est. 15 minutes)..."):
+            progress_bar = st.progress(0)
+            time_remaining_text = st.empty()
             while True:
+                elapsed = time.time() - start_time
+                remaining = max(0, total_time - elapsed)
+                percent_complete = min(1.0, elapsed / total_time)
+                progress_bar.progress(int(percent_complete * 100))
+                mins, secs = divmod(int(remaining), 60)
+                time_remaining_text.info(
+                    f"Estimated time remaining: {mins:02d}:{secs:02d}")
                 with engine.connect() as conn:
                     query = text("SELECT status, audit_report_path, explainability_report_path FROM runs WHERE run_id = :run_id;")
                     row = conn.execute(query, {"run_id": run_id}).fetchone()
@@ -92,9 +102,6 @@ def monitor_status_and_download(run_id, bucket_name, start_time):
                             if audit_data and explain_data:
                                 st.session_state["audit_file_data"] = audit_data
                                 st.session_state["explainability_file_data"] = explain_data
-                                total_time = time.time() - start_time
-                                minutes, seconds = divmod(int(total_time), 60)
-                                st.success(f"✅ Reports are ready! Total time: {minutes} minutes {seconds} seconds")
                             break
                         elif status == "failed":
                             st.error("❌ Report generation failed.")
