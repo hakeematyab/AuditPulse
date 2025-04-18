@@ -2,9 +2,9 @@ name: Auditpulse App Workflow
 
 on:
   workflow_dispatch: # Allow manual trigger of the workflow
-  # push:
-  #   paths:
-  #     - 'ModelPipeline/Backend/**'
+  push:
+    paths:
+      - 'ModelPipeline/Backend/**'
 
 
 
