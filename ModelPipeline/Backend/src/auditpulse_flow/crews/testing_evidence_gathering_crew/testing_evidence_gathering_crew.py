@@ -82,7 +82,7 @@ class TestingEvidenceGatheringCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=30,
+            max_rpm=45,
             cache=True,
             max_iter=5,
             max_retry_limit=20

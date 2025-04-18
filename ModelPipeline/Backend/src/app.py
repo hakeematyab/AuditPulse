@@ -233,7 +233,7 @@ def subscriber(process_idx, gcp_prompt_path):
                 end_time = time.time()
                 duration = round(end_time - start_time, 2)
                 compile_report(base_output_path, audit_report_file)
-                # compile_visualization(base_output_path, run_log_file, visualization_file)
+                compile_visualization(base_output_path, run_log_file, visualization_file)
                 logging.info(f"Report generation completed successfully in {duration} seconds.")
                 upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
                 upload_to_gcp(bucket,gcp_visualization_path, visualization_file)
