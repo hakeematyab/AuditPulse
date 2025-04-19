@@ -1,9 +1,17 @@
 evidence_evaluation_and_misstatement_assessment:
   description: >
     Today's date is {current_date}.
-    
-    Conduct a comprehensive evaluation of all audit evidence gathered during previous phases for {company_name} ({company_ticker}), identified by central index key {central_index_key}. Synthesize findings from Phase 1 (Client Background & Integrity Assessment, Financial Risk Assessment, Engagement Scope), Phase 2 (Preliminary Engagement Review, Business Risk Assessment, Internal Control Evaluation, Audit Strategy), and Phase 3 (Control Testing, Financial Statement Analysis, Significant Transaction Testing, Fraud Risk Assessment).
-    
+
+    Conduct a comprehensive evaluation of all audit evidence gathered during previous phases for {company_name} ({company_ticker}), identified by central index key {central_index_key}. Synthesize findings from Phase 1, Phase 2, and the following Phase 3 reports:
+
+    ```{control_testing_assessment}```
+
+    ```{financial_statement_analysis}```
+
+    ```{significant_transaction_testing}```
+
+    ```{fraud_risk_assessment}```
+
     Using publicly available information:
     - Cross-reference financial data between different public disclosures (10-K, 10-Q, earnings releases, investor presentations) to identify inconsistencies
     - Compare management's financial representations with actual financial outcomes using historical data
@@ -11,7 +19,7 @@ evidence_evaluation_and_misstatement_assessment:
     - Assess the cumulative effect of identified misstatements on financial statement fairness
     - Analyze the pattern and nature of misstatements to determine if they indicate error or potential fraud
     - Evaluate financial statement disclosures for completeness against regulatory requirements and industry standards
-    
+
     Document all findings with clear citation of sources, using only information from {year} or earlier. Classify misstatements by type (factual, judgmental, projected), materiality (material/immaterial), and pervasiveness.
     If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
@@ -29,9 +37,11 @@ evidence_evaluation_and_misstatement_assessment:
 financial_statement_compliance_evaluation:
   description: >
     Today's date is {current_date}.
-    
-    Perform a comprehensive assessment of {company_name}'s ({company_ticker}) financial statements and disclosures against applicable accounting standards and regulatory requirements. Building on the findings from previous phases, particularly the Financial Statement Analysis and Internal Control Evaluation:
-    
+
+    Perform a comprehensive assessment of {company_name}'s ({company_ticker}) financial statements and disclosures against applicable accounting standards and regulatory requirements. Building on the findings from the following reports:
+
+    ```{financial_statement_analysis}```
+
     - Verify compliance with GAAP/IFRS requirements by comparing disclosures with standard requirements
     - Review MD&A sections for consistency with financial statement data and industry conditions
     - Compare the company's disclosure practices with industry peers and best practices
@@ -40,7 +50,7 @@ financial_statement_compliance_evaluation:
     - Evaluate the adequacy of disclosures related to significant estimates and judgments
     - Assess the quality and transparency of related party transaction disclosures
     - Review subsequent events disclosures for completeness and timeliness
-    
+
     Cross-reference findings with economic and industry data from independent sources to assess reasonableness of financial representations. Document all findings with clear citation of sources, using only information from {year} or earlier.
     If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
@@ -58,9 +68,15 @@ financial_statement_compliance_evaluation:
 going_concern_and_viability_assessment:
   description: >
     Today's date is {current_date}.
-    
-    Evaluate {company_name}'s ({company_ticker}) ability to continue as a going concern, building on the Financial Risk Assessment from Phase 1 and the Financial Statement Analysis from Phase 3. Assess management's going concern assertions against independent financial indicators using publicly available information:
-    
+
+    Evaluate {company_name}'s ({company_ticker}) ability to continue as a going concern, building on the following reports:
+
+    ```{financial_risk_and_independence_assessment}```
+
+    ```{financial_statement_analysis}```
+
+    Assess management's going concern assertions against independent financial indicators using publicly available information:
+
     - Calculate financial stability ratios (current ratio, quick ratio, debt-to-equity, interest coverage)
     - Analyze cash flow trends and cash burn rates using historical financial data
     - Examine debt covenant compliance based on disclosed terms and financial metrics
@@ -71,7 +87,7 @@ going_concern_and_viability_assessment:
     - Assess competitive position and market share trends through industry analysis
     - Evaluate dependence on key customers or suppliers through segment reporting
     - Review management's disclosed plans to address liquidity or operational challenges
-    
+
     Apply professional skepticism when evaluating management assertions about future plans. Document all findings with clear citation of sources, using only information from {year} or earlier.
     If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
