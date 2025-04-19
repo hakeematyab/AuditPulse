@@ -10,6 +10,7 @@ import traceback
 import json
 import glob
 import shutil
+import re
 
 import base64
 from data_validation.data_validation import DataValidator
@@ -149,6 +150,12 @@ def upload_to_gcp(bucket, gcp_file_path, local_file_path):
     blob = bucket.blob(gcp_file_path)
     blob.upload_from_filename(local_file_path)
 
+def clean_markdown(content):
+    content = re.sub(r'^```\w*\s*\n', '', content)
+    content = re.sub(r'^```\s*\n', '', content)
+    content = re.sub(r'\n```\s*$', '', content)
+    return content
+
 def compile_report(base_path, final_report_path):
     if not os.path.exists(os.path.dirname(final_report_path)):
         os.makedirs(os.path.dirname(final_report_path),exist_ok=True)
@@ -166,7 +173,9 @@ def compile_report(base_path, final_report_path):
                 if not os.path.exists(file):
                     raise ValueError(f"Missing phase: {phase}. File: {file}")
                 with open(file, 'r') as task_report_file:
-                    final_report_file.write(task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```'))
+                    content = task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```')
+                    content = clean_markdown(content)
+                    final_report_file.write(content)
                     final_report_file.write(f'\n')
 
 def compile_visualization(base_path, logs_path, final_visualization_path):
