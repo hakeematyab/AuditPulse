@@ -198,7 +198,7 @@ def main():
     valid_ciks = [int(item['cik_str']) for item in json_data.values()]
 
     col1, col2 = st.columns(2)
-    username = col1.text_input("👤 Username", placeholder="Type your username")
+    username = col1.text_input("👤 Username", placeholder="Type your username", max_chars=36)
     central_index_key = col2.number_input("🏢 Central Index Key", min_value=0, value=valid_ciks[4], step=1)
 
     current_year = datetime.datetime.now().year
@@ -223,7 +223,12 @@ def main():
         st.divider()
         st.markdown("### 📄 Download Reports")
         st.download_button("⬇️ Audit Report", st.session_state["audit_file_data"], file_name="audit_report.md", mime="text/markdown")
-        st.download_button("⬇️ Explainability Report", st.session_state["explainability_file_data"], file_name="explainability_report.md", mime="text/markdown")
+        st.download_button(
+            "⬇️ Explainability Report",
+            st.session_state["explainability_file_data"],
+            file_name="explainability_report.html",
+            mime="text/html"
+        )
 
         st.divider()
         st.markdown("### 💬 Feedback")
