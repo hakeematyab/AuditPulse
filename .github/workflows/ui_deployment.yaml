@@ -2,10 +2,8 @@ name: UI Docker Image Deployment
 
 on:
   push:
-    branches:
-      - web-ui
     paths:
-      - 'streamlit-app/**'  # Update path to match your UI code location
+      - 'ModelPipeline/Frontend/streamlit-app/**'  # Update path to match your UI code location
 
 jobs:
   ui-image-deployment:
