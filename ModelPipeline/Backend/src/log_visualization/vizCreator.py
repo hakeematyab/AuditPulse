@@ -85,7 +85,7 @@ def plot_interactive_timeline(raw_log):
         title="Interactive Timeline of Crew & Task Events",
         hover_data=["Type", "Label", "Timestamp", "Details"],
         height=600,
-        width = 1500
+        # width = 1500
     )
 
     fig.update_traces(marker=dict(size=10))
@@ -228,7 +228,7 @@ def makeGraph(raw_log):
     ))
     fig.update_layout(
         title="Agent Reasoning Graph",
-        width=1500,
+        # width=1500,
         height=2000,
         showlegend=False,
         hovermode="closest",
