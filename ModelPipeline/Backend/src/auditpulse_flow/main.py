@@ -208,7 +208,7 @@ def plot():
 
 
 if __name__ == "__main__":
-    # start = time.perf_counter()
+    start = time.perf_counter()
     # kickoff(
     # run_id="debug_2",
     # company_name="Apple Inc.",
@@ -216,22 +216,6 @@ if __name__ == "__main__":
     # company_ticker="AAPL",
     # year=2025
     # )
-    # print()
-    # print('-'*75)
-    # print(f'Completed in {(time.perf_counter()-start)//60} minutes.')
-
-    audit_planning = AuditPlanningCrew()
-    audit_planning.output_dir = audit_planning.output_dir.format(run_id='debug_3')
-    crew_output = audit_planning.crew().kickoff(
-        inputs={
-            'audit_firm': 'Deloitte & Touche LLP',
-            'company_name': 'TechInnovate Inc.',
-            'central_index_key': '0001234567',
-            'company_ticker': 'TINV',
-            'year': 2024,
-            'current_date': '2025-04-17',
-            'engagement_scope_and_strategy': 'Risk-based approach focusing on revenue recognition and IT controls',
-            'client_background_and_integrity_assessment': 'Low risk client with strong governance',
-            'financial_risk_and_independence_assessment': 'Independence confirmed, medium-low financial risk'
-        }
-    )
+    print()
+    print('-'*75)
+    print(f'Completed in {(time.perf_counter()-start)//60} minutes.')
