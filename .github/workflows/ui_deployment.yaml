@@ -1,0 +1,52 @@
+name: UI Docker Image Deployment
+
+on:
+  push:
+    branches:
+      - web-ui
+    paths:
+      - 'streamlit-app/**'  # Update path to match your UI code location
+
+jobs:
+  ui-image-deployment:
+    runs-on: ubuntu-latest
+    env:
+      REGION: us-east1
+      REPOSITORY_NAME: auditpulse-images
+      IMAGE_NAME: auditpulse-ui  # Updated image name for UI component
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
+
+    - name: Configure GCP Environment
+      run: |
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+        gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    - name: Build Docker Image
+      working-directory: streamlit-app  # Update to your UI component directory
+      run: |
+        docker build -t \
+        ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}:latest \
+        .
+
+    - name: Push Docker Image
+      run: |
+        docker push \
+        ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}:latest
+
+    - name: Create Versioned Tag
+      run: |
+        TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
+        docker tag \
+        ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}:latest \
+        ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}:$TIMESTAMP
+        
+        docker push \
+        ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY_NAME }}/${{ env.IMAGE_NAME }}:$TIMESTAMP
