@@ -19,6 +19,7 @@ def download_file_from_gcs(bucket_name, file_path):
         return blob.download_as_bytes()
     except Exception as e:
         st.error(f"Failed to download file from GCS: {e}")
+
         return None
 
 def fetch_json_from_gcs(bucket_name, blob_name):
