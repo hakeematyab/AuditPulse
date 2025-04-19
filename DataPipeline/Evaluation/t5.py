@@ -5,7 +5,9 @@ from transformers import AutoTokenizer, AutoModel
 from google.cloud import storage
 import tempfile
 import os
+import json
 import mysql.connector
+from datetime import datetime
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -135,7 +137,7 @@ def files_to_be_evaluated():
     query = """
     SELECT run_id, audit_report_path, prompt_path
     FROM runs
-    WHERE evaluation_status = 0 AND audit_report_path IS NOT NULL;
+    WHERE evaluation_status is NULL AND audit_report_path IS NOT NULL;
     """
 
     mysql_cursor.execute(query)
@@ -258,6 +260,49 @@ def clear_temp_folder(folder_path="temp"):
         print(f"Folder '{folder_path}' does not exist.")
 
 
+def alert_trigger(run_id):
+    # Step 1: Connect to MySQL and fetch full run data
+    mysql_conn = mysql.connector.connect(
+        host='34.46.191.121',
+        port=3306,
+        user='root',
+        database='auditpulse',
+        password=os.getenv('MYSQL_GCP_PASS')
+    )
+    mysql_cursor = mysql_conn.cursor(dictionary=True)
+
+    # Get full details for the run_id
+    mysql_cursor.execute("SELECT * FROM runs WHERE run_id = %s", (run_id,))
+    run_data = mysql_cursor.fetchone()
+
+    if not run_data:
+        print(f"No data found for run_id {run_id}")
+        mysql_cursor.close()
+        mysql_conn.close()
+        return
+
+    # Step 2: Prepare alert content
+    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+    alert_filename = f"alert_{run_id}_{timestamp}.json"
+    alert_filepath = f"/tmp/{alert_filename}"  # Local temp file path
+
+    with open(alert_filepath, 'w') as alert_file:
+        json.dump(run_data, alert_file, indent=4, default=str)
+
+    # Step 3: Upload alert to GCP bucket
+    storage_client = storage.Client()
+    bucket = storage_client.bucket("auditpulse-alerts")
+    blob = bucket.blob(f"alerts/{alert_filename}")
+    blob.upload_from_filename(alert_filepath)
+
+    print(f"Alert saved and uploaded as alerts/{alert_filename}")
+
+    # Clean up
+    os.remove(alert_filepath)
+    mysql_cursor.close()
+    mysql_conn.close()
+
+
 if __name__ == "__main__":
     
     # clear temp
@@ -297,6 +342,12 @@ if __name__ == "__main__":
             print(f"{index+1}: ",file_paths_to_evaluate[index])    
             print("run_id:")
             print(f"{index+1}: ", run_id[index])
+
+            scores = [float(sbert_score), float(mbert_score), float(bert_score), float(roberta_score)]
+            low_score_count = sum(score < 0.95 for score in scores)
+            
+            if low_score_count >= 2:
+                alert_trigger(str(run_id[index]))
             update_metrice_table(file_paths_to_evaluate[index], float(sbert_score), float(mbert_score), float(bert_score), float(roberta_score), run_id[index], prompt_path[index])
         # clear temp
         clear_temp_folder("./temp")
