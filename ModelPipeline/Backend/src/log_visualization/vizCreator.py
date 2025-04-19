@@ -4,22 +4,21 @@ import re
 import matplotlib.pyplot as plt
 from datetime import datetime
 import seaborn as sns
-
+from io import BytesIO
+import base64
 sns.set(style='whitegrid')
 import plotly.graph_objects as go
-
+import plotly.express as px
 
 def createVisualizations(path, final_visualization_path):
     with open(path, 'r', encoding='utf-8') as f:
         raw_log = f.read()
 
-    chart1_b64, chart2_b64 = createCharts(raw_log)
-    html_str = makeGraph(raw_log)
-    makeHTML(final_visualization_path, html_str, chart1_b64, chart2_b64)
+    chart1_b64 = plotAverageDuration(raw_log)
+    html_timeline = plot_interactive_timeline(raw_log)
+    html_graph = makeGraph(raw_log)
+    makeHTML(final_visualization_path,html_timeline, html_graph, chart1_b64)
 
-
-from io import BytesIO
-import base64
 
 def fig_to_base64(fig):
     buf = BytesIO()
@@ -29,7 +28,78 @@ def fig_to_base64(fig):
     plt.close(fig)
     return f"data:image/png;base64,{encoded}"
 
-def createCharts(raw_log):
+
+def plot_interactive_timeline(raw_log):
+
+    # Extract events
+    tool_events = re.findall(r"\[(.*?)\]\[🤖 TOOL USAGE STARTED: '(.*?)'\]", raw_log)
+    llm_events = re.findall(r"\[🤖 LLM CALL STARTED\]: (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)", raw_log)
+    agent_mentions = re.findall(r"\[(.*?)\]# Agent: (.*?)$", raw_log, re.MULTILINE)
+
+    event_log = []
+
+    # Add tool usage events
+    for ts, tool in tool_events:
+        timestamp = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+        event_log.append({
+            "Label": tool,
+            "Type": "Tool",
+            "Timestamp": timestamp,
+            "Details": f"Tool used: {tool} at {timestamp}"
+        })
+
+    # Add LLM call events
+    for ts in llm_events:
+        timestamp = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S.%f")
+        event_log.append({
+            "Label": "LLM",
+            "Type": "LLM",
+            "Timestamp": timestamp,
+            "Details": f"LLM Call at {timestamp}"
+        })
+
+    # Add agent activations
+    for ts, agent in agent_mentions:
+        timestamp = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+        event_log.append({
+            "Label": agent,
+            "Type": "Agent",
+            "Timestamp": timestamp,
+            "Details": f"Agent active: {agent} at {timestamp}"
+        })
+
+    # Create DataFrame
+    df = pd.DataFrame(event_log).sort_values("Timestamp")
+
+    if df.empty:
+        print("⚠️ No events to display in the timeline.")
+        return
+
+    # Create Plotly scatter plot
+    fig = px.scatter(
+        df,
+        x="Timestamp",
+        y="Label",
+        color="Label",  # unique color per label
+        symbol="Type",  # shape based on event type
+        title="Interactive Timeline of Crew & Task Events",
+        hover_data=["Type", "Label", "Timestamp", "Details"],
+        height=600,
+        width = 1500
+    )
+
+    fig.update_traces(marker=dict(size=10))
+    fig.update_layout(
+        yaxis_title="Agent / Tool / LLM",
+        xaxis_title="Timestamp"
+    )
+
+    html_str = fig.to_html(full_html=False, include_plotlyjs='cdn')
+    return html_str
+
+
+def plotAverageDuration(raw_log):
+
     pattern = r"\[(.*?)\]\[(.*?)\]: (.*?)$"
     matches = re.findall(pattern, raw_log, re.MULTILINE)
 
@@ -69,27 +139,7 @@ def createCharts(raw_log):
     ax1.set_xlabel('Event Type')
     chart1_b64 = fig_to_base64(fig1)
 
-    gantt_data = []
-    for _, row in log_df.iterrows():
-        if 'STARTED' in row['event_desc'] or 'CREW' in row['event_desc']:
-            label = row['event_desc'].split(':')[0] if ':' in row['event_desc'] else row['event_desc']
-            gantt_data.append({'Label': label, 'Start': row['timestamp']})
-
-    timeline_df = pd.DataFrame(gantt_data)
-    timeline_df['End'] = timeline_df['Start'].shift(-1)
-    timeline_df = timeline_df.dropna()
-    timeline_df['Duration'] = (timeline_df['End'] - timeline_df['Start']).dt.total_seconds()
-
-    fig2, ax2 = plt.subplots(figsize=(40, 32))
-    for i, row in timeline_df.iterrows():
-        ax2.barh(i, row['Duration'], left=row['Start'].timestamp(), height=0.6)
-        ax2.text(row['Start'].timestamp(), i, row['Label'], va='center', ha='left')
-    ax2.set_yticks([])
-    ax2.set_title('Crew & Task Timeline')
-    ax2.set_xlabel('Timestamp')
-    chart2_b64 = fig_to_base64(fig2)
-
-    return chart1_b64, chart2_b64
+    return chart1_b64
 
 
 def wrap_text(text, width=60):
@@ -178,8 +228,8 @@ def makeGraph(raw_log):
     ))
     fig.update_layout(
         title="Agent Reasoning Graph",
-        width=1800,
-        height=900,
+        width=1500,
+        height=2000,
         showlegend=False,
         hovermode="closest",
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
@@ -192,7 +242,7 @@ def makeGraph(raw_log):
 
     return html_str
 
-def makeHTML(final_visualization_path, html_str, chart1_b64, chart2_b64):
+def makeHTML(final_visualization_path, html_str_timeline, html_str_graph, chart1_b64):
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -200,44 +250,72 @@ def makeHTML(final_visualization_path, html_str, chart1_b64, chart2_b64):
         <meta charset="UTF-8">
         <title>Agent Log Visualizations</title>
         <style>
-            body {{
-                font-family: Arial, sans-serif;
-                padding: 2rem;
-                background-color: #f9f9f9;
-            }}
-            h1, h2 {{
-                color: #333;
-            }}
-            .plot {{
-                margin-bottom: 40px;
-            }}
-            img {{
-                max-width: 100%;
-                border: 1px solid #ccc;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            }}
-        </style>
+        body {{
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background-color: #f4f6f9;
+            color: #333;
+        }}
+
+        h1 {{
+            font-size: 2.5rem;
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }}
+
+        .plot {{
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }}
+
+        .plot:hover {{
+            transform: translateY(-4px);
+        }}
+
+        h2 {{
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }}
+
+        p {{
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }}
+
+        img {{
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }}
+    </style>
     </head>
     <body>
 
         <h1>Agent Log Visualizations</h1>
 
         <div class="plot">
-            <h2>⏱️ Average Duration by Event Type</h2>
+            <h2>Average Duration by Event Type</h2>
             <p>This bar chart shows the average duration (in seconds) of key event types like LLM calls and tool usage.</p>
             <img src="{chart1_b64}" alt="Average Duration by Event Type">
         </div>
-
+        
         <div class="plot">
-            <h2>📋 Task Timeline Overview</h2>
-            <p>A horizontal timeline showing when each crew or task-related event occurred, ordered by timestamp.</p>
-            <img src="{chart2_b64}" alt="Crew & Task Timeline">
+            <h2>Crew Tasks and Events </h2>
+            {html_str_timeline}
         </div>
-
+        
         <div class="plot">
-            <h2>🤖 Agent Reasoning Flow</h2>
+            <h2>Agent Reasoning Flow</h2>
             <p>View the interactive graph that shows the agent's reasoning process, thoughts, and tool usage:</p>
-            {html_str}
+            {html_str_graph}
         </div>
 
     </body>
