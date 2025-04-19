@@ -22,6 +22,7 @@ import mysql.connector
 from multiprocessing import Process
 
 class TeeStream:
+    """Take the standard output and writes it to file"""
     def __init__(self, original_stream, log_file):
         self.original_stream = original_stream
         self.log_file = log_file
