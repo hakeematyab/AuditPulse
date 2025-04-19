@@ -155,6 +155,7 @@ def clean_markdown(content):
     content = re.sub(r'^```\w*\s*\n', '', content)
     content = re.sub(r'^```\s*\n', '', content)
     content = re.sub(r'\n```\s*$', '', content)
+    content = re.sub(r'```markdown', '', content)
     return content
 
 def compile_report(base_path, final_report_path):
