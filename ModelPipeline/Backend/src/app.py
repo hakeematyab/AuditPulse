@@ -10,6 +10,7 @@ import traceback
 import json
 import glob
 import shutil
+import re
 
 import base64
 from data_validation.data_validation import DataValidator
@@ -149,14 +150,20 @@ def upload_to_gcp(bucket, gcp_file_path, local_file_path):
     blob = bucket.blob(gcp_file_path)
     blob.upload_from_filename(local_file_path)
 
+def clean_markdown(content):
+    content = re.sub(r'^```\w*\s*\n', '', content)
+    content = re.sub(r'^```\s*\n', '', content)
+    content = re.sub(r'\n```\s*$', '', content)
+    return content
+
 def compile_report(base_path, final_report_path):
     if not os.path.exists(os.path.dirname(final_report_path)):
         os.makedirs(os.path.dirname(final_report_path),exist_ok=True)
     phase_task_mapping = {
                         'client_acceptance':['client_background_task.md', 'financial_risk_task.md', 'engagement_scope_task.md'],
                         'audit_planning':['preliminary_engagement_task.md','business_risk_task.md','internal_control_task.md','audit_strategy_task.md'],
-                        'testing_evidence':['substantive_testing_task.md','control_testing_task.md','analytical_procedures_task.md','evidence_documentation_task.md'],
-                        'evaluation_reporting':['evidence_evaluation_task.md','misstatement_analysis_task.md','conclusion_formation_task.md','audit_report_drafting_task.md']
+                        'testing_evidence':['control_testing_task.md','financial_statement_analysis_task.md','significant_transaction_testing_task.md','fraud_risk_assessment_task.md'],
+                        'evaluation_reporting':['evidence_evaluation_task.md','financial_statement_compliance_task.md','going_concern_task.md','audit_opinion_task.md']
                         }
     
     with open(final_report_path, 'w') as final_report_file:
@@ -166,7 +173,9 @@ def compile_report(base_path, final_report_path):
                 if not os.path.exists(file):
                     raise ValueError(f"Missing phase: {phase}. File: {file}")
                 with open(file, 'r') as task_report_file:
-                    final_report_file.write(task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```'))
+                    content = task_report_file.read().lstrip('```markdown').lstrip('```').rstrip('```')
+                    content = clean_markdown(content)
+                    final_report_file.write(content)
                     final_report_file.write(f'\n')
 
 def compile_visualization(base_path, logs_path, final_visualization_path):
@@ -233,7 +242,7 @@ def subscriber(process_idx, gcp_prompt_path):
                 end_time = time.time()
                 duration = round(end_time - start_time, 2)
                 compile_report(base_output_path, audit_report_file)
-                # compile_visualization(base_output_path, run_log_file, visualization_file)
+                compile_visualization(base_output_path, run_log_file, visualization_file)
                 logging.info(f"Report generation completed successfully in {duration} seconds.")
                 upload_to_gcp(bucket,gcp_audit_report_path, audit_report_file)
                 upload_to_gcp(bucket,gcp_visualization_path, visualization_file)

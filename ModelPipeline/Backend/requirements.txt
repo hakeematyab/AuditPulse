@@ -120,6 +120,7 @@ markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 marshmallow==3.26.1
 matplotlib-inline==0.1.7
+matplotlib
 mdurl==0.1.2
 mem0ai==0.1.67
 mmh3==5.1.0
@@ -156,6 +157,7 @@ parso==0.8.4
 pdfminer.six==20231228
 pdfplumber==0.11.5
 pillow==11.1.0
+plotly
 # platformdirs @ file:///home/conda/feedstock_root/build_artifacts/platformdirs_1733232627818/work
 portalocker==2.10.1
 posthog==3.20.0
@@ -203,6 +205,7 @@ rpds-py==0.23.1
 rsa==4.9
 schema==0.7.7
 setuptools==75.8.0
+seaborn
 shapely==2.1.0rc1
 shellingham==1.5.4
 six==1.17.0

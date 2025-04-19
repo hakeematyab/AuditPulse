@@ -13,8 +13,8 @@ class AuditPlanningCrew():
 
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
-    compliance_file_path = './auditpulse_flow/crews/audit_planning_crew/data/compliance.json'
-    auditpulse_file_path = './auditpulse_flow/crews/audit_planning_crew/data/AuditPulseInfo.md'
+    compliance_file_path = './auditpulse_flow/data/compliance.json'
+    auditpulse_file_path = './auditpulse_flow/data/AuditPulseInfo.md'
     output_dir = "./output/{run_id}/audit_planning"
     log_path = './logs/audit_planning.txt'
 
@@ -68,11 +68,31 @@ class AuditPlanningCrew():
         max_tokens=3072,
         context_window_size=1000000,
     )
+    task_counter = 0
+
+    task_mapping = {
+        0: "preliminary_engagement_task",
+        1: "business_risk_task",
+        2: "internal_control_task",
+        3: "audit_strategy_task"
+    }
+
     def task_limit_context(self, task_output):
         context_len = 1_000_000
         n_tasks = 2
         max_chars = int((context_len*3.3)/n_tasks)
-        task_output.raw = task_output.raw[:max_chars]
+        
+        os.makedirs(self.output_dir, exist_ok=True)
+        
+        full_output_path = os.path.join(self.output_dir, f"{self.task_mapping.get(self.task_counter,'Unknown')}.md")
+        with open(full_output_path, 'w', encoding='utf-8') as f:
+            f.write(task_output.raw)
+        
+        if len(task_output.raw) > max_chars:
+            beginning = task_output.raw[:int(max_chars/2)]
+            ending = task_output.raw[-int(max_chars/2):]
+            task_output.raw = beginning + "\n\n...Truncated...\n\n" + ending
+        self.task_counter+=1
         return True, task_output
 
     @agent
@@ -89,7 +109,7 @@ class AuditPlanningCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=30,
+            max_rpm=45,
             cache=True,
 			max_iter=5,
             max_retry_limit=20
@@ -97,26 +117,29 @@ class AuditPlanningCrew():
 
     @task
     def preliminary_engagement_task(self) -> Task:
+        self.current_task = 'preliminary_engagement_task'
         return Task(
             config=self.tasks_config['preliminary_engagement_review'],
             async_execution=False,
             agent=self.audit_planning_agent(),
             guardrail=self.task_limit_context,
-            output_file=os.path.join(self.output_dir, 'preliminary_engagement_task.md'),
+            # output_file=os.path.join(self.output_dir, 'preliminary_engagement_task.md'),
         )
 
     @task
     def business_risk_task(self) -> Task:
+        self.current_task = 'business_risk_task'
         return Task(
             config=self.tasks_config['business_risk_and_fraud_assessment'],
             async_execution=False,
             agent=self.audit_planning_agent(),
             guardrail=self.task_limit_context,
-            output_file=os.path.join(self.output_dir, 'business_risk_task.md'),
+            # output_file=os.path.join(self.output_dir, 'business_risk_task.md'),
         )
 
     @task
     def internal_control_task(self) -> Task:
+        self.current_task = 'internal_control_task'
         return Task(
             config=self.tasks_config['internal_control_system_evaluation'],
             async_execution=False,
@@ -127,6 +150,7 @@ class AuditPlanningCrew():
 
     @task
     def audit_strategy_task(self) -> Task:
+        self.current_task = 'audit_strategy_task'
         return Task(
             config=self.tasks_config['audit_strategy_and_team_allocation'],
             async_execution=False,
@@ -143,5 +167,6 @@ class AuditPlanningCrew():
             agents=self.agents,
             tasks=self.tasks,
             verbose=True,
+            process=Process.sequential,
             output_log_file=self.log_path
         )

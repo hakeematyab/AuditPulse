@@ -13,8 +13,8 @@ class EvaluationReportingCrew():
 
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
-    compliance_file_path = './auditpulse_flow/crews/evaluation_reporting_crew/data/compliance.json'
-    auditpulse_file_path = './auditpulse_flow/crews/evaluation_reporting_crew/data/AuditPulseInfo.md'
+    compliance_file_path = './auditpulse_flow/data/compliance.json'
+    auditpulse_file_path = './auditpulse_flow/data/AuditPulseInfo.md'
     output_dir = "./output/{run_id}/evaluation_reporting"
     log_path = "./logs/evaluation_reporting.txt"
 
@@ -31,68 +31,47 @@ class EvaluationReportingCrew():
                 "model": "text-embedding-004",
             },
         },
-    }, json_path=compliance_file_path)
+    },json_path=compliance_file_path)
 
     website_search_tool = WebsiteSearchTool(config={
-        "llm": {
-            "provider": "vertexai",
-            "config": {
-                "model": "gemini-2.0-flash-lite-001",
+            "llm": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "gemini-2.0-flash-lite-001",
+                },
             },
-        },
-        "embedder": {
-            "provider": "vertexai",
-            "config": {
-                "model": "text-embedding-004",
+            "embedder": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "text-embedding-004",
+                },
             },
-        },
-    })
-
+        })
     auditpulse_file_tool = TXTSearchTool(config={
-        "llm": {
-            "provider": "vertexai",
-            "config": {
-                "model": "gemini-2.0-flash-lite-001",
+            "llm": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "gemini-2.0-flash-lite-001",
+                },
+            },
+            "embedder": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "text-embedding-004",
+                },
             },
         },
-        "embedder": {
-            "provider": "vertexai",
-            "config": {
-                "model": "text-embedding-004",
-            },
-        },
-    }, file_path=auditpulse_file_path)
+        file_path=auditpulse_file_path)
 
     llm = LLM(
-        model="vertex_ai/gemini-2.0-flash-lite-001",
-        max_tokens=3072,
-        context_window_size=1000000,
-    )
-
-    @agent
-    def researcher(self) -> Agent:
-        return Agent(
-            config=self.agents_config['researcher'],
-            verbose=True,
-            tools=[
-                SerperDevTool(n_results=5),
-                WrappedScrapeWebsiteTool(),
-                self.website_search_tool,
-                self.pcaob_guidlines_tool,
-                self.auditpulse_file_tool
-            ],
-            llm=self.llm,
-            respect_context_window=True,
-            max_rpm=30,
-            cache=True,
-			max_iter=5,
-            max_retry_limit=20
+            model="vertex_ai/gemini-2.0-flash-lite-001",
+            max_tokens=3072,
+            context_window_size=1000000,
         )
-
     @agent
-    def reporting_analyst(self) -> Agent:
+    def audit_evaluation_reporting_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['reporting_analyst'],
+            config=self.agents_config['audit_evaluation_reporting_agent'],
             verbose=True,
             tools=[
                 SerperDevTool(n_results=5),
@@ -103,49 +82,49 @@ class EvaluationReportingCrew():
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=30,
+            max_rpm=45,
             cache=True,
-			max_iter=5,
+            max_iter=5,
             max_retry_limit=20
         )
 
     @task
     def evidence_evaluation_task(self) -> Task:
         return Task(
-            config=self.tasks_config['evidence_evaluation_task'],
+            config=self.tasks_config['evidence_evaluation_and_misstatement_assessment'],
             async_execution=False,
-            agent=self.researcher(),
-            output_file=os.path.join(self.output_dir, 'evidence_evaluation_task.md'),
+            agent=self.audit_evaluation_reporting_agent(),
+            output_file=os.path.join(self.output_dir,'evidence_evaluation_task.md'),
         )
 
     @task
-    def misstatement_analysis_task(self) -> Task:
+    def financial_statement_compliance_task(self) -> Task:
         return Task(
-            config=self.tasks_config['misstatement_analysis_task'],
+            config=self.tasks_config['financial_statement_compliance_evaluation'],
             async_execution=False,
-            agent=self.researcher(),
+            agent=self.audit_evaluation_reporting_agent(),
             context=[self.evidence_evaluation_task()],
-            output_file=os.path.join(self.output_dir, 'misstatement_analysis_task.md'),
+            output_file=os.path.join(self.output_dir,'financial_statement_compliance_task.md'),
         )
 
     @task
-    def conclusion_formation_task(self) -> Task:
+    def going_concern_task(self) -> Task:
         return Task(
-            config=self.tasks_config['conclusion_formation_task'],
+            config=self.tasks_config['going_concern_and_viability_assessment'],
             async_execution=False,
-            agent=self.reporting_analyst(),
-            context=[self.misstatement_analysis_task()],
-            output_file=os.path.join(self.output_dir, 'conclusion_formation_task.md'),
+            agent=self.audit_evaluation_reporting_agent(),
+            context=[self.financial_statement_compliance_task()],
+            output_file=os.path.join(self.output_dir,'going_concern_task.md'),
         )
 
     @task
-    def audit_report_drafting_task(self) -> Task:
+    def audit_opinion_task(self) -> Task:
         return Task(
-            config=self.tasks_config['audit_report_drafting_task'],
+            config=self.tasks_config['audit_opinion_formulation_and_reporting'],
             async_execution=False,
-            agent=self.reporting_analyst(),
-            context=[self.conclusion_formation_task()],
-            output_file=os.path.join(self.output_dir, 'audit_report_drafting_task.md'),
+            agent=self.audit_evaluation_reporting_agent(),
+            context=[self.going_concern_task()],
+            output_file=os.path.join(self.output_dir,'audit_opinion_task.md'),
         )
 
     @crew

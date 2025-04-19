@@ -1,43 +1,120 @@
-substantive_testing_task:
+control_testing_assessment:
   description: >
-    Perform detailed substantive testing of financial transactions, account balances, and disclosures for {company_name} ({company_ticker}). 
-    Verify the accuracy, completeness, and validity of financial data by tracing transactions to supporting documentation, 
-    recalculating balances, and confirming external party information. Focus on high risk areas identified during the planning phase.
-    Ensure compliance with PCAOB guidelines and document all findings systematically.
+    Today's date is {current_date}.
+    
+    Evaluate the effectiveness of {company_name}'s ({company_ticker}) internal control environment using publicly available information. 
+    Analyze SEC filings, particularly Form 10-K's Management's Discussion and Analysis sections and SOX 302/404 certifications for disclosed control weaknesses.
+    Review employee feedback on platforms like Glassdoor and LinkedIn to identify potential control environment issues or operational weaknesses.
+    Examine executive interviews, earnings call transcripts, and public statements regarding governance and control frameworks.
+    
+    Assess the company's control structure by reviewing:
+    - Audit committee composition and expertise from proxy statements
+    - Corporate governance disclosures and compliance certifications
+    - Disclosed material weaknesses or significant deficiencies in controls
+    - Changes in key management positions or accounting personnel
+    - Public certifications and industry-specific compliance standards
+    
+    Document all findings with clear citation of sources, using only information from {year} or earlier. Identify control strengths and potential weaknesses with supporting evidence.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A comprehensive report detailing the results of substantive testing, including. Evidence of transaction accuracy, completeness, and validity,
-    Identification of any anomalies or material misstatements, Recommendations for adjustments or further investigation.
-    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
-  agent: substantive_testing_agent
+    A detailed **Control Testing Assessment Report** for {company_name}, documenting:
+    1. Evaluation of the control environment and risk assessment processes
+    2. Analysis of disclosed control weaknesses or deficiencies
+    3. Assessment of corporate governance structures
+    4. Identification of potential control risks not disclosed in public filings
+    
+    The report should categorize findings by risk level (high, medium, low) with appropriate source citations in a markdown file.
+    The document should be comprehensive with detailed paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
 
-control_testing_task:
+financial_statement_analysis:
   description: >
-    Execute tests of internal controls for {company_name} ({company_ticker}) to evaluate their design and operational effectiveness. 
-    Assess whether controls are effectively mitigating risks related to financial reporting. Perform walkthroughs, re-performance, 
-    and inquiry procedures to verify control functionality. Identify control deficiencies or weaknesses that could lead to material misstatements.
+    Today's date is {current_date}.
+    
+    Conduct comprehensive analysis of {company_name}'s ({company_ticker}) published financial statements to identify potential misstatements, anomalies, or areas of high audit risk.
+    Perform ratio analysis comparing key financial metrics against industry benchmarks and the company's historical performance.
+    Apply trend analysis to detect unusual patterns or breaks in financial data over 3-5 year periods.
+    Implement Benford's Law analysis on financial figures to identify statistical anomalies in reported numbers.
+    
+    Execute detailed substantive analytical procedures including:
+    - Horizontal and vertical analysis of income statement, balance sheet, and cash flow statement
+    - Computation of key performance indicators and financial ratios
+    - Period-to-period fluctuation analysis with investigation of significant variances
+    - Cross-check of financial data consistency between different public sources
+    - Comparison of reported results with industry trends and economic conditions
+    
+    Document all findings comprehensively with clear citation of sources, using only information from {year} or earlier. Identify unusual trends, potential misstatements, and areas requiring heightened audit attention.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A detailed report categorizing controls as effective or deficient, including. Evidence supporting control effectiveness or failure,
-    Classification of deficiencies as significant or material weaknesses, Recommendations for remediation or additional substantive testing,
-    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
-  agent: control_testing_agent
+    A detailed **Financial Statement Analysis Report** for {company_name}, documenting:
+    1. Comprehensive ratio and trend analysis results
+    2. Identified anomalies and unusual financial patterns
+    3. Consistency assessment between different financial disclosures
+    4. Risk-ranked areas requiring focused substantive testing
+    
+    The report should include detailed analytical procedures performed with results categorized by risk level and appropriate source citations in a markdown file.
+    The document should be comprehensive with detailed paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
 
-analytical_procedures_task:
+significant_transaction_testing:
   description: >
-    Conduct analytical procedures on financial data for {company_name} ({company_ticker}) to identify unusual trends, outliers, or discrepancies. 
-    Use ratio analysis, trend analysis, and benchmarking against industry standards to detect potential misstatements or fraud risks. 
-    Compare financial data across periods and against expectations established during planning.
+    Today's date is {current_date}.
+    
+    Identify and analyze significant transactions of {company_name} ({company_ticker}) to assess potential misstatement risks and verify proper accounting treatment.
+    Review SEC filings, press releases, and investor presentations to identify material transactions including:
+    - Mergers, acquisitions, and divestitures
+    - Significant asset purchases or sales
+    - Major financing activities and debt issuances
+    - Related party transactions
+    - Unusual or non-recurring transactions
+    
+    For each significant transaction identified:
+    - Verify existence through multiple independent sources
+    - Assess business rationale and economic substance
+    - Evaluate disclosed accounting treatment against applicable standards
+    - Identify potential areas of manipulation or improper recognition
+    - Cross-check transaction details across different public disclosures
+    
+    Document all findings comprehensively with clear citation of sources, using only information from {year} or earlier. Highlight transactions with heightened risk of material misstatement.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A comprehensive report summarizing analytical findings, including. Identification of anomalies or trends requiring further investigation. 
-    Ratio analysis results with explanations for significant variances, Recommendations for additional testing based on analytical insights,
-    The report should be formatted in Markdown with clear sections for findings, evidence references, and recommendations.
-  agent: analytical_procedures_agent
+    A detailed **Significant Transaction Testing Report** for {company_name}, documenting:
+    1. Inventory of significant transactions identified from public sources
+    2. Analysis of transaction existence, timing, and business purpose
+    3. Assessment of disclosed accounting treatment
+    4. Risk evaluation for each significant transaction
+    
+    The report should provide detailed analysis for each transaction with risk categorization and appropriate source citations in a markdown file.
+    The document should be comprehensive with detailed paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
 
-evidence_documentation_task:
+fraud_risk_assessment:
   description: >
-    Systematically document all audit evidence collected during testing procedures for {company_name} ({company_ticker}). 
-    Ensure proper organization, referencing, and compliance with PCAOB documentation standards. Cross-reference evidence 
-    with tasks performed (substantive testing, control testing, analytical procedures) to ensure completeness.
+    Today's date is {current_date}.
+    
+    Perform a comprehensive fraud risk assessment for {company_name} ({company_ticker}) using the fraud triangle framework (pressure, opportunity, rationalization).
+    Analyze public information to identify potential fraud indicators including:
+    - Management incentives through compensation structures and performance targets
+    - Opportunities through control weaknesses or complex organizational structures
+    - Rationalization through corporate culture issues or management integrity concerns
+    
+    Execute specialized fraud detection procedures:
+    - Analyze timing of significant announcements relative to financial reporting periods
+    - Review insider trading patterns and executive stock transactions
+    - Examine earnings management indicators through accrual analysis
+    - Assess revenue recognition practices for potential manipulation
+    - Identify related party transactions and unusual business relationships
+    - Evaluate whistleblower reports or litigation related to financial improprieties
+    
+    Document all findings comprehensively with clear citation of sources, using only information from {year} or earlier. Identify specific fraud risk factors with supporting evidence.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A well-organized evidence repository in Markdown format including. Detailed descriptions of evidence collected,
-    Cross-references to relevant tasks and findings, Compliance checklists verifying adherence to PCAOB standards.
-  agent: evidence_documentation_agent
+    A detailed **Fraud Risk Assessment Report** for {company_name}, documenting:
+    1. Evaluation of fraud risk factors using the fraud triangle framework
+    2. Analysis of potential earnings management indicators
+    3. Assessment of suspicious transaction patterns or timing
+    4. Identification of high-risk areas for potential fraudulent activities
+    
+    The report should prioritize fraud risks with detailed supporting evidence and appropriate source citations in a markdown file.
+    The document should be comprehensive with detailed paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.

@@ -1,51 +1,119 @@
-evidence_evaluation_task:
+evidence_evaluation_and_misstatement_assessment:
   description: >
-    Conduct a thorough evaluation of the audit evidence collected for {company_name} ({company_ticker}). 
-    Assess the sufficiency, reliability, and relevance of the evidence gathered during the fieldwork phase. 
-    Analyze the evidence in relation to the audit objectives and risk areas identified in the planning phase. 
-    Ensure all evaluations are based on information from {year} or earlier.
+    Today's date is {current_date}.
+    
+    Conduct a comprehensive evaluation of all audit evidence gathered during previous phases for {company_name} ({company_ticker}), identified by central index key {central_index_key}. Synthesize findings from Phase 1 (Client Background & Integrity Assessment, Financial Risk Assessment, Engagement Scope), Phase 2 (Preliminary Engagement Review, Business Risk Assessment, Internal Control Evaluation, Audit Strategy), and Phase 3 (Control Testing, Financial Statement Analysis, Significant Transaction Testing, Fraud Risk Assessment).
+    
+    Using publicly available information:
+    - Cross-reference financial data between different public disclosures (10-K, 10-Q, earnings releases, investor presentations) to identify inconsistencies
+    - Compare management's financial representations with actual financial outcomes using historical data
+    - Evaluate uncorrected misstatements identified in Phase 3 against established materiality thresholds
+    - Assess the cumulative effect of identified misstatements on financial statement fairness
+    - Analyze the pattern and nature of misstatements to determine if they indicate error or potential fraud
+    - Evaluate financial statement disclosures for completeness against regulatory requirements and industry standards
+    
+    Document all findings with clear citation of sources, using only information from {year} or earlier. Classify misstatements by type (factual, judgmental, projected), materiality (material/immaterial), and pervasiveness.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A comprehensive report detailing the evaluation of audit evidence, including assessment of evidence 
-    sufficiency and appropriateness, analysis of reliability and relevance, identification of gaps or 
-    inconsistencies, and recommendations for additional evidence collection if necessary. The report 
-    should be formatted in Markdown without '```'.
-  agent: researcher
+    A detailed **Evidence Evaluation and Misstatement Assessment Report** for {company_name}, documenting:
+    1. Synthesis of key findings from all previous audit phases
+    2. Analysis of identified misstatements with classification by type and significance
+    3. Assessment of the cumulative effect of misstatements on financial statement fairness
+    4. Evaluation of disclosure adequacy and regulatory compliance
+    
+    The report should include comprehensive analysis with all findings categorized by materiality and pervasiveness with appropriate source citations in a markdown file.
+    The document should be detailed, with comprehensive paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
 
-misstatement_analysis_task:
+
+financial_statement_compliance_evaluation:
   description: >
-    Review and analyze identified misstatements in the financial statements of {company_name} ({company_ticker}).
-    Classify misstatements as factual, judgmental, or projected. Assess the materiality of individual and 
-    aggregate misstatements. Evaluate the impact of uncorrected misstatements on the financial statements.
-    Consider only information from {year} or earlier in your analysis.
+    Today's date is {current_date}.
+    
+    Perform a comprehensive assessment of {company_name}'s ({company_ticker}) financial statements and disclosures against applicable accounting standards and regulatory requirements. Building on the findings from previous phases, particularly the Financial Statement Analysis and Internal Control Evaluation:
+    
+    - Verify compliance with GAAP/IFRS requirements by comparing disclosures with standard requirements
+    - Review MD&A sections for consistency with financial statement data and industry conditions
+    - Compare the company's disclosure practices with industry peers and best practices
+    - Analyze accounting policy disclosures for appropriateness given the company's business model
+    - Examine revenue recognition, expense classification, and asset valuation methodologies through disclosed accounting policies
+    - Evaluate the adequacy of disclosures related to significant estimates and judgments
+    - Assess the quality and transparency of related party transaction disclosures
+    - Review subsequent events disclosures for completeness and timeliness
+    
+    Cross-reference findings with economic and industry data from independent sources to assess reasonableness of financial representations. Document all findings with clear citation of sources, using only information from {year} or earlier.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A detailed report on misstatement analysis, including classification of identified misstatements, 
-    assessment of materiality for individual and aggregate misstatements, evaluation of the impact of 
-    uncorrected misstatements, and recommendations for adjustments or disclosures. The report should 
-    be formatted in Markdown without '```'.
-  agent: researcher
+    A detailed **Financial Statement Compliance and Disclosure Report** for {company_name}, documenting:
+    1. Assessment of compliance with applicable accounting standards and regulations
+    2. Evaluation of disclosure adequacy for significant accounting policies and estimates
+    3. Benchmarking of disclosure practices against industry peers
+    4. Identification of disclosure deficiencies or areas requiring enhancement
+    
+    The report should include specific findings related to each major financial statement section with appropriate source citations in a markdown file.
+    The document should be detailed, with comprehensive paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
 
-conclusion_formation_task:
+
+going_concern_and_viability_assessment:
   description: >
-    Based on the evidence evaluation and misstatement analysis, form conclusions on the financial 
-    statement assertions for {company_name} ({company_ticker}). Assess the overall fairness of the 
-    financial statements. Determine if there are any significant deficiencies or material weaknesses 
-    in internal controls. Consider only information from {year} or earlier in your conclusions.
+    Today's date is {current_date}.
+    
+    Evaluate {company_name}'s ({company_ticker}) ability to continue as a going concern, building on the Financial Risk Assessment from Phase 1 and the Financial Statement Analysis from Phase 3. Assess management's going concern assertions against independent financial indicators using publicly available information:
+    
+    - Calculate financial stability ratios (current ratio, quick ratio, debt-to-equity, interest coverage)
+    - Analyze cash flow trends and cash burn rates using historical financial data
+    - Examine debt covenant compliance based on disclosed terms and financial metrics
+    - Construct debt maturity schedules from public disclosures to identify upcoming obligations
+    - Review credit rating agency reports and changes for downgrade risk
+    - Analyze market capitalization trends and stock price volatility
+    - Identify operational indicators of distress (facility closures, workforce reductions, product discontinuations)
+    - Assess competitive position and market share trends through industry analysis
+    - Evaluate dependence on key customers or suppliers through segment reporting
+    - Review management's disclosed plans to address liquidity or operational challenges
+    
+    Apply professional skepticism when evaluating management assertions about future plans. Document all findings with clear citation of sources, using only information from {year} or earlier.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A comprehensive report detailing audit conclusions, including conclusions on financial statement 
-    assertions, assessment of overall fairness of financial statements, identification of significant 
-    deficiencies or material weaknesses in internal controls, and the basis for the audit opinion. 
-    The report should be formatted in Markdown without '```'.
-  agent: reporting_analyst
+    A detailed **Going Concern and Viability Assessment Report** for {company_name}, documenting:
+    1. Comprehensive analysis of financial stability and liquidity indicators
+    2. Evaluation of operational risk factors affecting business continuity
+    3. Assessment of management's plans to address identified challenges
+    4. Conclusion on the appropriateness of the going concern assumption
+    
+    The report should provide a clear risk assessment with supporting financial analysis and appropriate source citations in a markdown file.
+    The document should be detailed, with comprehensive paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.
 
-audit_report_drafting_task:
+audit_opinion_formulation_and_reporting:
   description: >
-    Draft the audit report for {company_name} ({company_ticker}) based on the conclusions formed. 
-    Include an executive summary, detailed findings, recommendations, and the basis for the audit opinion. 
-    Ensure the report adheres to professional standards and regulatory requirements. Use only information 
-    from {year} or earlier in the report.
+    Today's date is {current_date}.
+    
+    Synthesize all findings from previous audit phases and assessment tasks to formulate an appropriate audit opinion for {company_name} ({company_ticker}). Based on the cumulative audit evidence, determine the type of audit opinion warranted (unmodified, qualified, adverse, or disclaimer) using publicly available information:
+    
+    - Evaluate the materiality and pervasiveness of identified misstatements from previous phases
+    - Assess the significance of control deficiencies and their impact on financial reporting
+    - Determine if financial statements present fairly in all material respects according to applicable standards
+    - Identify any scope limitations based on information availability
+    - Evaluate the adequacy of disclosures based on regulatory requirements
+    - Consider going concern issues and their financial statement implications
+    - Assess compliance with industry-specific reporting requirements
+    
+    Prepare comprehensive audit documentation that supports the opinion formulation process, including:
+    - Summary of key risk areas and corresponding audit approaches
+    - Visual representation of significant audit findings and financial trends
+    - Conclusions on material financial statement line items
+    - Documentation of key judgments and conclusions with supporting evidence
+    
+    Document all findings with clear citation of sources, using only information from {year} or earlier. Provide a detailed rationale for the opinion type selected.
+    If not enough information is found, clearly state **Additional Data Needed**. Do not fabricate information.
   expected_output: >
-    A complete draft audit report, including an executive summary, detailed audit findings and their 
-    implications, recommendations for improvements, basis for the audit opinion, and any required 
-    disclosures or emphasis of matter paragraphs. The report should be formatted in Markdown without '```'.
-  agent: reporting_analyst
-
+    A detailed **Audit Opinion and Final Report** for {company_name}, documenting:
+    1. Comprehensive synthesis of all audit evidence and findings
+    2. Well-reasoned audit opinion with supporting rationale
+    3. Visual representations of key financial trends and audit findings
+    4. Summary of significant matters requiring attention and recommended actions
+    
+    The report should provide clear conclusions on each significant financial statement area with appropriate source citations in a markdown file.
+    The document should be detailed, with comprehensive paragraphs per section and citations, well-structured, 
+    and formatted in **Markdown for seamless integration** into the audit workflow.

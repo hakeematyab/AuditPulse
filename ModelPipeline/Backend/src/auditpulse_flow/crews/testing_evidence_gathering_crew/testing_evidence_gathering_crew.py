@@ -7,19 +7,18 @@ from crewai_tools import SerperDevTool, ScrapeWebsiteTool, WebsiteSearchTool, JS
 from crewai.llm import LLM
 from ...tools.custom_tool import WrappedScrapeWebsiteTool
 
-
 @CrewBase
 class TestingEvidenceGatheringCrew():
-    """TestingEvidenceGatheringCrew crew"""
+    """TestingAndEvidenceCrew crew"""
 
     agents_config = 'config/agents.yaml'
     tasks_config = 'config/tasks.yaml'
-    compliance_file_path = './auditpulse_flow/crews/testing_evidence_crew/data/compliance.json'
-    auditpulse_file_path = './auditpulse_flow/crews/testing_evidence_crew/data/AuditPulseInfo.md'
+    compliance_file_path = './auditpulse_flow/data/compliance.json'
+    auditpulse_file_path = './auditpulse_flow/data/AuditPulseInfo.md'
     output_dir = "./output/{run_id}/testing_evidence"
     log_path = "./logs/testing_evidence.txt"
 
-    pcaob_guidelines_tool = JSONSearchTool(config={
+    pcaob_guidlines_tool = JSONSearchTool(config={
         "llm": {
             "provider": "vertexai",
             "config": {
@@ -32,178 +31,108 @@ class TestingEvidenceGatheringCrew():
                 "model": "text-embedding-004",
             },
         },
-    }, json_path=compliance_file_path)
+    },json_path=compliance_file_path)
 
     website_search_tool = WebsiteSearchTool(config={
-        "llm": {
-            "provider": "vertexai",
-            "config": {
-                "model": "gemini-2.0-flash-lite-001",
+            "llm": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "gemini-2.0-flash-lite-001",
+                },
             },
-        },
-        "embedder": {
-            "provider": "vertexai",
-            "config": {
-                "model": "text-embedding-004",
+            "embedder": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "text-embedding-004",
+                },
             },
-        },
-    })
-
+        })
     auditpulse_file_tool = TXTSearchTool(config={
-        "llm": {
-            "provider": "vertexai",
-            "config": {
-                "model": "gemini-2.0-flash-lite-001",
+            "llm": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "gemini-2.0-flash-lite-001",
+                },
+            },
+            "embedder": {
+                "provider": "vertexai",
+                "config": {
+                    "model": "text-embedding-004",
+                },
             },
         },
-        "embedder": {
-            "provider": "vertexai",
-            "config": {
-                "model": "text-embedding-004",
-            },
-        },
-    }, file_path=auditpulse_file_path)
+        file_path=auditpulse_file_path)
 
     llm = LLM(
-        model="vertex_ai/gemini-2.0-flash-lite-001",
-        max_tokens=3072,
-        context_window_size=1000000,
-    )
-
-    def task_limit_context(self, task_output):
-        context_len = 1_000_000
-        n_tasks = 3
-        max_chars = int((context_len*3.3)/n_tasks)
-        task_output.raw = task_output.raw[:max_chars]
-        return True, task_output
-    
+            model="vertex_ai/gemini-2.0-flash-lite-001",
+            max_tokens=3072,
+            context_window_size=1000000,
+        )
     @agent
-    def substantive_testing_agent(self) -> Agent:
+    def testing_and_evidence_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['substantive_testing_agent'],
+            config=self.agents_config['testing_and_evidence_agent'],
             verbose=True,
             tools=[
                 SerperDevTool(n_results=5),
                 WrappedScrapeWebsiteTool(),
                 self.website_search_tool,
-                self.pcaob_guidelines_tool,
+                self.pcaob_guidlines_tool,
                 self.auditpulse_file_tool
             ],
             llm=self.llm,
             respect_context_window=True,
-            max_rpm=30,
+            max_rpm=45,
             cache=True,
-			max_iter=5,
+            max_iter=5,
             max_retry_limit=20
-        )
-
-    @agent
-    def control_testing_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['control_testing_agent'],
-            verbose=True,
-            tools=[
-                SerperDevTool(n_results=5),
-                WrappedScrapeWebsiteTool(),
-                self.website_search_tool,
-                self.pcaob_guidelines_tool,
-                self.auditpulse_file_tool
-            ],
-            llm=self.llm,
-            respect_context_window=True,
-            max_rpm=30,
-            cache=True,
-			max_iter=5,
-            max_retry_limit=20
-        )
-
-    @agent
-    def analytical_procedures_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['analytical_procedures_agent'],
-            verbose=True,
-            tools=[
-                SerperDevTool(n_results=5),
-                WrappedScrapeWebsiteTool(),
-                self.website_search_tool,
-                self.pcaob_guidelines_tool,
-                self.auditpulse_file_tool
-            ],
-            llm=self.llm,
-            respect_context_window=True,
-            max_rpm=30,
-            cache=True,
-			max_iter=5,
-            max_retry_limit=20
-        )
-
-    @agent
-    def evidence_documentation_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['evidence_documentation_agent'],
-            verbose=True,
-            tools=[
-                SerperDevTool(n_results=5),
-                WrappedScrapeWebsiteTool(),
-                self.website_search_tool,
-                self.pcaob_guidelines_tool,
-                self.auditpulse_file_tool
-            ],
-            llm=self.llm,
-            respect_context_window=True,
-            max_rpm=30,
-            cache=True,
-			max_iter=5,
-            max_retry_limit=20
-        )
-
-    @task
-    def substantive_testing_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['substantive_testing_task'],
-            async_execution=False,
-            agent=self.substantive_testing_agent(),
-            guardrail=self.task_limit_context,
-            output_file=os.path.join(self.output_dir, 'substantive_testing_task.md'),
         )
 
     @task
     def control_testing_task(self) -> Task:
         return Task(
-            config=self.tasks_config['control_testing_task'],
+            config=self.tasks_config['control_testing_assessment'],
             async_execution=False,
-            agent=self.control_testing_agent(),
-            guardrail=self.task_limit_context,
-            output_file=os.path.join(self.output_dir, 'control_testing_task.md'),
+            agent=self.testing_and_evidence_agent(),
+            output_file=os.path.join(self.output_dir,'control_testing_task.md'),
         )
 
     @task
-    def analytical_procedures_task(self) -> Task:
+    def financial_statement_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['analytical_procedures_task'],
+            config=self.tasks_config['financial_statement_analysis'],
             async_execution=False,
-            agent=self.analytical_procedures_agent(),
-            guardrail=self.task_limit_context,
-            output_file=os.path.join(self.output_dir, 'analytical_procedures_task.md'),
+            agent=self.testing_and_evidence_agent(),
+            context=[self.control_testing_task()],
+            output_file=os.path.join(self.output_dir,'financial_statement_analysis_task.md'),
         )
 
     @task
-    def evidence_documentation_task(self) -> Task:
+    def significant_transaction_testing_task(self) -> Task:
         return Task(
-            config=self.tasks_config['evidence_documentation_task'],
+            config=self.tasks_config['significant_transaction_testing'],
             async_execution=False,
-            agent=self.evidence_documentation_agent(),
-            context=[self.substantive_testing_task(), self.control_testing_task(), self.analytical_procedures_task()],
-            output_file=os.path.join(self.output_dir, 'evidence_documentation_task.md'),
+            agent=self.testing_and_evidence_agent(),
+            context=[self.financial_statement_analysis_task()],
+            output_file=os.path.join(self.output_dir,'significant_transaction_testing_task.md'),
+        )
+        
+    @task
+    def fraud_risk_assessment_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['fraud_risk_assessment'],
+            async_execution=False,
+            agent=self.testing_and_evidence_agent(),
+            context=[self.significant_transaction_testing_task()],
+            output_file=os.path.join(self.output_dir,'fraud_risk_assessment_task.md'),
         )
 
     @crew
     def crew(self) -> Crew:
-        """Creates the TestingEvidenceGatheringCrew crew"""
+        """Creates the TestingAndEvidenceCrew crew"""
         return Crew(
-            agents=self.agents,  # Automatically created by the @agent decorator
-            tasks=self.tasks,  # Automatically created by the @task decorator
-            process=Process.sequential,  # Tasks will be executed sequentially in this phase.
-			verbose=True,
-			output_log_file=self.log_path  # Log all outputs for debugging and tracking.
-		)
+            agents=self.agents,
+            tasks=self.tasks,
+            verbose=True,
+            output_log_file=self.log_path
+        )
