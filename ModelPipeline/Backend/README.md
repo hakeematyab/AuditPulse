@@ -1,56 +1,100 @@
-# {{crew_name}} Crew
+## Folder Structure
 
-Welcome to the {{crew_name}} Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+```
+Backend/
+├── src/
+├── outputs/
+├── tests
+├── dockerfile
+├── requirements.txt
+├── environment.yml
+└── README.md
+
+```
+
+## Prerequisites
+
+1. **Anaconda**: [Download and install Anaconda](https://www.anaconda.com/download).  
+   - After installation, verify it by running:
+     ```bash
+     conda --version
+     ```
+
+2. **Python 3.x**: [Download and install Python](https://www.python.org/downloads/) (if not already included with Anaconda).  
+   - Verify the installation by running:
+     ```bash
+     python --version
+     ```
+
+3. **Git**: [Download and install Git](https://git-scm.com/downloads).  
+   - Confirm installation by running:
+     ```bash
+     git --version
+     ```
 
 ## Installation
 
-Ensure you have Python >=3.10 <3.13 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/hakeematyab/AuditPulse.git
+   cd AuditPulse
+   ```
+2. Create an environment & install dependencies
+   ```sh
+    cd ModelPipeline/Backend
+    conda env create -f environment.yml
+    conda activate AuditpulseBackend
+    pip install -r requirements.txt
+   ```
 
-First, if you haven't already, install uv:
+## Development Instructions
 
-```bash
-pip install uv
-```
+### Git Instructions
+1. Branch everytime you're making changes.
+    ```
+    git checkout -b mybranch
+    git branch --set-upstream-to=origin/mybranch
+    ```
+2. Update requirements file.
+    ```
+    cd mydir
+    pip freeze > requirements.txt
+    conda env export > environment.yml
+    ```
+3. Commit & push.
+    ```
+    git add file
+    git commit -m "Commit message"
+    git push
+    ```
+### DVC-GCP Setup
+1. Install gcloud CLI.
+2. Install and initialize dvc.
+    ```
+    pip install dvc
+    pip install dvc-gs
+    dvc init
+    ```
+3. Add gcp bucket:
+    ```
+    gcloud auth application-default login
+    dvc import-url gs://auditpulse-data Data
+    ```
+4. Check if there are any changes:
+    ```
+    dvc update Data.dvc
+    ```
 
-Next, navigate to your project directory and install the dependencies:
-
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
-```
-
-### Customizing
-
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/auditpulse_flow/config/agents.yaml` to define your agents
-- Modify `src/auditpulse_flow/config/tasks.yaml` to define your tasks
-- Modify `src/auditpulse_flow/crew.py` to add your own logic, tools and specific args
-- Modify `src/auditpulse_flow/main.py` to add custom inputs for your agents and tasks
-
-## Running the Project
-
-To kickstart your flow and begin execution, run this from the root folder of your project:
-
-```bash
-crewai run
-```
-
-This command initializes the auditpulse_flow Flow as defined in your configuration.
-
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
-
-## Understanding Your Crew
-
-The auditpulse_flow Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
-
-## Support
-
-For support, questions, or feedback regarding the {{crew_name}} Crew or crewAI.
-
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
-
-Let's create wonders together with the power and simplicity of crewAI.
+### Docker Commands
+1. Start docker engine & build image
+    ```
+    docker build -t auditpulse_backend .
+    ```
+2. Start container with environment variables
+    ```
+    docker run \
+    -v ~/gcp-keys/my-gcp-key.json:/app/gcp-key.json \
+    --env GROQ_API_KEY="your_groq_api_key" \
+    --env GOOGLE_APPLICATION_CREDENTIALS="/app/gcp-key.json" \
+    --name auditpulse_backend_container auditpulse_backend
+    ```
