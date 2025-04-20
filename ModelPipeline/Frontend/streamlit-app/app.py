@@ -103,6 +103,7 @@ def monitor_status_and_download(run_id, bucket_name, start_time):
                             if audit_data and explain_data:
                                 st.session_state["audit_file_data"] = audit_data
                                 st.session_state["explainability_file_data"] = explain_data
+                            st.session_state["report_in_progress"] = False
                             break
                         elif status == "failed":
                             st.error("❌ Report generation failed.")
@@ -115,6 +116,7 @@ def monitor_status_and_download(run_id, bucket_name, start_time):
 # Generate report
 def generate_report(username, central_index_key, year, json_data):
     try:
+        st.session_state["report_in_progress"] = True
         engine = connect_to_cloud_sql()
         if not engine:
             return
@@ -183,7 +185,8 @@ def submit_feedback(run_id, liked_report, additional_feedback):
 def main():
     st.title("📊 Audit Pulse")
     st.markdown("Generate and download audit and explainability reports for US public companies.")
-
+    if "report_in_progress" not in st.session_state:
+        st.session_state["report_in_progress"] = False
     if "audit_file_data" not in st.session_state:
         st.session_state["audit_file_data"] = None
     if "explainability_file_data" not in st.session_state:
@@ -199,11 +202,11 @@ def main():
     valid_ciks = [int(item['cik_str']) for item in json_data.values()]
 
     col1, col2 = st.columns(2)
-    username = col1.text_input("👤 Username", placeholder="Type your username", max_chars=36)
-    central_index_key = col2.number_input("🏢 Central Index Key", min_value=0, value=valid_ciks[4], step=1)
+    username = col1.text_input("👤 Username", placeholder="Type your username", max_chars=36, disabled=st.session_state["report_in_progress"])
+    central_index_key = col2.number_input("🏢 Central Index Key", min_value=0, value=valid_ciks[4], step=1, disabled=st.session_state["report_in_progress"])
 
     current_year = datetime.datetime.now().year
-    year = st.number_input("📅 Year", min_value=1990, max_value=current_year, value=current_year - 1, step=1)
+    year = st.number_input("📅 Year", min_value=1990, max_value=current_year, value=current_year - 1, step=1, disabled=st.session_state["report_in_progress"])
 
     if central_index_key not in valid_ciks:
         st.error("Invalid Central Index Key. Please enter a valid one.")
