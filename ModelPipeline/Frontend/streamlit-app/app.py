@@ -117,7 +117,6 @@ def monitor_status_and_download(run_id, bucket_name, start_time):
 # Generate report
 def generate_report(username, central_index_key, year, json_data):
     try:
-        st.session_state["report_in_progress"] = True
         engine = connect_to_cloud_sql()
         if not engine:
             return
@@ -222,6 +221,7 @@ def main():
     st.divider()
     if username and central_index_key and year:
         if st.button("📥 Generate Report"):
+            st.session_state["report_in_progress"] = True
             generate_report(username, central_index_key, year, json_data)
 
     if st.session_state["audit_file_data"] and st.session_state["explainability_file_data"]:
