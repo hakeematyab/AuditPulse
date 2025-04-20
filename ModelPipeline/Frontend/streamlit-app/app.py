@@ -104,6 +104,7 @@ def monitor_status_and_download(run_id, bucket_name, start_time):
                                 st.session_state["audit_file_data"] = audit_data
                                 st.session_state["explainability_file_data"] = explain_data
                             st.session_state["report_in_progress"] = False
+
                             break
                         elif status == "failed":
                             st.error("❌ Report generation failed.")
