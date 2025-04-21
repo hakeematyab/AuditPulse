@@ -344,7 +344,7 @@ if __name__ == "__main__":
             print(f"{index+1}: ", run_id[index])
 
             scores = [float(sbert_score), float(mbert_score), float(bert_score), float(roberta_score)]
-            low_score_count = sum(score < 0.95 for score in scores)
+            low_score_count = sum(score < 0.90 for score in scores)
             
             if low_score_count >= 2:
                 alert_trigger(str(run_id[index]))
