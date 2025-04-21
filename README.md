@@ -68,6 +68,12 @@ AuditPulse is a **continuous financial auditing system** designed to ensure orga
 - **Enhanced Trust and Transparency**: Provides timely audits that foster trust and transparency among the public, stakeholders, and regulators.
 
 By integrating continuous auditing processes, AuditPulse not only ensures compliance but also empowers organizations to proactively manage risks, streamline operations, and build trust within their ecosystems.
+
+<!--![auditpulse_overview](https://github.com/user-attachments/assets/70fc2aa0-b1c9-4302-b6af-d19691d30bc7) -->
+
+### Architecture
+![Architecture](https://github.com/user-attachments/assets/d3e2cf0f-ce49-4729-8c70-4d2242b7c86f)
+
 <!-- GETTING STARTED -->
 ## Getting Started
 
