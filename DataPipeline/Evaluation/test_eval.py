@@ -52,7 +52,7 @@ class TestSimilarityPipeline(unittest.TestCase):
         mock_cursor.fetchall.return_value = [(1, 'gen.md', 'prompt.md')]
         mock_connect.return_value.cursor.return_value = mock_cursor
         result = t5.files_to_be_evaluated()
-        expected = [['gen.md'], [1]]
+        expected = [['gen.md'], [1], ['prompt.md']]
         self.assertEqual(result, expected)
 
 
