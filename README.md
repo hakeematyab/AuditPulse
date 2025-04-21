@@ -186,6 +186,8 @@ Distributed under the Unlicense License. See `LICENSE.txt` for more information.
 
 Atyab Hakeem - hakeematyab.official@gmail.com
 
+Digvijay Raut - daduraut123@gmail.com
+
 Project Link: [AuditPulse](https://github.com/hakeematyab/AuditPulse/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
